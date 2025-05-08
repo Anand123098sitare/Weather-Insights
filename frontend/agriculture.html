@@ -1,0 +1,1670 @@
+{% extends "layout.html" %}
+
+{% block title %}Agriculture Weather Tools{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('serve_frontend', path='static/css/agriculture.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Agriculture Header -->
+    <section class="agriculture-header">
+        <div class="container">
+            <h1 data-aos="fade-up">
+                <i class="fas fa-seedling me-2"></i>Agriculture & Gardening Weather Tools
+            </h1>
+            <p data-aos="fade-up" data-aos-delay="100">
+                Get personalized gardening and farming recommendations based on real-time weather forecasts. 
+                Plan your watering schedule, monitor soil conditions, and receive specific timing recommendations.
+            </p>
+            
+            <!-- City Selection -->
+            <div class="city-selection" data-aos="fade-up" data-aos-delay="200">
+                <form id="cityForm">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="cityInput" placeholder="Enter your city..." list="cityList" required autocomplete="off">
+                        <datalist id="cityList">
+                            {% for city in cities %}
+                            <option value="{{ city }}">
+                            {% endfor %}
+                        </datalist>
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="fas fa-search me-2"></i>Get Recommendations
+                        </button>
+                    </div>
+                </form>
+                <div id="cityErrorContainer" style="display: none; margin-top: 1rem;"></div>
+            </div>
+        </div>
+    </section>
+    
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Navigation tabs -->
+                <ul class="nav nav-pills nav-justified mb-4" id="agricultureTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="watering-tab" data-bs-toggle="pill" data-bs-target="#watering" type="button" role="tab" aria-controls="watering" aria-selected="true">
+                            <i class="fas fa-tint me-2"></i>Watering Guide
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="plant-care-tab" data-bs-toggle="pill" data-bs-target="#plant-care" type="button" role="tab" aria-controls="plant-care" aria-selected="false">
+                            <i class="fas fa-leaf me-2"></i>Plant Care
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="growing-season-tab" data-bs-toggle="pill" data-bs-target="#growing-season" type="button" role="tab" aria-controls="growing-season" aria-selected="false">
+                            <i class="fas fa-calendar-alt me-2"></i>Growing Season
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pest-risk-tab" data-bs-toggle="pill" data-bs-target="#pest-risk" type="button" role="tab" aria-controls="pest-risk" aria-selected="false">
+                            <i class="fas fa-bug me-2"></i>Pest Risk
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Tab content -->
+                <div class="tab-content" id="agricultureTabContent">
+                    <!-- Watering Recommendations Tab -->
+                    <div class="tab-pane fade show active" id="watering" role="tabpanel" aria-labelledby="watering-tab">
+                        <div id="wateringContent">
+                            <div class="text-center py-5" id="wateringInitialContent">
+                                <img src="{{ url_for('serve_frontend', path='static/img/weather.svg') }}" alt="Weather Icon" class="mb-4" style="width: 100px; height: 100px;">
+                                <h3>Select a City for Your Watering Recommendations</h3>
+                                <p class="text-muted">Enter your city above to get personalized watering recommendations based on weather forecast and soil conditions.</p>
+                            </div>
+                            
+                            <!-- This will be populated with the watering recommendations data -->
+                            <div id="wateringRecommendations" style="display: none;">
+                                <!-- Loader -->
+                                <div class="loader-container" id="wateringLoader">
+                                    <div class="loader"></div>
+                                </div>
+                                
+                                <!-- Recommendations Content -->
+                                <div id="wateringData" style="display: none;">
+                                    <!-- Will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Soil Type Selector -->
+                        <div class="row mt-4 soil-selector" style="display: none;">
+                            <div class="col-12">
+                                <h5><i class="fas fa-layer-group me-2"></i>Select Your Soil Type</h5>
+                                <p class="text-muted small">Different soil types have different watering needs. Select your soil type for more accurate recommendations.</p>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="soil-type-card active" data-soil-type="loamy">
+                                    <div class="d-flex align-items-center">
+                                        <span class="soil-type-icon"><i class="fas fa-check-circle"></i></span>
+                                        <div>
+                                            <strong>Loamy</strong>
+                                            <p class="small text-muted mb-0">Balanced soil</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="soil-type-card" data-soil-type="sandy">
+                                    <div class="d-flex align-items-center">
+                                        <span class="soil-type-icon"><i class="far fa-circle"></i></span>
+                                        <div>
+                                            <strong>Sandy</strong>
+                                            <p class="small text-muted mb-0">Quick drainage</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="soil-type-card" data-soil-type="clay">
+                                    <div class="d-flex align-items-center">
+                                        <span class="soil-type-icon"><i class="far fa-circle"></i></span>
+                                        <div>
+                                            <strong>Clay</strong>
+                                            <p class="small text-muted mb-0">Holds moisture</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="soil-type-card" data-soil-type="silty">
+                                    <div class="d-flex align-items-center">
+                                        <span class="soil-type-icon"><i class="far fa-circle"></i></span>
+                                        <div>
+                                            <strong>Silty</strong>
+                                            <p class="small text-muted mb-0">Medium drainage</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Plant Care Tab -->
+                    <div class="tab-pane fade" id="plant-care" role="tabpanel" aria-labelledby="plant-care-tab">
+                        <div id="plantCareContent">
+                            <div class="text-center py-5" id="plantCareInitialContent">
+                                <img src="{{ url_for('serve_frontend', path='static/img/forecast.svg') }}" alt="Forecast Icon" class="mb-4" style="width: 100px; height: 100px;">
+                                <h3>Get Plant Care Recommendations</h3>
+                                <p class="text-muted">Enter your city above to receive care recommendations based on current and forecasted weather conditions.</p>
+                            </div>
+                            
+                            <!-- This will be populated with the plant care data -->
+                            <div id="plantCareRecommendations" style="display: none;">
+                                <!-- Loader -->
+                                <div class="loader-container" id="plantCareLoader">
+                                    <div class="loader"></div>
+                                </div>
+                                
+                                <!-- Plant Care Content -->
+                                <div id="plantCareData" style="display: none;">
+                                    <!-- Plant Selector -->
+                                    <div class="plant-selector">
+                                        <div class="plant-option active" data-plant-type="tomato">Tomato</div>
+                                        <div class="plant-option" data-plant-type="lettuce">Lettuce</div>
+                                        <div class="plant-option" data-plant-type="cucumber">Cucumber</div>
+                                        <div class="plant-option" data-plant-type="carrot">Carrot</div>
+                                        <div class="plant-option" data-plant-type="pepper">Pepper</div>
+                                        <div class="plant-option" data-plant-type="onion">Onion</div>
+                                        <div class="plant-option" data-plant-type="potato">Potato</div>
+                                        <div class="plant-option" data-plant-type="spinach">Spinach</div>
+                                    </div>
+                                    
+                                    <!-- Plant Care Recommendations Container -->
+                                    <div id="plantCareDataContent">
+                                        <!-- Will be populated by JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Growing Season Tab -->
+                    <div class="tab-pane fade" id="growing-season" role="tabpanel" aria-labelledby="growing-season-tab">
+                        <div id="growingSeasonContent">
+                            <div class="text-center py-5" id="growingSeasonInitialContent">
+                                <img src="{{ url_for('serve_frontend', path='static/img/forecast.svg') }}" alt="Forecast Icon" class="mb-4" style="width: 100px; height: 100px;">
+                                <h3>Growing Season Forecast</h3>
+                                <p class="text-muted">Enter your city above to get a tailored growing season forecast with planting recommendations.</p>
+                            </div>
+                            
+                            <!-- This will be populated with the growing season data -->
+                            <div id="growingSeasonData" style="display: none;">
+                                <!-- Loader -->
+                                <div class="loader-container" id="growingSeasonLoader">
+                                    <div class="loader"></div>
+                                </div>
+                                
+                                <!-- Growing Season Content -->
+                                <div id="growingSeasonDataContent" style="display: none;">
+                                    <!-- Will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pest Risk Tab -->
+                    <div class="tab-pane fade" id="pest-risk" role="tabpanel" aria-labelledby="pest-risk-tab">
+                        <div id="pestRiskContent">
+                            <div class="text-center py-5" id="pestRiskInitialContent">
+                                <img src="{{ url_for('serve_frontend', path='static/img/forecast.svg') }}" alt="Forecast Icon" class="mb-4" style="width: 100px; height: 100px;">
+                                <h3>Pest & Disease Risk Forecast</h3>
+                                <p class="text-muted">Enter your city above to get a 5-day pest and disease risk forecast for your garden.</p>
+                            </div>
+                            
+                            <!-- This will be populated with the pest risk data -->
+                            <div id="pestRiskData" style="display: none;">
+                                <!-- Loader -->
+                                <div class="loader-container" id="pestRiskLoader">
+                                    <div class="loader"></div>
+                                </div>
+                                
+                                <!-- Pest Risk Content -->
+                                <div id="pestRiskDataContent" style="display: none;">
+                                    <!-- Will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const cityForm = document.getElementById('cityForm');
+    const cityInput = document.getElementById('cityInput');
+    const soilSelector = document.querySelector('.soil-selector');
+    const soilTypeCards = document.querySelectorAll('.soil-type-card');
+    const plantOptions = document.querySelectorAll('.plant-option');
+    
+    // Initialize selected soil type
+    let selectedSoilType = 'loamy';
+    let selectedPlantType = 'tomato';
+    let selectedCity = '';
+    
+    // Chart objects to destroy them when needed
+    let soilMoistureChart = null;
+    
+    // City form submission
+    cityForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        selectedCity = cityInput.value.trim();
+        
+        if (selectedCity) {
+            // Add a loading state to the button
+            const submitBtn = cityForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...';
+            submitBtn.disabled = true;
+            
+            // Make sure the city input field is properly formatted
+            // If no comma is present, append ", Country" to improve API matching
+            if (!selectedCity.includes(',')) {
+                selectedCity = `${selectedCity}, India`;
+                cityInput.value = selectedCity; // Update the input field
+            }
+            
+            // Show soil selector in watering tab
+            soilSelector.style.display = 'flex';
+            
+            // Clear any previous error messages
+            const errorContainer = document.getElementById('cityErrorContainer');
+            if (errorContainer) {
+                errorContainer.style.display = 'none';
+            }
+            
+            // Load data based on active tab
+            const activeTab = document.querySelector('.nav-link.active');
+            if (activeTab) {
+                try {
+                    handleTabChange(activeTab.id);
+                    
+                    // Reset button after a short delay to ensure the data loading has started
+                    setTimeout(() => {
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                    }, 500);
+                } catch (error) {
+                    // If there's an error, show a message and reset the button
+                    if (errorContainer) {
+                        errorContainer.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                        errorContainer.style.display = 'block';
+                    }
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                }
+            }
+        }
+    });
+    
+    // Soil type selection
+    soilTypeCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove active class from all cards
+            soilTypeCards.forEach(c => {
+                c.classList.remove('active');
+                c.querySelector('.soil-type-icon i').className = 'far fa-circle';
+            });
+            
+            // Add active class to the clicked card
+            this.classList.add('active');
+            this.querySelector('.soil-type-icon i').className = 'fas fa-check-circle';
+            
+            // Update selected soil type
+            selectedSoilType = this.dataset.soilType;
+            
+            // Reload watering data
+            loadWateringData(selectedCity, selectedSoilType);
+        });
+    });
+    
+    // Plant type selection
+    plantOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove active class from all options
+            plantOptions.forEach(o => o.classList.remove('active'));
+            
+            // Add active class to the clicked option
+            this.classList.add('active');
+            
+            // Update selected plant type
+            selectedPlantType = this.dataset.plantType;
+            
+            // Reload plant care data
+            loadPlantCareData(selectedCity, selectedPlantType);
+        });
+    });
+    
+    // Handle tab changes
+    document.querySelectorAll('#agricultureTabs .nav-link').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function() {
+            handleTabChange(this.id);
+        });
+    });
+    
+    function handleTabChange(tabId) {
+        if (!selectedCity) return;
+        
+        switch(tabId) {
+            case 'watering-tab':
+                loadWateringData(selectedCity, selectedSoilType);
+                break;
+            case 'plant-care-tab':
+                loadPlantCareData(selectedCity, selectedPlantType);
+                break;
+            case 'growing-season-tab':
+                loadGrowingSeasonData(selectedCity);
+                break;
+            case 'pest-risk-tab':
+                loadPestRiskData(selectedCity);
+                break;
+        }
+    }
+    
+    // Load watering data
+    function loadWateringData(city, soilType) {
+        // Show loading indicator
+        document.getElementById('wateringInitialContent').style.display = 'none';
+        document.getElementById('wateringRecommendations').style.display = 'block';
+        document.getElementById('wateringLoader').style.display = 'flex';
+        document.getElementById('wateringData').style.display = 'none';
+        
+        // Add detailed loading message
+        document.getElementById('wateringLoader').innerHTML = `
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="ms-3">
+                <p class="mb-0">Loading watering recommendations for ${city}...</p>
+                <small class="text-muted">Analyzing soil conditions and weather patterns for ${soilType} soil.</small>
+            </div>
+        `;
+        
+        // Set timeout for fetch operation
+        const controller = new AbortController();
+        const signal = controller.signal;
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
+        
+        // Fetch data from API with same-origin credentials policy
+        fetch(`/api/agriculture/watering-recommendations?city=${encodeURIComponent(city)}&soil_type=${soilType}`, {
+            credentials: 'same-origin',
+            signal: signal,
+            headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        })
+            .then(response => {
+                clearTimeout(timeoutId);
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Watering data received:', data); // Debug log
+                if (data.status === 'success') {
+                    // Hide loader and show data
+                    document.getElementById('wateringLoader').style.display = 'none';
+                    document.getElementById('wateringData').style.display = 'block';
+                    
+                    // Populate watering recommendations
+                    try {
+                        console.log('Rendering watering data:', data.data); // Debug log
+                        renderWateringRecommendations(data.data);
+                        console.log('Render complete'); // Debug log
+                    } catch (err) {
+                        console.error('Error rendering watering data:', err); // Debug error
+                        document.getElementById('wateringData').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <strong>Error rendering data:</strong> ${err.message}
+                            </div>
+                        `;
+                    }
+                } else {
+                    // Show error
+                    console.error('API returned error:', data.message); // Debug error
+                    document.getElementById('wateringLoader').style.display = 'none';
+                    document.getElementById('wateringData').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Error loading data: ${data.message || 'Unknown error'}
+                        </div>
+                    `;
+                    document.getElementById('wateringData').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                // Show error with specific handling for potential cookie issues or timeout
+                document.getElementById('wateringLoader').style.display = 'none';
+                
+                let errorMessage = error.message || 'Failed to fetch data';
+                let errorHelp = '';
+                
+                // Check for specific error types
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out. The server is taking too long to respond.';
+                    errorHelp = `
+                        <p class="mt-2 mb-0">
+                            <strong>The request is taking longer than expected.</strong><br>
+                            Please try:
+                            <ul class="mt-1 mb-0">
+                                <li>Refreshing the page and trying again</li>
+                                <li>Selecting a different city</li>
+                                <li>Trying again later when the server is less busy</li>
+                            </ul>
+                        </p>
+                    `;
+                } else if (error.message && (
+                    error.message.includes('cookie') || 
+                    error.message.includes('credentials') || 
+                    error.message.includes('CORS')
+                )) {
+                    errorHelp = `
+                        <p class="mt-2 mb-0">
+                            <strong>This might be caused by browser cookie settings.</strong><br>
+                            Try these steps:
+                            <ul class="mt-1 mb-0">
+                                <li>Check that third-party cookies are enabled in your browser</li>
+                                <li>If using Chrome, ensure this site is allowed in your cookie settings</li>
+                                <li>Try a different browser if the issue persists</li>
+                            </ul>
+                        </p>
+                    `;
+                }
+                
+                document.getElementById('wateringData').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Error:</strong> ${errorMessage}
+                        ${errorHelp}
+                    </div>
+                `;
+                document.getElementById('wateringData').style.display = 'block';
+            });
+    }
+    
+    // Render watering recommendations
+    function renderWateringRecommendations(data) {
+        // Format the city name for display
+        const cityDisplay = data.city.split(',')[0];
+        
+        // Get ET rating text
+        const etRatingText = getETRatingText(data.evapotranspiration.rating);
+        
+        // Get soil moisture percentage
+        const soilMoisturePercent = Math.round(data.soil_moisture * 100);
+        
+        // Weather summary
+        console.log('Weather summary data:', data.weather_summary); // Debug log
+        let weatherSummary;
+        try {
+            if (!data.weather_summary || !data.weather_summary.condition) {
+                console.error('Missing weather_summary or condition in data:', data);
+                weatherSummary = {
+                    icon: '<i class="fas fa-cloud weather-icon cloudy"></i>',
+                    text: 'Weather data unavailable'
+                };
+            } else {
+                weatherSummary = getWeatherIconAndText(data.weather_summary.condition);
+            }
+        } catch (err) {
+            console.error('Error getting weather icon:', err);
+            weatherSummary = {
+                icon: '<i class="fas fa-cloud weather-icon cloudy"></i>',
+                text: 'Weather data unavailable'
+            };
+        }
+        
+        // Best watering time
+        let bestWateringTime = '';
+        if (data.watering_recommendation.should_water) {
+            if (data.best_watering_time.day === 'today') {
+                bestWateringTime = `${data.best_watering_time.time} today`;
+            } else {
+                bestWateringTime = `${data.best_watering_time.time} tomorrow`;
+            }
+        } else {
+            if (data.watering_recommendation.message) {
+                bestWateringTime = data.watering_recommendation.message;
+            } else {
+                bestWateringTime = 'No watering needed at this time';
+            }
+        }
+
+        // Calculate where the ET marker should be positioned as a percentage
+        let etValue = data.evapotranspiration.today;
+        let etPosition = getETPositionPercentage(etValue);
+        
+        // Build watering recommendations HTML
+        let html = `
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h4><i class="fas fa-map-marker-alt me-2 text-danger"></i>${cityDisplay}</h4>
+                    <p>Based on current conditions and weather forecast for ${cityDisplay}, here are your gardening recommendations:</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-lg-7">
+                    <div class="recommendation-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-tint me-2"></i>Watering Recommendation</span>
+                            ${weatherSummary.icon}
+                        </div>
+                        <div class="card-body">
+                            <div class="highlight">
+                                <strong>${data.watering_recommendation.should_water ? 'Best time to water:' : 'Watering Recommendation:'}</strong>
+                                <div class="watering-time-highlight mt-2">
+                                    <i class="fas ${data.watering_recommendation.should_water ? 'fa-clock' : 'fa-info-circle'} me-2"></i>
+                                    ${bestWateringTime}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <h6><i class="fas fa-cloud-sun-rain me-2"></i>Today's Weather</h6>
+                                <p>${weatherSummary.text} &bull; High: ${data.weather_summary.high_temp}°C &bull; Low: ${data.weather_summary.low_temp}°C</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6><i class="fas fa-tachometer-alt me-2"></i>Evapotranspiration (Water Loss)</h6>
+                                <p>${etRatingText} (${data.evapotranspiration.today.toFixed(1)} mm/day)</p>
+                                
+                                <!-- ET Scale -->
+                                <div class="et-scale">
+                                    <div class="et-scale-segment et-scale-very-low"></div>
+                                    <div class="et-scale-segment et-scale-low"></div>
+                                    <div class="et-scale-segment et-scale-moderate"></div>
+                                    <div class="et-scale-segment et-scale-high"></div>
+                                    <div class="et-scale-segment et-scale-very-high"></div>
+                                </div>
+                                <div class="et-marker">
+                                    <div class="et-marker-pointer" style="left: ${etPosition}%"></div>
+                                </div>
+                                <div class="et-labels">
+                                    <span>Very Low</span>
+                                    <span>Low</span>
+                                    <span>Moderate</span>
+                                    <span>High</span>
+                                    <span>Very High</span>
+                                </div>
+                            </div>
+                            
+                            <h6><i class="fas fa-list-ul me-2"></i>Detailed Recommendations</h6>
+                            <ul class="recommendation-list">
+        `;
+        
+        // Add watering details
+        data.watering_recommendation.details.forEach(detail => {
+            html += `<li><i class="fas fa-check-circle"></i>${detail}</li>`;
+        });
+        
+        html += `
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-5">
+                    <div class="recommendation-card">
+                        <div class="card-header">
+                            <i class="fas fa-layer-group me-2"></i>${data.soil_type.charAt(0).toUpperCase() + data.soil_type.slice(1)} Soil Conditions
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-center mb-4">
+                                <div class="water-droplet">
+                                    <div class="water-level-container">
+                                        <div class="water-level" style="height: ${soilMoisturePercent}%"></div>
+                                        <div class="water-level-text">${soilMoisturePercent}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6><i class="fas fa-info-circle me-2"></i>Soil Properties</h6>
+                                <ul class="recommendation-list">
+                                    <li><i class="fas fa-tint"></i>Water Holding Capacity: ${data.soil_properties.water_holding_capacity} inches/foot</li>
+                                    <li><i class="fas fa-filter"></i>Infiltration Rate: ${data.soil_properties.infiltration_rate} inches/hour</li>
+                                    <li><i class="fas fa-water"></i>Drainage: ${data.soil_properties.drainage_rate.charAt(0).toUpperCase() + data.soil_properties.drainage_rate.slice(1)}</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6><i class="fas fa-cloud-rain me-2"></i>Precipitation Forecast</h6>
+        `;
+        
+        if (data.upcoming_precipitation && data.upcoming_precipitation.expected) {
+            html += `
+                <div class="alert alert-info mb-2" style="font-size: 0.9rem;">
+                    <i class="fas fa-cloud-rain me-2"></i>
+                    Rain expected ${data.upcoming_precipitation.timeframe} 
+                    (${data.upcoming_precipitation.probability.toFixed(0)}% probability, ~${data.upcoming_precipitation.amount.toFixed(1)} mm)
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="alert alert-warning mb-2" style="font-size: 0.9rem;">
+                    <i class="fas fa-sun me-2"></i>
+                    No significant precipitation expected in the next 48 hours.
+                </div>
+            `;
+        }
+        
+        html += `
+                            </div>
+                            
+                            <div>
+                                <h6><i class="fas fa-history me-2"></i>Recent Conditions</h6>
+                                <p>Recent precipitation: ${data.recent_precipitation.toFixed(1)} mm</p>
+                                <p>Soil moisture level: ${getSoilMoistureText(data.soil_moisture)}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Update the DOM
+        document.getElementById('wateringData').innerHTML = html;
+    }
+    
+    // Load plant care data
+    function loadPlantCareData(city, plantType) {
+        // Show plant care loading
+        document.getElementById('plantCareInitialContent').style.display = 'none';
+        document.getElementById('plantCareRecommendations').style.display = 'block';
+        document.getElementById('plantCareLoader').style.display = 'flex';
+        document.getElementById('plantCareData').style.display = 'none';
+        
+        // Add detailed loading message
+        document.getElementById('plantCareLoader').innerHTML = `
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="ms-3">
+                <p class="mb-0">Loading care tips for ${plantType} plants in ${city}...</p>
+                <small class="text-muted">Analyzing climate conditions and specific plant requirements.</small>
+            </div>
+        `;
+        
+        // Set timeout for fetch operation
+        const controller = new AbortController();
+        const signal = controller.signal;
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
+        
+        // Fetch data from API with same-origin credentials policy
+        fetch(`/api/agriculture/plant-care?city=${encodeURIComponent(city)}&plant_type=${plantType}`, {
+            credentials: 'same-origin',
+            signal: signal,
+            headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        })
+            .then(response => {
+                clearTimeout(timeoutId);
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    // Hide loader and show data
+                    document.getElementById('plantCareLoader').style.display = 'none';
+                    document.getElementById('plantCareData').style.display = 'block';
+                    
+                    // Render plant care recommendations
+                    renderPlantCareRecommendations(data.data);
+                } else {
+                    // Show error
+                    document.getElementById('plantCareLoader').style.display = 'none';
+                    document.getElementById('plantCareData').style.display = 'block';
+                    document.getElementById('plantCareDataContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Error loading data: ${data.message || 'Unknown error'}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                // Show error with specific handling for potential cookie issues or timeout
+                document.getElementById('plantCareLoader').style.display = 'none';
+                document.getElementById('plantCareData').style.display = 'block';
+                
+                let errorMessage = error.message || 'Failed to fetch data';
+                let errorHelp = '';
+                
+                // Check for specific error types
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out. The server is taking too long to respond.';
+                    errorHelp = `
+                        <p class="mt-2 mb-0">
+                            <strong>The request is taking longer than expected.</strong><br>
+                            Please try:
+                            <ul class="mt-1 mb-0">
+                                <li>Refreshing the page and trying again</li>
+                                <li>Selecting a different plant type or city</li>
+                                <li>Trying again later when the server is less busy</li>
+                            </ul>
+                        </p>
+                    `;
+                } else if (error.message && (
+                    error.message.includes('cookie') || 
+                    error.message.includes('credentials') || 
+                    error.message.includes('CORS')
+                )) {
+                    errorHelp = `
+                        <p class="mt-2 mb-0">
+                            <strong>This might be caused by browser cookie settings.</strong><br>
+                            Try these steps:
+                            <ul class="mt-1 mb-0">
+                                <li>Check that third-party cookies are enabled in your browser</li>
+                                <li>If using Chrome, ensure this site is allowed in your cookie settings</li>
+                                <li>Try a different browser if the issue persists</li>
+                            </ul>
+                        </p>
+                    `;
+                }
+                
+                document.getElementById('plantCareDataContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Error:</strong> ${errorMessage}
+                        ${errorHelp}
+                    </div>
+                `;
+            });
+    }
+    
+    // Render plant care recommendations
+    function renderPlantCareRecommendations(data) {
+        // Format the city name for display
+        const cityDisplay = data.city.split(',')[0];
+        
+        // Format plant name for display
+        const plantDisplay = data.plant_type.charAt(0).toUpperCase() + data.plant_type.slice(1);
+        
+        // Weather summary
+        const weatherConditions = data.weather_conditions;
+        
+        // Get alerts
+        const alerts = data.alerts || [];
+        
+        // Build plant care HTML
+        let html = `
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h4><i class="fas fa-leaf me-2 text-success"></i>${plantDisplay} Care for ${cityDisplay}</h4>
+                    <p>Plant care recommendations based on current and forecasted weather conditions:</p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="recommendation-card">
+                        <div class="card-header">
+                            <i class="fas fa-leaf me-2"></i>Care Recommendations
+                        </div>
+                        <div class="card-body">
+        `;
+        
+        // Add alerts if present
+        if (alerts.length > 0) {
+            alerts.forEach(alert => {
+                let alertClass = 'info';
+                if (alert.severity === 'high') {
+                    alertClass = 'warning';
+                }
+                
+                html += `
+                    <div class="alert-card ${alertClass} mb-3">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>${alert.type.charAt(0).toUpperCase() + alert.type.slice(1)} Alert</h6>
+                        <p>${alert.message}</p>
+                    </div>
+                `;
+            });
+        }
+        
+        // Add best watering time
+        if (data.best_watering_time && data.best_watering_time.should_water) {
+            const waterTime = `${data.best_watering_time.time} ${data.best_watering_time.day}`;
+            html += `
+                <div class="highlight mb-3">
+                    <strong>Best time to water:</strong>
+                    <div class="watering-time-highlight mt-2">
+                        <i class="fas fa-clock me-2"></i>${waterTime}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Add care recommendations
+        html += `<h6><i class="fas fa-list-ul me-2"></i>Plant Care Tips</h6>
+                <ul class="recommendation-list">`;
+        
+        data.care_recommendations.forEach(tip => {
+            html += `<li><i class="fas fa-check-circle"></i>${tip}</li>`;
+        });
+        
+        html += `
+                        </ul>
+                        
+                        <div class="mt-4">
+                            <h6><i class="fas fa-cloud-sun me-2"></i>Weather Impact</h6>
+                            <p>Current conditions can ${weatherConditions.avg_temp >= data.plant_info.ideal_temp_range[0] && weatherConditions.avg_temp <= data.plant_info.ideal_temp_range[1] ? 'support' : 'challenge'} optimal growth for ${plantDisplay}.</p>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="small text-muted">Temperature Range</div>
+                                    <div>
+                                        Current: ${weatherConditions.min_temp.toFixed(1)}°C to ${weatherConditions.max_temp.toFixed(1)}°C<br>
+                                        Ideal for ${plantDisplay}: ${data.plant_info.ideal_temp_range[0]}°C to ${data.plant_info.ideal_temp_range[1]}°C
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="small text-muted">Environmental Risks</div>
+                                    <div>
+                                        ${weatherConditions.frost_risk ? '<i class="fas fa-snowflake text-info me-1"></i> Frost risk detected!' : '<i class="fas fa-snowflake me-1"></i> No frost risk'}<br>
+                                        ${weatherConditions.heat_risk ? '<i class="fas fa-temperature-high text-danger me-1"></i> Heat risk detected!' : '<i class="fas fa-temperature-high me-1"></i> No heat risk'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-5">
+                <div class="recommendation-card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>About ${plantDisplay}
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <h6><i class="fas fa-seedling me-2"></i>Growing Characteristics</h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="small text-muted">Water Needs</div>
+                                    <div class="mb-2">${getWaterNeedsText(data.plant_info.water_needs)}</div>
+                                    
+                                    <div class="small text-muted">Frost Sensitive</div>
+                                    <div>${data.plant_info.frost_sensitive ? 'Yes' : 'No'}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="small text-muted">Heat Sensitive</div>
+                                    <div class="mb-2">${data.plant_info.heat_sensitive ? 'Yes' : 'No'}</div>
+                                    
+                                    <div class="small text-muted">Drought Resistant</div>
+                                    <div>${data.plant_info.drought_resistant ? 'Yes' : 'No'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6><i class="fas fa-cloud-rain me-2"></i>Precipitation Forecast</h6>
+        `;
+        
+        if (data.upcoming_precipitation && data.upcoming_precipitation.expected) {
+            html += `
+                <div class="alert alert-info mb-2" style="font-size: 0.9rem;">
+                    <i class="fas fa-cloud-rain me-2"></i>
+                    Rain expected ${data.upcoming_precipitation.timeframe} 
+                    (${data.upcoming_precipitation.probability.toFixed(0)}% probability, ~${data.upcoming_precipitation.amount.toFixed(1)} mm)
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="alert alert-warning mb-2" style="font-size: 0.9rem;">
+                    <i class="fas fa-sun me-2"></i>
+                    No significant precipitation expected in the next 48 hours.
+                </div>
+            `;
+        }
+        
+        html += `
+                        </div>
+                        
+                        <div>
+                            <h6><i class="fas fa-calendar-check me-2"></i>Seasonal Considerations</h6>
+                            <p>
+                                ${getCurrentSeasonRecommendation(data.plant_type, weatherConditions)}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+        
+        // Update the DOM
+        document.getElementById('plantCareDataContent').innerHTML = html;
+    }
+    
+    // Load growing season data
+    function loadGrowingSeasonData(city) {
+        // Show growing season loading
+        document.getElementById('growingSeasonInitialContent').style.display = 'none';
+        document.getElementById('growingSeasonData').style.display = 'block';
+        document.getElementById('growingSeasonLoader').style.display = 'flex';
+        document.getElementById('growingSeasonDataContent').style.display = 'none';
+        
+        // Add detailed loading message
+        document.getElementById('growingSeasonLoader').innerHTML = `
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="ms-3">
+                <p class="mb-0">Loading growing season data for ${city}...</p>
+                <small class="text-muted">Analyzing seasonal climate patterns and planting recommendations.</small>
+            </div>
+        `;
+        
+        // Set timeout for fetch operation
+        const controller = new AbortController();
+        const signal = controller.signal;
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
+        
+        // Fetch data from API with same-origin credentials policy
+        fetch(`/api/agriculture/growing-season?city=${encodeURIComponent(city)}`, {
+            credentials: 'same-origin',
+            signal: signal,
+            headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        })
+            .then(response => {
+                clearTimeout(timeoutId);
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    // Hide loader and show data
+                    document.getElementById('growingSeasonLoader').style.display = 'none';
+                    document.getElementById('growingSeasonDataContent').style.display = 'block';
+                    
+                    // Render growing season data
+                    renderGrowingSeasonData(data.data);
+                } else {
+                    // Show error
+                    document.getElementById('growingSeasonLoader').style.display = 'none';
+                    document.getElementById('growingSeasonDataContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Error loading data: ${data.message || 'Unknown error'}
+                        </div>
+                    `;
+                    document.getElementById('growingSeasonDataContent').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                // Show error with specific handling for potential cookie issues or timeout
+                document.getElementById('growingSeasonLoader').style.display = 'none';
+                
+                let errorMessage = error.message || 'Failed to fetch data';
+                let errorHelp = '';
+                
+                // Check for specific error types
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out. The server is taking too long to respond.';
+                    errorHelp = `
+                        <p class="mt-2 mb-0">
+                            <strong>The request is taking longer than expected.</strong><br>
+                            Please try:
+                            <ul class="mt-1 mb-0">
+                                <li>Refreshing the page and trying again</li>
+                                <li>Selecting a different city</li>
+                                <li>Trying again later when the server is less busy</li>
+                            </ul>
+                        </p>
+                    `;
+                } else if (error.message && (
+                    error.message.includes('cookie') || 
+                    error.message.includes('credentials') || 
+                    error.message.includes('CORS')
+                )) {
+                    errorHelp = `
+                        <p class="mt-2 mb-0">
+                            <strong>This might be caused by browser cookie settings.</strong><br>
+                            Try these steps:
+                            <ul class="mt-1 mb-0">
+                                <li>Check that third-party cookies are enabled in your browser</li>
+                                <li>If using Chrome, ensure this site is allowed in your cookie settings</li>
+                                <li>Try a different browser if the issue persists</li>
+                            </ul>
+                        </p>
+                    `;
+                }
+                
+                document.getElementById('growingSeasonDataContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Error:</strong> ${errorMessage}
+                        ${errorHelp}
+                    </div>
+                `;
+                document.getElementById('growingSeasonDataContent').style.display = 'block';
+            });
+    }
+    
+    // Render growing season data
+    function renderGrowingSeasonData(data) {
+        // Format the city name for display
+        const cityDisplay = data.city.split(',')[0];
+        
+        // Get current and next season info
+        const currentSeason = data.current_season.charAt(0).toUpperCase() + data.current_season.slice(1);
+        const nextSeason = data.next_season.charAt(0).toUpperCase() + data.next_season.slice(1);
+        
+        // Build growing season HTML
+        let html = `
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h4><i class="fas fa-calendar-alt me-2 text-primary"></i>Growing Season Forecast for ${cityDisplay}</h4>
+                    <p>Located in the ${data.hemisphere} Hemisphere, currently in ${currentSeason} season.</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="planting-calendar">
+                        <h5>5-Day Weather Forecast</h5>
+                        <div class="row">
+        `;
+        
+        // Add forecast days
+        data.five_day_forecast.forEach((day, index) => {
+            const weatherIcon = getWeatherIconAndText(day.condition);
+            
+            html += `
+                <div class="col-md-${data.five_day_forecast.length <= 5 ? '12' : '6'} col-lg-${data.five_day_forecast.length <= 3 ? '4' : (data.five_day_forecast.length <= 5 ? '3' : '2')} mb-3">
+                    <div class="forecast-day-card">
+                        <div class="forecast-day-header">
+                            ${index === 0 ? 'Today' : day.day_name}
+                        </div>
+                        <div class="forecast-day-body text-center">
+                            <div class="weather-icon ${getWeatherIconClass(day.condition)}">
+                                ${weatherIcon.icon}
+                            </div>
+                            <div class="mt-2">${weatherIcon.text}</div>
+                            <div class="mt-2">
+                                <strong>${day.max_temp}°C</strong> / ${day.min_temp}°C
+                            </div>
+                            <div class="mt-2">
+                                <div class="forecast-badge ${getPrecipitationBadgeClass(day.precipitation_probability)}">
+                                    <i class="fas fa-cloud-rain me-1"></i> ${day.precipitation_probability}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="recommendation-card">
+                        <div class="card-header">
+                            <i class="fas fa-leaf me-2"></i>Current Season: ${currentSeason}
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h6><i class="fas fa-thermometer-half me-2"></i>Seasonal Temperature</h6>
+                                <p>Average temperature during ${currentSeason}: <strong>${data.seasonal_temperatures[data.current_season].toFixed(1)}°C</strong></p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6><i class="fas fa-seedling me-2"></i>Plants to Maintain</h6>
+                                <div class="plant-list">
+        `;
+        
+        // Add current season plants
+        data.planting_recommendations.current_season.plants_to_maintain.forEach(plant => {
+            html += `<span class="plant-badge">${plant}</span>`;
+        });
+        
+        html += `
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6><i class="fas fa-clipboard-list me-2"></i>Maintenance Tips</h6>
+                                <ul class="recommendation-list">
+        `;
+        
+        // Add current season care tips
+        data.planting_recommendations.current_season.care_tips.forEach(tip => {
+            html += `<li><i class="fas fa-check-circle"></i>${tip}</li>`;
+        });
+        
+        html += `
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <h6><i class="fas fa-carrot me-2"></i>Ready to Harvest</h6>
+                                <div class="plant-list">
+        `;
+        
+        // Add harvest ready plants
+        data.planting_recommendations.current_season.harvest_soon.forEach(plant => {
+            html += `<span class="plant-badge">${plant}</span>`;
+        });
+        
+        html += `
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 mb-4">
+                    <div class="recommendation-card">
+                        <div class="card-header">
+                            <i class="fas fa-seedling me-2"></i>Planning for ${nextSeason}
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h6><i class="fas fa-thermometer-half me-2"></i>Expected Temperature</h6>
+                                <p>Average temperature during ${nextSeason}: <strong>${data.seasonal_temperatures[data.next_season].toFixed(1)}°C</strong></p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6><i class="fas fa-seedling me-2"></i>Plants to Start</h6>
+                                <div class="plant-list">
+        `;
+        
+        // Add next season plants
+        data.planting_recommendations.next_season.plants_to_start.forEach(plant => {
+            html += `<span class="plant-badge">${plant}</span>`;
+        });
+        
+        html += `
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h6><i class="fas fa-clipboard-list me-2"></i>Preparation Tips</h6>
+                                <ul class="recommendation-list">
+        `;
+        
+        // Add next season preparation tips
+        data.planting_recommendations.next_season.preparation_tips.forEach(tip => {
+            html += `<li><i class="fas fa-check-circle"></i>${tip}</li>`;
+        });
+        
+        html += `
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Update the DOM
+        document.getElementById('growingSeasonDataContent').innerHTML = html;
+    }
+    
+    // Load pest risk data
+    function loadPestRiskData(city) {
+        // Show pest risk loading
+        document.getElementById('pestRiskInitialContent').style.display = 'none';
+        document.getElementById('pestRiskData').style.display = 'block';
+        document.getElementById('pestRiskLoader').style.display = 'flex';
+        document.getElementById('pestRiskDataContent').style.display = 'none';
+        
+        // Add loading message
+        document.getElementById('pestRiskLoader').innerHTML = `
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="ms-3">
+                <p class="mb-0">Loading pest risk data for ${city}...</p>
+                <small class="text-muted">This may take a moment as we analyze multiple weather factors.</small>
+            </div>
+        `;
+        
+        // Set timeout for fetch operation
+        const controller = new AbortController();
+        const signal = controller.signal;
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        
+        // Fetch data from API with same-origin credentials policy
+        fetch(`/api/agriculture/pest-risk?city=${encodeURIComponent(city)}`, {
+            credentials: 'same-origin',
+            signal: signal,
+            headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        })
+            .then(response => {
+                clearTimeout(timeoutId);
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    // Hide loader and show data
+                    document.getElementById('pestRiskLoader').style.display = 'none';
+                    document.getElementById('pestRiskDataContent').style.display = 'block';
+                    
+                    // Render pest risk data
+                    renderPestRiskData(data.data);
+                } else {
+                    // Show error
+                    document.getElementById('pestRiskLoader').style.display = 'none';
+                    document.getElementById('pestRiskDataContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Error loading data: ${data.message || 'Unknown error'}
+                        </div>
+                    `;
+                    document.getElementById('pestRiskDataContent').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                // Show error with specific handling for potential cookie issues or timeout
+                document.getElementById('pestRiskLoader').style.display = 'none';
+                
+                let errorMessage = error.message || 'Failed to fetch data';
+                let errorHelp = '';
+                
+                // Check for specific error types
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out. The server is taking too long to respond.';
+                    errorHelp = `
+                        <p class="mt-2 mb-0">
+                            <strong>The pest risk calculation is taking longer than expected.</strong><br>
+                            This feature performs complex weather analysis which may take time. Please try:
+                            <ul class="mt-1 mb-0">
+                                <li>Refreshing the page and trying again</li>
+                                <li>Selecting a different city</li>
+                                <li>Trying again later when the server is less busy</li>
+                            </ul>
+                        </p>
+                    `;
+                } else if (error.message && (
+                    error.message.includes('cookie') || 
+                    error.message.includes('credentials') || 
+                    error.message.includes('CORS')
+                )) {
+                    errorHelp = `
+                        <p class="mt-2 mb-0">
+                            <strong>This might be caused by browser cookie settings.</strong><br>
+                            Try these steps:
+                            <ul class="mt-1 mb-0">
+                                <li>Check that third-party cookies are enabled in your browser</li>
+                                <li>If using Chrome, ensure this site is allowed in your cookie settings</li>
+                                <li>Try a different browser if the issue persists</li>
+                            </ul>
+                        </p>
+                    `;
+                }
+                
+                document.getElementById('pestRiskDataContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Error:</strong> ${errorMessage}
+                        ${errorHelp}
+                    </div>
+                `;
+                document.getElementById('pestRiskDataContent').style.display = 'block';
+            });
+    }
+    
+    // Render pest risk data
+    function renderPestRiskData(data) {
+        // Format the city name for display
+        const cityDisplay = data.city.split(',')[0];
+        
+        // Build pest risk HTML
+        let html = `
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h4><i class="fas fa-bug me-2 text-warning"></i>Pest & Disease Risk Forecast for ${cityDisplay}</h4>
+                    <p>Based on weather conditions, here are the potential pest and disease risks for your garden:</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+        `;
+        
+        // Add forecast days
+        data.risk_forecast.forEach((day, index) => {
+            html += `
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="recommendation-card">
+                        <div class="card-header">
+                            ${index === 0 ? 'Today' : day.day_name}
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6><i class="fas fa-cloud-sun me-2"></i>Weather Conditions</h6>
+                                <p>
+                                    <i class="fas fa-thermometer-half me-1"></i> ${day.weather_summary.temperature.toFixed(1)}°C &bull;
+                                    <i class="fas fa-tint me-1"></i> ${day.weather_summary.humidity.toFixed(0)}% humidity
+                                </p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6><i class="fas fa-bug me-2"></i>Risk Summary</h6>
+                                <div class="alert alert-${getHighestRiskClass(day.pest_risks)} mb-0">
+                                    ${day.risk_summary}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h6><i class="fas fa-shield-alt me-2"></i>Pest Risks</h6>
+                                <ul class="recommendation-list">
+            `;
+            
+            // Add pest risks
+            Object.entries(day.pest_risks).forEach(([pest, riskData]) => {
+                const formattedPest = pest.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
+                
+                html += `
+                    <li>
+                        <i class="fas fa-circle text-${riskData.risk_class} me-2" style="font-size: 0.75rem;"></i>
+                        <div>
+                            <strong>${formattedPest}:</strong> 
+                            <span class="forecast-badge ${riskData.risk_class}">${riskData.risk_level}</span>
+                        </div>
+                    </li>
+                `;
+            });
+            
+            html += `
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="recommendation-card">
+                        <div class="card-header">
+                            <i class="fas fa-info-circle me-2"></i>Common Pests & Control Methods
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+        `;
+        
+        // Add pest info
+        Object.entries(data.pests_info).forEach(([pest, pestData]) => {
+            const formattedPest = pest.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
+            
+            html += `
+                <div class="col-md-6 mb-4">
+                    <h6>${formattedPest}</h6>
+                    <p>${pestData.description}</p>
+                    <div class="small">
+                        <strong>Favorable conditions:</strong> ${pestData.favorable_temp[0]}-${pestData.favorable_temp[1]}°C, 
+                        ${pestData.favorable_humidity[0]}-${pestData.favorable_humidity[1]}% humidity
+                    </div>
+                    <div class="mt-2">
+                        <strong>Control methods:</strong>
+                        <ul class="mb-0">
+            `;
+            
+            // Add control methods
+            pestData.control_methods.forEach(method => {
+                html += `<li>${method}</li>`;
+            });
+            
+            html += `
+                        </ul>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Update the DOM
+        document.getElementById('pestRiskDataContent').innerHTML = html;
+    }
+    
+    // Helper functions
+    
+    // Get evapotranspiration rating text
+    function getETRatingText(rating) {
+        switch(rating) {
+            case 'very_low':
+                return 'Very Low Evapotranspiration';
+            case 'low':
+                return 'Low Evapotranspiration';
+            case 'moderate':
+                return 'Moderate Evapotranspiration';
+            case 'high':
+                return 'High Evapotranspiration';
+            case 'very_high':
+                return 'Very High Evapotranspiration';
+            default:
+                return 'Moderate Evapotranspiration';
+        }
+    }
+    
+    // Get ET position percentage for the marker
+    function getETPositionPercentage(etValue) {
+        // Define the range of ET values
+        const minET = 0;    // Minimum ET value
+        const maxET = 12;   // Maximum ET value
+        
+        // Ensure etValue is within range
+        etValue = Math.max(minET, Math.min(maxET, etValue));
+        
+        // Calculate position percentage
+        return (etValue / maxET) * 100;
+    }
+    
+    // Get soil moisture text description
+    function getSoilMoistureText(moistureValue) {
+        if (moistureValue < 0.3) {
+            return 'Dry (needs watering)';
+        } else if (moistureValue < 0.5) {
+            return 'Slightly dry';
+        } else if (moistureValue < 0.7) {
+            return 'Adequate moisture';
+        } else if (moistureValue < 0.9) {
+            return 'Well-watered';
+        } else {
+            return 'Very wet (potentially over-watered)';
+        }
+    }
+    
+    // Get weather icon and text based on condition
+    function getWeatherIconAndText(condition) {
+        condition = condition.toLowerCase();
+        
+        if (condition.includes('clear') || condition.includes('sunny')) {
+            return {
+                icon: '<i class="fas fa-sun weather-icon sunny"></i>',
+                text: 'Sunny/Clear'
+            };
+        } else if (condition.includes('cloud') || condition.includes('overcast')) {
+            return {
+                icon: '<i class="fas fa-cloud weather-icon cloudy"></i>',
+                text: 'Cloudy'
+            };
+        } else if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('shower')) {
+            return {
+                icon: '<i class="fas fa-cloud-rain weather-icon rainy"></i>',
+                text: 'Rainy'
+            };
+        } else if (condition.includes('thunder') || condition.includes('storm')) {
+            return {
+                icon: '<i class="fas fa-bolt weather-icon stormy"></i>',
+                text: 'Thunderstorm'
+            };
+        } else if (condition.includes('snow') || condition.includes('sleet')) {
+            return {
+                icon: '<i class="fas fa-snowflake weather-icon"></i>',
+                text: 'Snow'
+            };
+        } else if (condition.includes('fog') || condition.includes('mist')) {
+            return {
+                icon: '<i class="fas fa-smog weather-icon"></i>',
+                text: 'Foggy/Misty'
+            };
+        } else {
+            return {
+                icon: '<i class="fas fa-cloud-sun weather-icon"></i>',
+                text: condition.charAt(0).toUpperCase() + condition.slice(1)
+            };
+        }
+    }
+    
+    // Get weather icon class for CSS styling
+    function getWeatherIconClass(condition) {
+        condition = condition.toLowerCase();
+        
+        if (condition.includes('clear') || condition.includes('sunny')) {
+            return 'sunny';
+        } else if (condition.includes('cloud') || condition.includes('overcast')) {
+            return 'cloudy';
+        } else if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('shower')) {
+            return 'rainy';
+        } else if (condition.includes('thunder') || condition.includes('storm')) {
+            return 'stormy';
+        } else {
+            return '';
+        }
+    }
+    
+    // Get precipitation badge class
+    function getPrecipitationBadgeClass(probability) {
+        if (probability < 30) {
+            return 'success';
+        } else if (probability < 60) {
+            return 'warning';
+        } else {
+            return 'danger';
+        }
+    }
+    
+    // Get highest risk class from pest risks
+    function getHighestRiskClass(pestRisks) {
+        let highestClass = 'success';
+        
+        for (const pest in pestRisks) {
+            const riskClass = pestRisks[pest].risk_class;
+            if (riskClass === 'danger') {
+                return 'danger';
+            } else if (riskClass === 'warning' && highestClass !== 'danger') {
+                highestClass = 'warning';
+            }
+        }
+        
+        return highestClass;
+    }
+    
+    // Get water needs text description
+    function getWaterNeedsText(waterNeeds) {
+        switch(waterNeeds) {
+            case 'low':
+                return 'Low (infrequent watering)';
+            case 'low-moderate':
+                return 'Low to Moderate';
+            case 'moderate':
+                return 'Moderate (regular watering)';
+            case 'moderate-high':
+                return 'Moderate to High';
+            case 'high':
+                return 'High (frequent watering)';
+            default:
+                return 'Moderate (regular watering)';
+        }
+    }
+    
+    // Get season-specific plant recommendation
+    function getCurrentSeasonRecommendation(plantType, weatherConditions) {
+        // Simplified recommendation based on plant type and weather
+        const month = new Date().getMonth(); // 0 = January, 11 = December
+        
+        // Determine season (very simplified)
+        let season;
+        if (month >= 2 && month <= 4) {
+            season = 'spring';
+        } else if (month >= 5 && month <= 7) {
+            season = 'summer';
+        } else if (month >= 8 && month <= 10) {
+            season = 'fall';
+        } else {
+            season = 'winter';
+        }
+        
+        // Generate recommendation based on season and plant type
+        if (plantType === 'tomato') {
+            if (season === 'spring') {
+                return 'Protect young tomato plants from late spring frosts. Consider using cloches or row covers at night if temperatures drop below 10°C.';
+            } else if (season === 'summer') {
+                return 'Provide consistent watering during hot periods. Consider afternoon shade if temperatures exceed 32°C for extended periods.';
+            } else if (season === 'fall') {
+                return 'Harvest remaining tomatoes before first frost. Consider covering plants during early fall cold snaps to extend harvest.';
+            } else {
+                return 'Not an ideal growing season for outdoor tomatoes. Consider starting seeds indoors for spring planting.';
+            }
+        } else if (plantType === 'lettuce') {
+            if (season === 'spring' || season === 'fall') {
+                return 'Ideal growing season for lettuce. Ensure consistent moisture but avoid overhead watering to prevent disease.';
+            } else if (season === 'summer') {
+                return 'Provide shade during hot afternoons and increase watering frequency to prevent bolting. Consider heat-resistant varieties.';
+            } else {
+                return 'Protect from freezing temperatures using cold frames or row covers. Consider growing indoors or in a greenhouse.';
+            }
+        } else {
+            // Default recommendation based on temperature
+            if (weatherConditions.avg_temp < 10) {
+                return 'Current temperatures are cool for optimal growth. Consider protection methods for cold-sensitive plants.';
+            } else if (weatherConditions.avg_temp > 30) {
+                return 'Current temperatures are warm for optimal growth. Ensure adequate watering and consider shade during peak heat.';
+            } else {
+                return 'Current temperatures are in a good range for plant growth. Maintain regular care practices appropriate for the season.';
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

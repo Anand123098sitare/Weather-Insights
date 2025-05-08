@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Weather Notifications - Environmental Intelligence Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/smart_notifications.css">
+    <link rel="stylesheet" href="/static/css/colorful-mode.css" id="color-mode-stylesheet">
+</head>
+<body>
+    <!-- Navigation bar will be inserted from layout.html -->
+
+    <div class="notifications-container">
+        <section class="notification-header">
+            <h1>Smart Weather Notifications</h1>
+            <p>Get personalized, context-aware weather alerts and activity recommendations based on intelligent weather pattern analysis.</p>
+            <p class="subtitle">Beyond standard weather forecasts, we provide actionable insights to help you make everyday decisions.</p>
+        </section>
+
+        <section class="intro-cards">
+            <div class="intro-card">
+                <i class="fa-solid fa-bullhorn icon"></i>
+                <h3>Personalized Alerts</h3>
+                <p>Receive customized notifications tailored to your location, activities, and preferences. Our smart system analyzes weather patterns to deliver what matters to you.</p>
+            </div>
+            <div class="intro-card">
+                <i class="fa-solid fa-lightbulb icon"></i>
+                <h3>Activity Recommendations</h3>
+                <p>Find the perfect time for outdoor activities, gardening, or home projects. We identify ideal weather windows and suggest the best times for your plans.</p>
+            </div>
+            <div class="intro-card">
+                <i class="fa-solid fa-shield-alt icon"></i>
+                <h3>Timely Warnings</h3>
+                <p>Stay ahead of extreme weather events with proactive notifications. Get warnings about upcoming heat waves, cold snaps, or dry spells before they impact your plans.</p>
+            </div>
+        </section>
+
+        <section class="search-section">
+            <h2>Get Your Personalized Notifications</h2>
+            <form class="search-form" id="notification-form">
+                <input type="text" id="city-input" placeholder="Enter your city" list="cities-list" required>
+                <datalist id="cities-list">
+                    {% for city in cities %}
+                    <option value="{{ city }}">
+                    {% endfor %}
+                </datalist>
+                <select id="days-input">
+                    <option value="3">Next 3 days</option>
+                    <option value="5">Next 5 days</option>
+                    <option value="7" selected>Next 7 days</option>
+                    <option value="14">Next 14 days</option>
+                </select>
+                <button type="submit">Get Smart Notifications</button>
+            </form>
+            <div class="search-tips">
+                <p><i class="fa-solid fa-circle-info"></i> Enter your city to get personalized weather notifications and activity suggestions</p>
+                <div class="signup-note">
+                    <p><i class="fa-solid fa-user-plus"></i> <a href="/register" class="signup-link">Sign up for an account</a> to save your preferences and receive notifications by email</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="featured-notifications">
+            <h2>Featured Smart Notifications</h2>
+            <div class="city-notification-cards">
+                {% if featured_notifications %}
+                    {% for city_data in featured_notifications %}
+                        <div class="city-card">
+                            <div class="city-header">
+                                <h3>{{ city_data.city }}</h3>
+                                <p>Generated on {{ city_data.generated_at|replace('T', ' ')|truncate(16, True, '') }}</p>
+                            </div>
+                            <ul class="notification-list">
+                                {% for notification in city_data.notifications %}
+                                    <li class="notification-item notification-{{ notification.type }}">
+                                        <div class="notification-content">
+                                            <div class="notification-icon">
+                                                <i class="fa-solid fa-{{ notification.icon }}"></i>
+                                            </div>
+                                            <div class="notification-message">
+                                                <p>{{ notification.message }}</p>
+                                                <div class="notification-meta">
+                                                    {% if notification.start_date %}
+                                                        <span><i class="fa-regular fa-calendar"></i> {{ notification.start_date|replace('-', '/') }}{% if notification.end_date and notification.end_date != notification.start_date %} - {{ notification.end_date|replace('-', '/') }}{% endif %}</span>
+                                                    {% endif %}
+                                                    {% if notification.consecutive_days %}
+                                                        <span><i class="fa-solid fa-clock"></i> {{ notification.consecutive_days }} days</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="priority-indicator priority-{{ notification.priority }}">
+                                            <span class="priority-dot"></span>
+                                            <span class="priority-dot"></span>
+                                            <span class="priority-dot"></span>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-results">
+                        <i class="fa-solid fa-face-sad-tear"></i>
+                        <p>No featured notifications are available right now.</p>
+                        <p>Try generating your own personalized notifications by entering your city above.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <div class="notification-results" id="results-container">
+            <h3><i class="fa-solid fa-bell"></i> Your Smart Notifications</h3>
+            <div id="notification-results-content"></div>
+        </div>
+
+        <div class="loading" id="loading-indicator">
+            <div class="loading-spinner"></div>
+            <p>Generating your smart notifications...</p>
+        </div>
+
+        <section class="recommendation-section">
+            <h2>Understanding Your Smart Notifications</h2>
+            <div class="recommendation-grid">
+                <div class="recommendation-card">
+                    <h3><i class="fa-solid fa-triangle-exclamation"></i> Warning Notifications</h3>
+                    <p>These high-priority alerts warn you about potentially dangerous or extreme weather conditions that require your attention, like heat waves, cold snaps, or high winds.</p>
+                </div>
+                <div class="recommendation-card">
+                    <h3><i class="fa-solid fa-person-hiking"></i> Activity Recommendations</h3>
+                    <p>Based on favorable weather patterns, these notifications suggest ideal times for specific activities like outdoor painting, hiking, gardening, or beach days.</p>
+                </div>
+                <div class="recommendation-card">
+                    <h3><i class="fa-solid fa-calendar-days"></i> Seasonal Notifications</h3>
+                    <p>Calendar-aware alerts that highlight upcoming seasonal events and transitions, along with their weather implications and seasonal activity opportunities.</p>
+                </div>
+                <div class="recommendation-card">
+                    <h3><i class="fa-solid fa-leaf"></i> Agricultural Notifications</h3>
+                    <p>Specialized alerts for gardeners and plant enthusiasts with watering recommendations, frost warnings, and plant care tips based on upcoming weather.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="how-it-works">
+            <h2>How Smart Notifications Work</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Data Collection</h3>
+                    <p>We gather comprehensive weather data for your location, including forecasts, historical patterns, and seasonal trends.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Pattern Analysis</h3>
+                    <p>Our intelligent algorithms analyze weather patterns to identify significant events, favorable conditions, and potential risks.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <p>Based on our analysis, we generate personalized notifications that are truly actionable - helping you make everyday decisions with confidence.</p>
+                    <h3>Smart Insights</h3>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const notificationForm = document.getElementById('notification-form');
+            const resultsContainer = document.getElementById('results-container');
+            const notificationResultsContent = document.getElementById('notification-results-content');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            
+            notificationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const city = document.getElementById('city-input').value;
+                const days = document.getElementById('days-input').value;
+                
+                if (!city) {
+                    alert('Please enter a city name');
+                    return;
+                }
+                
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                resultsContainer.style.display = 'none';
+                
+                // Fetch notifications from API
+                fetch(`/api/smart-notifications?city=${encodeURIComponent(city)}&days=${days}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Hide loading indicator
+                        loadingIndicator.style.display = 'none';
+                        
+                        if (data.status === 'success' && data.data && data.data.notifications) {
+                            // Display results
+                            resultsContainer.style.display = 'block';
+                            
+                            // Create HTML for notifications
+                            let notificationsHTML = `
+                                <div class="city-card" style="max-width: 100%;">
+                                    <div class="city-header">
+                                        <h3>${data.data.city}</h3>
+                                        <p>Generated on ${data.data.generated_at.replace('T', ' ').substring(0, 16)}</p>
+                                    </div>
+                                    <ul class="notification-list">`;
+                            
+                            // Add each notification
+                            data.data.notifications.forEach(notification => {
+                                notificationsHTML += `
+                                    <li class="notification-item notification-${notification.type}">
+                                        <div class="notification-content">
+                                            <div class="notification-icon">
+                                                <i class="fa-solid fa-${notification.icon || 'bell'}"></i>
+                                            </div>
+                                            <div class="notification-message">
+                                                <p>${notification.message}</p>
+                                                <div class="notification-meta">`;
+                                
+                                // Add dates if available
+                                if (notification.start_date) {
+                                    notificationsHTML += `
+                                        <span><i class="fa-regular fa-calendar"></i> ${notification.start_date.replace('-', '/')}`;
+                                    
+                                    if (notification.end_date && notification.end_date !== notification.start_date) {
+                                        notificationsHTML += ` - ${notification.end_date.replace('-', '/')}`;
+                                    }
+                                    
+                                    notificationsHTML += `</span>`;
+                                }
+                                
+                                // Add duration if available
+                                if (notification.consecutive_days) {
+                                    notificationsHTML += `
+                                        <span><i class="fa-solid fa-clock"></i> ${notification.consecutive_days} days</span>`;
+                                }
+                                
+                                notificationsHTML += `
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="priority-indicator priority-${notification.priority}">
+                                            <span class="priority-dot"></span>
+                                            <span class="priority-dot"></span>
+                                            <span class="priority-dot"></span>
+                                        </div>
+                                    </li>`;
+                            });
+                            
+                            notificationsHTML += `
+                                    </ul>
+                                </div>`;
+                            
+                            // Add explanation section
+                            notificationsHTML += `
+                                <div class="notification-explanation">
+                                    <h3>What These Notifications Mean</h3>
+                                    <p>These smart notifications are designed to help you make practical decisions based on upcoming weather patterns. Here's how to use them:</p>
+                                    <ul>
+                                        <li><strong>High Priority Alerts:</strong> Take action on notifications with <span style="color: #e74c3c;">three red dots</span> - these indicate important weather events.</li>
+                                        <li><strong>Activity Suggestions:</strong> Look for notifications with <span style="color: #2ecc71;">activity icons</span> to find optimal times for outdoor plans.</li>
+                                        <li><strong>Planning Ahead:</strong> Use date ranges to schedule activities during favorable weather windows.</li>
+                                    </ul>
+                                </div>`;
+                            
+                            // Set the content
+                            notificationResultsContent.innerHTML = notificationsHTML;
+                            
+                            // Scroll to results
+                            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+                        } else {
+                            // Display error
+                            resultsContainer.style.display = 'block';
+                            notificationResultsContent.innerHTML = `
+                                <div class="no-results">
+                                    <i class="fa-solid fa-face-sad-tear"></i>
+                                    <p>Sorry, we couldn't generate notifications for ${city}.</p>
+                                    <p>Please try another city or check your spelling.</p>
+                                    <p class="error-message">${data.message || 'Unknown error'}</p>
+                                </div>`;
+                        }
+                    })
+                    .catch(error => {
+                        // Hide loading indicator
+                        loadingIndicator.style.display = 'none';
+                        
+                        // Display error
+                        resultsContainer.style.display = 'block';
+                        notificationResultsContent.innerHTML = `
+                            <div class="no-results">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <p>An error occurred while fetching notifications.</p>
+                                <p>Please try again later.</p>
+                                <p class="error-message">${error.message}</p>
+                            </div>`;
+                    });
+            });
+        });
+    </script>
+</body>
+</html>

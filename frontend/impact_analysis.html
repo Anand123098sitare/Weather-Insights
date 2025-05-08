@@ -1,0 +1,851 @@
+{% extends 'layout.html' %}
+
+{% block title %}Air Quality Health Impact Analysis{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/impact_analysis.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center" data-aos="fade-down">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-lungs text-primary me-3"></i>Air Quality Health Impact Analysis
+            </h1>
+            <p class="lead">Explore how air pollution affects public health and discover the impact of different AQI levels on respiratory conditions</p>
+            <div class="page-divider my-4 mx-auto"></div>
+        </div>
+    </div>
+
+    <!-- Introduction Section -->
+    <div class="row mb-5" data-aos="fade-up">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-5">
+                    <h2 class="fw-bold mb-4"><i class="fas fa-info-circle me-2 text-primary"></i>Understanding Air Quality Health Impacts</h2>
+                    <p class="mb-4">
+                        Air pollution is one of the world's largest health and environmental problems. Research has linked air pollution to various health conditions, 
+                        including respiratory diseases, cardiovascular problems, and even reduced cognitive function. Long-term exposure to elevated levels of air 
+                        pollution can significantly impact life expectancy and quality of life.
+                    </p>
+                    <p>
+                        This analysis tool helps you understand how different levels of air pollution affect human health across various age groups and 
+                        provides insights into the correlation between air quality and public health metrics.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AQI Impact Chart -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4" data-aos="fade-up">
+            <h2 class="fw-bold">Health Impact by AQI Level</h2>
+            <p class="text-muted">Visual representation of how each AQI category affects different population groups</p>
+        </div>
+        <div class="col-lg-12" data-aos="zoom-in" data-aos-delay="200">
+            <div class="card border-0 shadow-lg rounded-4 mb-5">
+                <div class="card-body p-4">
+                    <div class="row">
+                        <!-- AQI Categories Visualization -->
+                        <div class="col-12">
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">AQI Level</th>
+                                            <th class="text-center">Category</th>
+                                            <th class="text-center">General Population</th>
+                                            <th class="text-center">Sensitive Groups</th>
+                                            <th class="text-center">Children</th>
+                                            <th class="text-center">Elderly</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Good AQI (0-50) -->
+                                        <tr>
+                                            <td class="align-middle">
+                                                <div class="aqi-badge aqi-good-bg text-center">0-50</div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span class="fw-bold text-success">Good</span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-very-low">
+                                                        <i class="fas fa-check"></i>
+                                                    </div>
+                                                    <span class="ms-2">No Risk</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-very-low">
+                                                        <i class="fas fa-check"></i>
+                                                    </div>
+                                                    <span class="ms-2">No Risk</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-very-low">
+                                                        <i class="fas fa-check"></i>
+                                                    </div>
+                                                    <span class="ms-2">No Risk</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-very-low">
+                                                        <i class="fas fa-check"></i>
+                                                    </div>
+                                                    <span class="ms-2">No Risk</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Moderate AQI (51-100) -->
+                                        <tr>
+                                            <td class="align-middle">
+                                                <div class="aqi-badge aqi-moderate-bg text-center">51-100</div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span class="fw-bold text-warning">Moderate</span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-low">
+                                                        <i class="fas fa-check"></i>
+                                                    </div>
+                                                    <span class="ms-2">Minimal Risk</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-moderate">
+                                                        <i class="fas fa-exclamation"></i>
+                                                    </div>
+                                                    <span class="ms-2">Moderate Risk</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-low">
+                                                        <i class="fas fa-exclamation"></i>
+                                                    </div>
+                                                    <span class="ms-2">Low Risk</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-low">
+                                                        <i class="fas fa-exclamation"></i>
+                                                    </div>
+                                                    <span class="ms-2">Low Risk</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Unhealthy for Sensitive Groups (101-150) -->
+                                        <tr>
+                                            <td class="align-middle">
+                                                <div class="aqi-badge aqi-sensitive-bg text-center">101-150</div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span class="fw-bold text-orange">Unhealthy for Sensitive</span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-moderate">
+                                                        <i class="fas fa-exclamation"></i>
+                                                    </div>
+                                                    <span class="ms-2">Minor Symptoms</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-high">
+                                                        <i class="fas fa-exclamation-triangle"></i>
+                                                    </div>
+                                                    <span class="ms-2">High Risk</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-high">
+                                                        <i class="fas fa-exclamation-triangle"></i>
+                                                    </div>
+                                                    <span class="ms-2">High Risk</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-high">
+                                                        <i class="fas fa-exclamation-triangle"></i>
+                                                    </div>
+                                                    <span class="ms-2">High Risk</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Unhealthy (151-200) -->
+                                        <tr>
+                                            <td class="align-middle">
+                                                <div class="aqi-badge aqi-unhealthy-bg text-center">151-200</div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span class="fw-bold text-danger">Unhealthy</span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-high">
+                                                        <i class="fas fa-exclamation-triangle"></i>
+                                                    </div>
+                                                    <span class="ms-2">Increased Symptoms</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-very-high">
+                                                        <i class="fas fa-radiation"></i>
+                                                    </div>
+                                                    <span class="ms-2">Serious Health Effects</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-very-high">
+                                                        <i class="fas fa-radiation"></i>
+                                                    </div>
+                                                    <span class="ms-2">Serious Health Effects</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-very-high">
+                                                        <i class="fas fa-radiation"></i>
+                                                    </div>
+                                                    <span class="ms-2">Serious Health Effects</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Very Unhealthy (201-300) -->
+                                        <tr>
+                                            <td class="align-middle">
+                                                <div class="aqi-badge aqi-very-unhealthy-bg text-center">201-300</div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span class="fw-bold text-purple">Very Unhealthy</span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-very-high">
+                                                        <i class="fas fa-radiation"></i>
+                                                    </div>
+                                                    <span class="ms-2">Significant Symptoms</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-severe">
+                                                        <i class="fas fa-skull-crossbones"></i>
+                                                    </div>
+                                                    <span class="ms-2">Severe Health Effects</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-severe">
+                                                        <i class="fas fa-skull-crossbones"></i>
+                                                    </div>
+                                                    <span class="ms-2">Severe Health Effects</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-severe">
+                                                        <i class="fas fa-skull-crossbones"></i>
+                                                    </div>
+                                                    <span class="ms-2">Severe Health Effects</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Hazardous (301+) -->
+                                        <tr>
+                                            <td class="align-middle">
+                                                <div class="aqi-badge aqi-hazardous-bg text-center">301+</div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span class="fw-bold text-maroon">Hazardous</span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-severe">
+                                                        <i class="fas fa-skull-crossbones"></i>
+                                                    </div>
+                                                    <span class="ms-2">Emergency Conditions</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-extreme">
+                                                        <i class="fas fa-biohazard"></i>
+                                                    </div>
+                                                    <span class="ms-2">Life-Threatening</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-extreme">
+                                                        <i class="fas fa-biohazard"></i>
+                                                    </div>
+                                                    <span class="ms-2">Life-Threatening</span>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="risk-indicator risk-extreme">
+                                                        <i class="fas fa-biohazard"></i>
+                                                    </div>
+                                                    <span class="ms-2">Life-Threatening</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Effects by Pollutant -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4" data-aos="fade-up">
+            <h2 class="fw-bold">Health Effects by Pollutant Type</h2>
+            <p class="text-muted">Different pollutants affect human health in various ways</p>
+        </div>
+        
+        <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card h-100 border-0 shadow-lg rounded-4">
+                <div class="card-header bg-primary text-white text-center py-3 rounded-top-4">
+                    <h4 class="mb-0 fw-bold"><i class="fas fa-smog me-2"></i>PM<sub>2.5</sub></h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Fine Particulate Matter</h5>
+                    <p class="card-text">Tiny particles that can penetrate deep into lungs and even enter the bloodstream.</p>
+                    <h6 class="mt-4 mb-3 fw-bold">Short-term Effects:</h6>
+                    <ul class="fa-ul">
+                        <li><span class="fa-li"><i class="fas fa-lungs text-danger"></i></span>Irritation of eyes, nose, and throat</li>
+                        <li><span class="fa-li"><i class="fas fa-head-side-cough text-danger"></i></span>Coughing, chest tightness, and shortness of breath</li>
+                        <li><span class="fa-li"><i class="fas fa-heartbeat text-danger"></i></span>Irregular heartbeat and reduced lung function</li>
+                    </ul>
+                    <h6 class="mt-4 mb-3 fw-bold">Long-term Effects:</h6>
+                    <ul class="fa-ul">
+                        <li><span class="fa-li"><i class="fas fa-lungs-virus text-danger"></i></span>Respiratory infections and asthma</li>
+                        <li><span class="fa-li"><i class="fas fa-disease text-danger"></i></span>Chronic bronchitis and emphysema</li>
+                        <li><span class="fa-li"><i class="fas fa-heart text-danger"></i></span>Heart disease and cardiovascular problems</li>
+                        <li><span class="fa-li"><i class="fas fa-brain text-danger"></i></span>Reduced cognitive function</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card h-100 border-0 shadow-lg rounded-4">
+                <div class="card-header bg-warning text-dark text-center py-3 rounded-top-4">
+                    <h4 class="mb-0 fw-bold"><i class="fas fa-smog me-2"></i>O<sub>3</sub></h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Ground-level Ozone</h5>
+                    <p class="card-text">A reactive gas that forms when pollutants from cars and industry react in sunlight.</p>
+                    <h6 class="mt-4 mb-3 fw-bold">Short-term Effects:</h6>
+                    <ul class="fa-ul">
+                        <li><span class="fa-li"><i class="fas fa-lungs text-warning"></i></span>Coughing and throat irritation</li>
+                        <li><span class="fa-li"><i class="fas fa-head-side-cough text-warning"></i></span>Chest pain and difficulty breathing</li>
+                        <li><span class="fa-li"><i class="fas fa-running text-warning"></i></span>Reduced exercise capacity</li>
+                    </ul>
+                    <h6 class="mt-4 mb-3 fw-bold">Long-term Effects:</h6>
+                    <ul class="fa-ul">
+                        <li><span class="fa-li"><i class="fas fa-lungs-virus text-warning"></i></span>Inflammation of lung tissue</li>
+                        <li><span class="fa-li"><i class="fas fa-heartbeat text-warning"></i></span>Permanent lung damage</li>
+                        <li><span class="fa-li"><i class="fas fa-baby text-warning"></i></span>Low birth weight in newborns</li>
+                        <li><span class="fa-li"><i class="fas fa-user-alt-slash text-warning"></i></span>Premature mortality</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="card h-100 border-0 shadow-lg rounded-4">
+                <div class="card-header bg-danger text-white text-center py-3 rounded-top-4">
+                    <h4 class="mb-0 fw-bold"><i class="fas fa-smog me-2"></i>NO<sub>2</sub></h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Nitrogen Dioxide</h5>
+                    <p class="card-text">A gaseous air pollutant produced primarily during the combustion of fossil fuels.</p>
+                    <h6 class="mt-4 mb-3 fw-bold">Short-term Effects:</h6>
+                    <ul class="fa-ul">
+                        <li><span class="fa-li"><i class="fas fa-eye text-danger"></i></span>Eye, nose, and throat irritation</li>
+                        <li><span class="fa-li"><i class="fas fa-lungs text-danger"></i></span>Respiratory symptoms like wheezing and coughing</li>
+                        <li><span class="fa-li"><i class="fas fa-head-side-virus text-danger"></i></span>Increased respiratory infections</li>
+                    </ul>
+                    <h6 class="mt-4 mb-3 fw-bold">Long-term Effects:</h6>
+                    <ul class="fa-ul">
+                        <li><span class="fa-li"><i class="fas fa-lungs-virus text-danger"></i></span>Asthma development and exacerbation</li>
+                        <li><span class="fa-li"><i class="fas fa-clipboard-list text-danger"></i></span>Reduced lung function growth in children</li>
+                        <li><span class="fa-li"><i class="fas fa-virus text-danger"></i></span>Greater susceptibility to respiratory infections</li>
+                        <li><span class="fa-li"><i class="fas fa-heart text-danger"></i></span>Cardiovascular effects</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Health Impact Visualizations -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4" data-aos="fade-up">
+            <h2 class="fw-bold">Air Quality & Public Health Correlations</h2>
+            <p class="text-muted">Visualizing the relationship between air quality metrics and public health outcomes</p>
+        </div>
+        
+        <div class="col-lg-6 mb-4" data-aos="fade-right">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-4">Respiratory Illness Correlation</h3>
+                    <p class="card-text mb-4">The relationship between average PM2.5 levels and respiratory-related hospital admissions shows a clear correlation.</p>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="respiratoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4" data-aos="fade-left">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-4">Child Health Impact</h3>
+                    <p class="card-text mb-4">Children are particularly vulnerable to air pollution effects, with clear links to asthma rates and lung development.</p>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="childHealthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- City Air Quality & Life Expectancy -->
+    <div class="row mb-5">
+        <div class="col-12" data-aos="fade-up">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-4 text-center">Air Quality & Life Expectancy</h3>
+                    <p class="text-center mb-4">Research shows that chronic exposure to air pollution can reduce life expectancy by 1-3 years depending on pollution levels.</p>
+                    
+                    <div class="chart-container" style="position: relative; height: 400px;">
+                        <canvas id="lifeExpectancyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mitigation Strategies -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4" data-aos="fade-up">
+            <h2 class="fw-bold">Mitigating Health Risks</h2>
+            <p class="text-muted">Actions you can take to protect yourself from air pollution</p>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card h-100 border-0 shadow-lg rounded-4 text-center">
+                <div class="card-header bg-success text-white py-3 rounded-top-4">
+                    <i class="fas fa-home fa-3x"></i>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Indoor Air Quality</h5>
+                    <ul class="list-unstyled text-start">
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Use air purifiers with HEPA filters</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Keep windows closed on high pollution days</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Use kitchen exhaust fans when cooking</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Avoid smoking indoors</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i>Maintain ventilation systems</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card h-100 border-0 shadow-lg rounded-4 text-center">
+                <div class="card-header bg-info text-white py-3 rounded-top-4">
+                    <i class="fas fa-mask fa-3x"></i>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Personal Protection</h5>
+                    <ul class="list-unstyled text-start">
+                        <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i>Wear N95/N99 masks on polluted days</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i>Use air quality apps for alerts</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i>Avoid outdoor exercise during high pollution</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i>Stay hydrated to help flush toxins</li>
+                        <li><i class="fas fa-check-circle text-info me-2"></i>Take omega-3 supplements</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 mb-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="card h-100 border-0 shadow-lg rounded-4 text-center">
+                <div class="card-header bg-primary text-white py-3 rounded-top-4">
+                    <i class="fas fa-utensils fa-3x"></i>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Diet & Nutrition</h5>
+                    <ul class="list-unstyled text-start">
+                        <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i>Eat antioxidant-rich foods</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i>Increase vitamin C and E intake</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i>Consume anti-inflammatory foods</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i>Maintain adequate vitamin D levels</li>
+                        <li><i class="fas fa-check-circle text-primary me-2"></i>Stay well-hydrated</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 mb-4" data-aos="fade-up" data-aos-delay="400">
+            <div class="card h-100 border-0 shadow-lg rounded-4 text-center">
+                <div class="card-header bg-warning text-dark py-3 rounded-top-4">
+                    <i class="fas fa-car fa-3x"></i>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Transportation Choices</h5>
+                    <ul class="list-unstyled text-start">
+                        <li class="mb-2"><i class="fas fa-check-circle text-warning me-2"></i>Use public transportation</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-warning me-2"></i>Consider electric vehicles</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-warning me-2"></i>Bike or walk for short trips</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-warning me-2"></i>Keep car windows closed in traffic</li>
+                        <li><i class="fas fa-check-circle text-warning me-2"></i>Use cabin air filters in vehicles</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Resources Section -->
+    <div class="row mb-5">
+        <div class="col-12" data-aos="fade-up">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-5">
+                    <h3 class="fw-bold mb-4 text-center"><i class="fas fa-book-medical me-2 text-primary"></i>Additional Resources</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="fw-bold">Research & Studies</h5>
+                            <ul class="mb-4">
+                                <li><a href="https://www.who.int/health-topics/air-pollution" target="_blank">World Health Organization - Air Pollution</a></li>
+                                <li><a href="https://www.epa.gov/air-research" target="_blank">EPA Air Research</a></li>
+                                <li><a href="https://www.niehs.nih.gov/health/topics/agents/air-pollution/index.cfm" target="_blank">National Institute of Environmental Health Sciences</a></li>
+                                <li><a href="https://www.lung.org/clean-air" target="_blank">American Lung Association</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="fw-bold">Health Guidance</h5>
+                            <ul>
+                                <li><a href="https://www.cdc.gov/air/default.htm" target="_blank">CDC Air Pollution & Respiratory Health</a></li>
+                                <li><a href="https://www.airnow.gov/" target="_blank">AirNow.gov - Health Recommendations</a></li>
+                                <li><a href="https://www.health.harvard.edu/staying-healthy/air-pollution-and-your-health" target="_blank">Harvard Health - Air Pollution Articles</a></li>
+                                <li><a href="https://www.aaaai.org/conditions-treatments/library/asthma-library/air-pollution-asthma" target="_blank">American Academy of Allergy, Asthma & Immunology</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Respiratory Illness Correlation Chart
+        const respiratoryCtx = document.getElementById('respiratoryChart').getContext('2d');
+        new Chart(respiratoryCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Cities',
+                    data: [
+                        { x: 8.5, y: 24 },  // Clean city
+                        { x: 12.8, y: 36 },
+                        { x: 18.4, y: 52 },
+                        { x: 25.6, y: 72 },
+                        { x: 35.2, y: 98 },
+                        { x: 42.7, y: 132 },
+                        { x: 56.3, y: 175 },
+                        { x: 68.4, y: 210 },
+                        { x: 89.5, y: 264 },
+                        { x: 112.3, y: 315 } // Polluted city
+                    ],
+                    backgroundColor: function(context) {
+                        const value = context.raw.x;
+                        if (value < 12) return 'rgba(0, 200, 83, 0.7)';
+                        else if (value < 35.5) return 'rgba(255, 126, 0, 0.7)';
+                        else if (value < 55.5) return 'rgba(255, 0, 0, 0.7)';
+                        else if (value < 150.5) return 'rgba(143, 63, 151, 0.7)';
+                        else return 'rgba(126, 0, 35, 0.7)';
+                    },
+                    borderColor: function(context) {
+                        const value = context.raw.x;
+                        if (value < 12) return 'rgba(0, 200, 83, 1)';
+                        else if (value < 35.5) return 'rgba(255, 126, 0, 1)';
+                        else if (value < 55.5) return 'rgba(255, 0, 0, 1)';
+                        else if (value < 150.5) return 'rgba(143, 63, 151, 1)';
+                        else return 'rgba(126, 0, 35, 1)';
+                    },
+                    borderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Annual Average PM2.5 (µg/m³)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(200, 200, 200, 0.2)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Respiratory Hospital Admissions (per 10,000)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(200, 200, 200, 0.2)'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `PM2.5: ${context.raw.x} µg/m³, Admissions: ${context.raw.y} per 10,000`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Child Health Impact Chart
+        const childHealthCtx = document.getElementById('childHealthChart').getContext('2d');
+        new Chart(childHealthCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Very Low', 'Low', 'Moderate', 'High', 'Very High'],
+                datasets: [{
+                    label: 'Childhood Asthma Rates (%)',
+                    data: [7.2, 9.8, 12.5, 15.7, 18.9],
+                    backgroundColor: [
+                        'rgba(0, 200, 83, 0.7)',
+                        'rgba(255, 255, 0, 0.7)',
+                        'rgba(255, 126, 0, 0.7)',
+                        'rgba(255, 0, 0, 0.7)',
+                        'rgba(143, 63, 151, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(0, 200, 83, 1)',
+                        'rgba(255, 255, 0, 1)',
+                        'rgba(255, 126, 0, 1)',
+                        'rgba(255, 0, 0, 1)',
+                        'rgba(143, 63, 151, 1)'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Pollution Exposure Level',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Childhood Asthma Rate (%)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(200, 200, 200, 0.2)'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Asthma Rate: ${context.raw}%`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Life Expectancy Chart
+        const lifeExpectancyCtx = document.getElementById('lifeExpectancyChart').getContext('2d');
+        new Chart(lifeExpectancyCtx, {
+            type: 'bubble',
+            data: {
+                datasets: [{
+                    label: 'Major Cities',
+                    data: [
+                        { x: 15, y: 82.1, r: 15 },  // Low pollution, high life expectancy
+                        { x: 20, y: 81.5, r: 18 },
+                        { x: 28, y: 80.2, r: 20 },
+                        { x: 35, y: 79.5, r: 17 },
+                        { x: 42, y: 78.7, r: 15 },
+                        { x: 54, y: 77.2, r: 21 },
+                        { x: 68, y: 76.1, r: 23 },
+                        { x: 82, y: 75.3, r: 19 },
+                        { x: 95, y: 74.2, r: 16 },
+                        { x: 120, y: 72.8, r: 22 }  // High pollution, low life expectancy
+                    ],
+                    backgroundColor: function(context) {
+                        const value = context.raw.x;
+                        if (value < 12) return 'rgba(0, 200, 83, 0.7)';
+                        else if (value < 35.5) return 'rgba(255, 255, 0, 0.7)';
+                        else if (value < 55.5) return 'rgba(255, 126, 0, 0.7)';
+                        else if (value < 150.5) return 'rgba(255, 0, 0, 0.7)';
+                        else return 'rgba(143, 63, 151, 0.7)';
+                    },
+                    borderColor: function(context) {
+                        const value = context.raw.x;
+                        if (value < 12) return 'rgba(0, 200, 83, 1)';
+                        else if (value < 35.5) return 'rgba(255, 255, 0, 1)';
+                        else if (value < 55.5) return 'rgba(255, 126, 0, 1)';
+                        else if (value < 150.5) return 'rgba(255, 0, 0, 1)';
+                        else return 'rgba(143, 63, 151, 1)';
+                    },
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Annual Average PM2.5 (µg/m³)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(200, 200, 200, 0.2)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Average Life Expectancy (years)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(200, 200, 200, 0.2)'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `PM2.5: ${context.raw.x} µg/m³, Life Expectancy: ${context.raw.y} years`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

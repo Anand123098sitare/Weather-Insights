@@ -1,0 +1,192 @@
+/* Styles for Air Quality Forecasting page */
+
+/* Page divider */
+.page-divider {
+    height: 4px;
+    width: 60px;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    border-radius: 2px;
+}
+
+/* Forecast card styling */
+.forecast-card {
+    border-radius: 16px;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0.5rem;
+}
+
+.forecast-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.forecast-card .card-body {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    text-align: center;
+}
+
+.forecast-day {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.1rem;
+}
+
+.forecast-date {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-bottom: 1rem;
+}
+
+.aqi-display {
+    padding: 0.5rem;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    margin-top: auto;
+    margin-bottom: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+}
+
+.aqi-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+}
+
+.aqi-category {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Weather info section */
+.weather-info {
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+/* Correlation chart styling */
+.chart-container {
+    border-radius: 12px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.chart-container:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Seasonal tabs */
+.seasons-tabs .nav-link {
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    margin-right: 5px;
+    transition: all 0.3s ease;
+}
+
+.seasons-tabs .nav-link.active {
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+.season-description {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+/* Pollutant cards */
+.pollutant-card {
+    background-color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s ease;
+    border-left: 4px solid var(--primary-color);
+}
+
+.pollutant-card:hover {
+    transform: translateX(5px);
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.pollutant-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+/* Accordion styling */
+.accordion-button {
+    background-color: #f8f9fa;
+}
+
+.accordion-button:not(.collapsed) {
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+}
+
+/* Form elements */
+.form-floating .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(58, 123, 213, 0.25);
+}
+
+/* Dark theme compatibility */
+.dark-theme .chart-container,
+.dark-theme .pollutant-card,
+.dark-theme .season-description {
+    background-color: rgba(50, 50, 50, 0.7);
+    color: #e0e0e0;
+}
+
+.dark-theme .accordion-button {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+}
+
+.dark-theme .accordion-button:not(.collapsed) {
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .aqi-value {
+        font-size: 2.5rem;
+    }
+    
+    .forecast-card {
+        margin-bottom: 15px;
+    }
+    
+    .seasons-tabs .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+}

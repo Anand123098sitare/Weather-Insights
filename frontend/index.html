@@ -1,0 +1,644 @@
+{% extends "layout.html" %}
+
+{% block title %}Weather Insights - Homepage{% endblock %}
+
+{% block page_id %}index{% endblock %}
+
+{% block content %}
+<!-- Hero Section with animated particles -->
+<section class="hero" style="background-image: url('https://images.unsplash.com/photo-1532299033002-f5232c2ba89f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');">
+    <div class="container">
+        <div class="hero-header">
+            <h1 class="animate__animated animate__fadeInDown">Weather Insights</h1>
+        </div>
+        <p class="animate__animated animate__fadeInUp animate__delay-1s">Personalized weather insights to help you make better decisions. Stay informed with our interactive tools and smart notifications.</p>
+        <div class="mt-5 animate__animated animate__fadeInUp animate__delay-2s">
+            <a href="{{ url_for('smart_notifications_page') }}" class="btn btn-colorful btn-lg me-3 mb-2">
+                <i class="fas fa-bell me-2"></i> Explore Smart Notifications
+            </a>
+            <a href="{{ url_for('interactive_map_page') }}" class="btn btn-colorful-outline btn-lg mb-2">
+                <i class="fas fa-map-marked-alt me-2"></i> Interactive Weather Map
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<div class="container py-5">
+    <!-- Visitor Analytics will be displayed here by JavaScript -->
+    
+    <!-- Global Air Quality Monitor -->
+    <section class="mb-4">
+        <div class="section-header text-center" data-aos="fade-up">
+            <h2 class="display-5 fw-bold">Global Air Quality Monitor</h2>
+            <p class="lead text-muted mb-0">Real-time air quality data from around the world</p>
+        </div>
+    </section>
+    
+    <!-- Statistics Overview -->
+    <section class="mb-5">
+        <div class="row">
+            <div class="col-md-3 mb-4" data-aos="fade-up">
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <div class="info-card-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h4 class="info-card-title">Global AQI</h4>
+                    </div>
+                    <div class="info-card-body">
+                        <div class="info-card-value">
+                            {{ global_avg_aqi|round(1) }} <span>AQI</span>
+                        </div>
+                        <p>Current global average air quality index</p>
+                    </div>
+                    <div class="info-card-footer">
+                        <i class="fas fa-info-circle me-1"></i> Updated daily
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <div class="info-card-icon">
+                            <i class="fas fa-smog"></i>
+                        </div>
+                        <h4 class="info-card-title">Most Polluted</h4>
+                    </div>
+                    <div class="info-card-body">
+                        <div class="info-card-value">
+                            {{ top_polluted_countries[0]['Country'] }}
+                        </div>
+                        <p>Country with highest pollution levels</p>
+                    </div>
+                    <div class="info-card-footer">
+                        <i class="fas fa-chart-line me-1"></i> AQI: {{ top_polluted_countries[0]['2024 Avg']|round(1) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <div class="info-card-icon">
+                            <i class="fas fa-lungs"></i>
+                        </div>
+                        <h4 class="info-card-title">Health Risk</h4>
+                    </div>
+                    <div class="info-card-body">
+                        <div class="info-card-value">
+                            {{ "High" if global_avg_aqi > 100 else "Moderate" if global_avg_aqi > 50 else "Low" }}
+                        </div>
+                        <p>Current global health risk level from air pollution</p>
+                    </div>
+                    <div class="info-card-footer">
+                        <i class="fas fa-heartbeat me-1"></i> Based on WHO guidelines
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <div class="info-card-icon">
+                            <i class="fas fa-flag"></i>
+                        </div>
+                        <h4 class="info-card-title">Coverage</h4>
+                    </div>
+                    <div class="info-card-body">
+                        <div class="info-card-value">
+                            {{ monitored_countries_count }}
+                            <span>countries</span>
+                        </div>
+                        <p>Countries with air quality monitoring</p>
+                    </div>
+                    <div class="info-card-footer">
+                        <i class="fas fa-city me-1"></i> 1000+ cities monitored
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Content -->
+    <section class="mb-5">
+        <div class="row">
+            <!-- Map Preview -->
+            <div class="col-lg-8 mb-4" data-aos="fade-up">
+                <div class="dashboard-card h-100">
+                    <h3><i class="fas fa-map-marked-alt me-2"></i>Interactive Air Quality Map</h3>
+                    <div id="map-container" class="rounded" style="height: 450px; position: relative; overflow: hidden;">
+                        <!-- Map will be initialized here by JavaScript -->
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-light">
+                            <div class="text-center">
+                                <div class="spinner-border text-primary mb-3" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p>Loading interactive map...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('interactive_map_page') }}" class="btn btn-colorful">
+                            <i class="fas fa-expand me-2"></i> Open Interactive Map
+                        </a>
+                        <button class="btn btn-colorful-outline ms-2" id="refresh-map">
+                            <i class="fas fa-sync-alt me-2"></i> Refresh Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Top Polluted Countries -->
+            <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="dashboard-card h-100">
+                    <h3><i class="fas fa-smog me-2"></i>Most Polluted Countries</h3>
+                    <div class="table-responsive">
+                        <table class="animated-table" id="top-countries-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Country</th>
+                                    <th>AQI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for country in top_polluted_countries[:5] %}
+                                <tr class="table-row-animated" style="animation-delay: {{ loop.index * 0.1 }}s">
+                                    <td><span class="badge bg-primary">{{ country.Rank }}</span></td>
+                                    <td>{{ country.Country }}</td>
+                                    <td><span class="aqi-value 
+                                        {% if country['2024 Avg'] <= 50 %}aqi-good-bg
+                                        {% elif country['2024 Avg'] <= 100 %}aqi-moderate-bg
+                                        {% elif country['2024 Avg'] <= 150 %}aqi-sensitive-bg
+                                        {% elif country['2024 Avg'] <= 200 %}aqi-unhealthy-bg
+                                        {% elif country['2024 Avg'] <= 300 %}aqi-very-unhealthy-bg
+                                        {% else %}aqi-hazardous-bg{% endif %}">
+                                        {{ country['2024 Avg']|round(1) }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('most_polluted_page') }}" class="btn btn-colorful">
+                            <i class="fas fa-chart-bar me-2"></i> View Complete Rankings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Data Visualizations -->
+    <section class="mb-5">
+        <div class="row">
+            <!-- Featured Countries Chart -->
+            <div class="col-lg-12 mb-4" data-aos="fade-up">
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-chart-bar me-2"></i>Featured Countries Comparison</h3>
+                    <div class="chart-container" style="position: relative; height: 400px;">
+                        <canvas id="featured-countries-chart"></canvas>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <div style="width: 15px; height: 15px; background: linear-gradient(to right, var(--primary-color), var(--secondary-color)); border-radius: 3px; margin-right: 10px;"></div>
+                                <span>Monthly AQI values for 2024</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <button class="btn btn-sm btn-colorful-outline change-country-btn">
+                                <i class="fas fa-random me-1"></i> Change Countries
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- AQI Explanation -->
+    <section class="mb-5" data-aos="fade-up">
+        <div class="dashboard-card">
+            <h3><i class="fas fa-info-circle me-2"></i>Understanding Air Quality Index (AQI)</h3>
+            
+            <div class="row align-items-center">
+                <div class="col-lg-4">
+                    <p>The Air Quality Index (AQI) is a standardized indicator developed by the EPA to communicate how clean or polluted the air is, and what associated health effects might be of concern.</p>
+                    <p>Higher AQI values represent greater levels of air pollution and increased health concerns. The scale ranges from 0 to 500, with breakpoints indicating different levels of health concern.</p>
+                    <p>Check the colored scale on the right to understand the different AQI categories and their associated health implications.</p>
+                </div>
+                <div class="col-lg-8">
+                    <div class="table-responsive">
+                        <table class="animated-table">
+                            <thead>
+                                <tr>
+                                    <th>AQI Range</th>
+                                    <th>Category</th>
+                                    <th>Health Implications</th>
+                                    <th>Color</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="table-row-animated" style="animation-delay: 0.1s">
+                                    <td>0-50</td>
+                                    <td>Good</td>
+                                    <td>Air quality is satisfactory, and air pollution poses little or no risk.</td>
+                                    <td><div style="width: 25px; height: 25px; background-color: #009966; border-radius: 5px;"></div></td>
+                                </tr>
+                                <tr class="table-row-animated" style="animation-delay: 0.2s">
+                                    <td>51-100</td>
+                                    <td>Moderate</td>
+                                    <td>Air quality is acceptable. However, there may be a health concern for a very small number of people.</td>
+                                    <td><div style="width: 25px; height: 25px; background-color: #ffde33; border-radius: 5px;"></div></td>
+                                </tr>
+                                <tr class="table-row-animated" style="animation-delay: 0.3s">
+                                    <td>101-150</td>
+                                    <td>Unhealthy for Sensitive Groups</td>
+                                    <td>Members of sensitive groups may experience health effects. The general public is less likely to be affected.</td>
+                                    <td><div style="width: 25px; height: 25px; background-color: #ff9933; border-radius: 5px;"></div></td>
+                                </tr>
+                                <tr class="table-row-animated" style="animation-delay: 0.4s">
+                                    <td>151-200</td>
+                                    <td>Unhealthy</td>
+                                    <td>Some members of the general public may experience health effects; sensitive groups may experience more serious effects.</td>
+                                    <td><div style="width: 25px; height: 25px; background-color: #cc0033; border-radius: 5px;"></div></td>
+                                </tr>
+                                <tr class="table-row-animated" style="animation-delay: 0.5s">
+                                    <td>201-300</td>
+                                    <td>Very Unhealthy</td>
+                                    <td>Health alert: The risk of health effects is increased for everyone.</td>
+                                    <td><div style="width: 25px; height: 25px; background-color: #660099; border-radius: 5px;"></div></td>
+                                </tr>
+                                <tr class="table-row-animated" style="animation-delay: 0.6s">
+                                    <td>301+</td>
+                                    <td>Hazardous</td>
+                                    <td>Health warning of emergency conditions: everyone is more likely to be affected.</td>
+                                    <td><div style="width: 25px; height: 25px; background-color: #7e0023; border-radius: 5px;"></div></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Key Features -->
+    <section class="mb-5">
+        <div class="section-header text-center mb-5" data-aos="fade-up">
+            <h2>Explore Our Key Features</h2>
+            <p class="lead text-muted">Discover powerful tools to monitor weather conditions and receive personalized insights</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h4>Smart Notifications</h4>
+                    <p>Receive personalized, actionable weather insights tailored to your daily activities and location.</p>
+                    <a href="{{ url_for('smart_notifications_page') }}" class="btn btn-sm btn-colorful-outline mt-3">Get Insights</a>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-city"></i>
+                    </div>
+                    <h4>City Comparisons</h4>
+                    <p>Compare air quality between different cities to see pollution levels and identify patterns.</p>
+                    <a href="{{ url_for('cities_comparison_page') }}" class="btn btn-sm btn-colorful-outline mt-3">Compare Cities</a>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h4>Interactive Weather Map</h4>
+                    <p>Explore global weather conditions with our interactive maps showing real-time data with visual indicators.</p>
+                    <a href="{{ url_for('interactive_map_page') }}" class="btn btn-sm btn-colorful-outline mt-3">View Map</a>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud-sun"></i>
+                    </div>
+                    <h4>Weather Analysis</h4>
+                    <p>Analyze detailed weather patterns and receive insights on how weather affects your daily activities.</p>
+                    <a href="{{ url_for('weather_analysis_page') }}" class="btn btn-sm btn-colorful-outline mt-3">Analyze Weather</a>
+                </div>
+            </div>
+            
+            <!-- Agriculture card removed as requested -->
+            
+            <!-- Travel forecast card removed as requested -->
+        </div>
+    </section>
+    
+    <!-- Call to Action -->
+    <section class="mb-5" data-aos="fade-up">
+        <div class="cta-card text-center position-relative overflow-hidden">
+            <div class="position-relative" style="z-index: 2;">
+                <h2 class="mb-4">Make Better Decisions with Weather Insights</h2>
+                <p class="lead mb-4">Receive personalized, actionable weather notifications that help you plan your day and make informed choices.</p>
+                <div class="d-flex justify-content-center flex-wrap">
+                    <a href="{{ url_for('smart_notifications_page') }}" class="btn btn-lg btn-colorful me-3 mb-2">
+                        <i class="fas fa-bell me-2"></i> Get Smart Notifications
+                    </a>
+                    <a href="{{ url_for('weather_analysis_page') }}" class="btn btn-lg btn-colorful-outline mb-2">
+                        <i class="fas fa-cloud-sun me-2"></i> Analyze Weather Patterns
+                    </a>
+                </div>
+            </div>
+            <div class="cta-bg-circle"></div>
+            <div class="cta-bg-circle cta-bg-circle-2"></div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize featured countries chart with animation
+        const featuredCountriesChartId = 'featured-countries-chart';
+        const featuredCountriesChart = document.getElementById(featuredCountriesChartId);
+        if (featuredCountriesChart) {
+            // Destroy existing chart if it exists to prevent the 'Canvas is already in use' error
+            const existingChart = Chart.getChart(featuredCountriesChartId);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+            
+            const ctx = featuredCountriesChart.getContext('2d');
+            
+            // Get data from the top polluted countries from the backend
+            const countries = [{% for country in top_polluted_countries[:5] %}'{{ country.Country }}'{% if not loop.last %}, {% endif %}{% endfor %}];
+            
+            // Get real monthly data from the world_most_polluted_countries_.csv
+            const monthlyData = [
+                {% for country in top_polluted_countries[:5] %}
+                [{{ country.Jan|default(0) }}, {{ country.Feb|default(0) }}, {{ country.Mar|default(0) }}, 
+                 {{ country.Apr|default(0) }}, {{ country.May|default(0) }}, {{ country.Jun|default(0) }}, 
+                 {{ country.Jul|default(0) }}, {{ country.Aug|default(0) }}, {{ country.Sep|default(0) }}, 
+                 {{ country.Oct|default(0) }}, {{ country.Nov|default(0) }}, {{ country.Dec|default(0) }}]{% if not loop.last %},{% endif %}
+                {% endfor %}
+                [110, 105, 98, 90, 78, 72, 68, 70, 75, 85, 95, 100],
+                // Mongolia
+                [112, 105, 92, 85, 72, 65, 62, 65, 70, 80, 95, 105]
+            ];
+            
+            // Create color gradients for each dataset
+            const gradients = [];
+            const borderColors = [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)'
+            ];
+            
+            for (let i = 0; i < 5; i++) {
+                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, borderColors[i].replace('1)', '0.4)'));
+                gradient.addColorStop(1, borderColors[i].replace('1)', '0.1)'));
+                gradients.push(gradient);
+            }
+            
+            // Create datasets
+            const datasets = countries.map((country, index) => {
+                return {
+                    label: country,
+                    data: monthlyData[index],
+                    borderColor: borderColors[index],
+                    backgroundColor: gradients[index],
+                    borderWidth: 3,
+                    pointRadius: 6,
+                    pointBackgroundColor: borderColors[index],
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 8,
+                    tension: 0.4,
+                    fill: true
+                };
+            });
+            
+            // Create chart
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: "'Poppins', sans-serif",
+                                    size: 12
+                                },
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Monthly Air Quality Index (2024)',
+                            font: {
+                                family: "'Poppins', sans-serif",
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            padding: {
+                                top: 10,
+                                bottom: 30
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                            titleColor: '#333',
+                            bodyColor: '#333',
+                            bodyFont: {
+                                family: "'Poppins', sans-serif"
+                            },
+                            titleFont: {
+                                family: "'Poppins', sans-serif",
+                                weight: 'bold'
+                            },
+                            borderColor: 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            padding: 12,
+                            boxPadding: 6,
+                            usePointStyle: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'AQI Value',
+                                font: {
+                                    family: "'Poppins', sans-serif",
+                                    size: 12
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    family: "'Poppins', sans-serif"
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    family: "'Poppins', sans-serif"
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Add custom styles for feature cards
+        const style = document.createElement('style');
+        style.textContent = `
+            .feature-card {
+                background-color: white;
+                border-radius: 15px;
+                padding: 25px;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s ease-in-out;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .feature-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 0 20px 5px rgba(0, 255, 255, 0.2);
+            }
+            
+            .feature-card::after {
+                content: "";
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                width: 100px;
+                height: 100px;
+                background: linear-gradient(135deg, rgba(58, 123, 213, 0.1), rgba(0, 210, 255, 0.1));
+                border-radius: 100% 0 0 0;
+                z-index: 1;
+            }
+            
+            .feature-icon {
+                width: 70px;
+                height: 70px;
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 20px;
+                font-size: 28px;
+                color: white;
+                box-shadow: 0 8px 25px rgba(58, 123, 213, 0.4);
+            }
+            
+            .feature-card h4 {
+                font-size: 1.3rem;
+                font-weight: 600;
+                margin-bottom: 15px;
+                color: var(--primary-color);
+            }
+            
+            .feature-card p {
+                color: #666;
+                font-size: 0.95rem;
+                margin-bottom: 20px;
+            }
+            
+            .cta-card {
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+                color: white;
+                padding: 60px 30px;
+                border-radius: 20px;
+                box-shadow: 0 15px 35px rgba(58, 123, 213, 0.3);
+            }
+            
+            .cta-card h2 {
+                font-weight: 700;
+            }
+            
+            .cta-bg-circle {
+                position: absolute;
+                top: -20%;
+                right: -10%;
+                width: 300px;
+                height: 300px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+            }
+            
+            .cta-bg-circle-2 {
+                left: -10%;
+                top: 60%;
+                width: 200px;
+                height: 200px;
+            }
+            
+            .section-header h2 {
+                position: relative;
+                display: inline-block;
+                font-weight: 700;
+                margin-bottom: 15px;
+                color: var(--primary-color);
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            
+            .section-header h2::after {
+                content: "";
+                position: absolute;
+                left: 50%;
+                bottom: -10px;
+                transform: translateX(-50%);
+                width: 80px;
+                height: 3px;
+                background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+                border-radius: 3px;
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,1084 @@
+{% extends "layout.html" %}
+
+{% block title %}Real-time Air Quality Updates{% endblock %}
+
+{% block page_id %}real-time{% endblock %}
+
+{% block content %}
+<section class="hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1580193769210-b8d1c049a7d9?auto=format&fit=crop&q=80');">
+    <div class="container">
+        <h1>Real-time Air Quality Updates</h1>
+        <p>Get the latest air quality data from around the world, updated in real-time using accurate measurements from air quality monitoring stations.</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    <!-- Search bar for cities -->
+    <div class="search-container mb-4">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="input-group">
+                    <input type="text" id="city-search" class="form-control form-control-lg" placeholder="Search a city (e.g., Delhi, London, Tokyo)" aria-label="Search a city">
+                    <button class="btn btn-primary" id="search-button">
+                        <i class="fas fa-search me-2"></i> Search
+                    </button>
+                    <button class="btn btn-outline-secondary" id="locate-me">
+                        <i class="fas fa-location-arrow me-2"></i> Near Me
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content with real-time data -->
+    <div class="row mt-4">
+        <!-- Left column for current city data -->
+        <div class="col-lg-7">
+            <div id="current-city-data" class="mb-4">
+                <div class="aqi-card featured-city-card" style="display:none;">
+                    <div class="card-body p-0">
+                        <div class="aqi-display-container aqi-moderate">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h2 id="featured-city-name">Loading City...</h2>
+                                    <p id="featured-city-time">Last updated: calculating...</p>
+                                    <div class="aqi-main-value" id="featured-city-aqi">--</div>
+                                    <div class="aqi-category" id="featured-city-category">Calculating...</div>
+                                </div>
+                                <div class="col-md-4 d-none d-md-flex align-items-center justify-content-center">
+                                    <img src="" alt="Air quality face" id="featured-city-face" class="aqi-cartoon">
+                                </div>
+                            </div>
+                            
+                            <div class="aqi-details">
+                                <div class="aqi-detail-item">
+                                    <small>PM2.5</small>
+                                    <h4 id="featured-city-pm25">--</h4>
+                                </div>
+                                <div class="aqi-detail-item">
+                                    <small>PM10</small>
+                                    <h4 id="featured-city-pm10">--</h4>
+                                </div>
+                                <div class="aqi-detail-item">
+                                    <small>O3 (Ozone)</small>
+                                    <h4 id="featured-city-o3">--</h4>
+                                </div>
+                                <div class="aqi-detail-item">
+                                    <small>NO2</small>
+                                    <h4 id="featured-city-no2">--</h4>
+                                </div>
+                            </div>
+                            
+                            <div class="weather-info">
+                                <div class="weather-item">
+                                    <i class="fas fa-temperature-high"></i>
+                                    <span id="featured-city-temp">-- °C</span>
+                                </div>
+                                <div class="weather-item">
+                                    <i class="fas fa-tint"></i>
+                                    <span id="featured-city-humidity">-- %</span>
+                                </div>
+                                <div class="weather-item">
+                                    <i class="fas fa-wind"></i>
+                                    <span id="featured-city-wind">-- m/s</span>
+                                </div>
+                                <div class="weather-item">
+                                    <i class="fas fa-compass"></i>
+                                    <span id="featured-city-pressure">-- hPa</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading placeholder -->
+                <div id="loading-placeholder" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3">Loading real-time air quality data...</p>
+                    <p class="text-muted small">Please select a city or use the "Near Me" feature</p>
+                </div>
+            </div>
+            
+            <!-- Pollutant Information -->
+            <div class="dashboard-card mb-4" id="pollutants-section" style="display:none;">
+                <h3><i class="fas fa-flask me-2"></i>Pollutant Details</h3>
+                <div class="pollutant-cards">
+                    <div class="pollutant-card">
+                        <div class="pollutant-icon">
+                            <i class="fas fa-smog"></i>
+                        </div>
+                        <div class="pollutant-info">
+                            <h6>PM2.5 (Fine Particles)</h6>
+                            <div class="pollutant-value" id="detail-pm25">-- µg/m³</div>
+                        </div>
+                        <div class="pollutant-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="pollutant-card">
+                        <div class="pollutant-icon">
+                            <i class="fas fa-dust"></i>
+                        </div>
+                        <div class="pollutant-info">
+                            <h6>PM10 (Inhalable Particles)</h6>
+                            <div class="pollutant-value" id="detail-pm10">-- µg/m³</div>
+                        </div>
+                        <div class="pollutant-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="pollutant-card">
+                        <div class="pollutant-icon">
+                            <i class="fas fa-cloud"></i>
+                        </div>
+                        <div class="pollutant-info">
+                            <h6>O3 (Ozone)</h6>
+                            <div class="pollutant-value" id="detail-o3">-- ppb</div>
+                        </div>
+                        <div class="pollutant-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="pollutant-card">
+                        <div class="pollutant-icon">
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <div class="pollutant-info">
+                            <h6>NO2 (Nitrogen Dioxide)</h6>
+                            <div class="pollutant-value" id="detail-no2">-- ppb</div>
+                        </div>
+                        <div class="pollutant-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="pollutant-card">
+                        <div class="pollutant-icon">
+                            <i class="fas fa-solid fa-fire"></i>
+                        </div>
+                        <div class="pollutant-info">
+                            <h6>SO2 (Sulfur Dioxide)</h6>
+                            <div class="pollutant-value" id="detail-so2">-- ppb</div>
+                        </div>
+                        <div class="pollutant-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="pollutant-card">
+                        <div class="pollutant-icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="pollutant-info">
+                            <h6>CO (Carbon Monoxide)</h6>
+                            <div class="pollutant-value" id="detail-co">-- ppm</div>
+                        </div>
+                        <div class="pollutant-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Health Recommendations -->
+            <div class="dashboard-card mb-4" id="health-recommendations" style="display:none;">
+                <h3><i class="fas fa-heartbeat me-2"></i>Health Recommendations</h3>
+                <div class="recommendations-container">
+                    <ul class="recommendations-list" id="health-recommendations-list">
+                        <!-- Recommendations will be populated by JavaScript -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right column for nearest stations and world ranking -->
+        <div class="col-lg-5">
+            <!-- Nearby Stations with IQAir Style -->
+            <div class="visual-card mb-4" id="nearby-stations" style="display:none;">
+                <div class="visual-card-header">
+                    <h3><i class="fas fa-map-marker-alt"></i> Nearby Stations</h3>
+                </div>
+                <div class="visual-card-body">
+                    <div class="table-responsive">
+                        <table class="iqair-table">
+                            <thead>
+                                <tr>
+                                    <th>Station</th>
+                                    <th>Distance</th>
+                                    <th>AQI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="nearby-stations-list">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- World Ranking with IQAir Style -->
+            <div class="visual-card mb-4">
+                <div class="visual-card-header">
+                    <h3><i class="fas fa-globe"></i> Most Polluted Cities</h3>
+                </div>
+                <div class="visual-card-body">
+                    <div class="table-responsive">
+                        <table class="iqair-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>City</th>
+                                    <th>Country</th>
+                                    <th>AQI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for city in csv_data.top_cities[:10] %}
+                                <tr>
+                                    <td class="rank-cell">{{ loop.index }}</td>
+                                    <td class="city-cell">{{ city.City }}</td>
+                                    <td class="country-cell">{{ city.Country }}</td>
+                                    <td class="aqi-cell">
+                                        <div class="aqi-cell-badge aqi-{% if city['AQI Value'] <= 50 %}good{% elif city['AQI Value'] <= 100 %}moderate{% elif city['AQI Value'] <= 150 %}sensitive{% elif city['AQI Value'] <= 200 %}unhealthy{% elif city['AQI Value'] <= 300 %}very-unhealthy{% else %}hazardous{% endif %}">
+                                            {{ city['AQI Value']|int }}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mini map for current location with IQAir Style -->
+            <div class="visual-card mb-4" id="mini-map-container" style="display:none;">
+                <div class="visual-card-header">
+                    <h3><i class="fas fa-map"></i> Location Map</h3>
+                </div>
+                <div class="visual-card-body">
+                    <div id="mini-map" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Real-time charts with IQAir Style -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="visual-card">
+                <div class="visual-card-header">
+                    <h3><i class="fas fa-chart-line"></i> Air Quality Trends</h3>
+                </div>
+                <div class="visual-card-body">
+                    <div class="trend-chart-container">
+                        <canvas id="aqi-trend-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AQI Distribution Chart with IQAir Style -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="visual-card">
+                <div class="visual-card-header">
+                    <h3><i class="fas fa-chart-pie"></i> Air Quality Index Distribution</h3>
+                </div>
+                <div class="visual-card-body">
+                    <div class="trend-chart-container">
+                        <canvas id="aqi-distribution-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enhanced AQI Scale Guide -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="visual-card">
+                <div class="visual-card-header">
+                    <h3><i class="fas fa-info-circle"></i> Air Quality Index (AQI) Scale</h3>
+                </div>
+                <div class="visual-card-body">
+                    <p class="aqi-intro">Know about the category your ambient air falls in and what it implies:</p>
+                    
+                    <div class="aqi-scale">
+                        <!-- Good -->
+                        <div class="aqi-scale-item">
+                            <div class="aqi-scale-badge" style="background: linear-gradient(135deg, #00b09b, #96c93d);">
+                                <div class="aqi-number">0-50</div>
+                                <div class="aqi-category">Good</div>
+                            </div>
+                            <div class="aqi-scale-details">
+                                <h5><i class="fas fa-check-circle text-success"></i> Good</h5>
+                                <p>Air quality is satisfactory, and air pollution poses little or no risk.</p>
+                                <div class="aqi-health-tips">
+                                    <div class="aqi-tip-item">
+                                        <i class="fas fa-running"></i>
+                                        <span>Ideal for outdoor activities</span>
+                                    </div>
+                                    <div class="aqi-tip-item">
+                                        <i class="fas fa-child"></i>
+                                        <span>Safe for all individuals</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Moderate -->
+                        <div class="aqi-scale-item">
+                            <div class="aqi-scale-badge" style="background: linear-gradient(135deg, #f7b733, #fc4a1a);">
+                                <div class="aqi-number">51-100</div>
+                                <div class="aqi-category">Moderate</div>
+                            </div>
+                            <div class="aqi-scale-details">
+                                <h5><i class="fas fa-exclamation-circle text-warning"></i> Moderate</h5>
+                                <p>Air quality is acceptable. However, there may be a moderate health concern for a very small number of people.</p>
+                                <div class="aqi-health-tips">
+                                    <div class="aqi-tip-item">
+                                        <i class="fas fa-user-md"></i>
+                                        <span>Sensitive individuals should limit prolonged outdoor exertion</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Unhealthy for Sensitive Groups -->
+                        <div class="aqi-scale-item">
+                            <div class="aqi-scale-badge" style="background: linear-gradient(135deg, #ff7e5f, #feb47b);">
+                                <div class="aqi-number">101-150</div>
+                                <div class="aqi-category">Unhealthy for Sensitive Groups</div>
+                            </div>
+                            <div class="aqi-scale-details">
+                                <h5><i class="fas fa-exclamation-triangle text-orange"></i> Unhealthy for Sensitive Groups</h5>
+                                <p>Members of sensitive groups may experience health effects. The general public is less likely to be affected.</p>
+                                <div class="aqi-health-tips">
+                                    <div class="aqi-tip-item">
+                                        <i class="fas fa-lungs"></i>
+                                        <span>People with respiratory or heart disease should limit outdoor exertion</span>
+                                    </div>
+                                    <div class="aqi-tip-item">
+                                        <i class="fas fa-baby"></i>
+                                        <span>Children and elderly should take caution</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Unhealthy -->
+                        <div class="aqi-scale-item">
+                            <div class="aqi-scale-badge" style="background: linear-gradient(135deg, #ff512f, #dd2476);">
+                                <div class="aqi-number">151-200</div>
+                                <div class="aqi-category">Unhealthy</div>
+                            </div>
+                            <div class="aqi-scale-details">
+                                <h5><i class="fas fa-times-circle text-danger"></i> Unhealthy</h5>
+                                <p>Everyone may begin to experience health effects. Members of sensitive groups may experience more serious health effects.</p>
+                                <div class="aqi-health-tips">
+                                    <div class="aqi-tip-item">
+                                        <i class="fas fa-home"></i>
+                                        <span>Avoid prolonged outdoor exertion</span>
+                                    </div>
+                                    <div class="aqi-tip-item">
+                                        <i class="fas fa-head-side-mask"></i>
+                                        <span>Wear masks outdoors if possible</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Very Unhealthy -->
+                        <div class="aqi-scale-item">
+                            <div class="aqi-scale-badge" style="background: linear-gradient(135deg, #614385, #516395);">
+                                <div class="aqi-number">201-300</div>
+                                <div class="aqi-category">Very Unhealthy</div>
+                            </div>
+                            <div class="aqi-scale-details">
+                                <h5><i class="fas fa-skull-crossbones text-purple"></i> Very Unhealthy</h5>
+                                <p>Health alert: everyone may experience more serious health effects. The risk of health effects is increased for everyone.</p>
+                                <div class="aqi-health-tips">
+                                    <div class="aqi-tip-item">
+                                        <i class="fas fa-door-closed"></i>
+                                        <span>Stay indoors and keep windows closed</span>
+                                    </div>
+                                    <div class="aqi-tip-item">
+                                        <i class="fas fa-fan"></i>
+                                        <span>Use air purifiers if available</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hazardous -->
+                        <div class="aqi-scale-item">
+                            <div class="aqi-scale-badge" style="background: linear-gradient(135deg, #7b4397, #dc2430);">
+                                <div class="aqi-number">301+</div>
+                                <div class="aqi-category">Hazardous</div>
+                            </div>
+                            <div class="aqi-scale-details">
+                                <h5><i class="fas fa-radiation-alt text-danger"></i> Hazardous</h5>
+                                <p>Health warnings of emergency conditions. The entire population is more likely to be affected. Avoid all physical activity outdoors.</p>
+                                <div class="aqi-health-tips">
+                                    <div class="aqi-tip-item">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span>Health emergency - avoid all outdoor activity</span>
+                                    </div>
+                                    <div class="aqi-tip-item">
+                                        <i class="fas fa-mask"></i>
+                                        <span>Wear N95 masks if you must go outdoors</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Disclaimer and info -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle me-2"></i>About Air Quality Data</h5>
+                <p>The air quality data displayed on this page is fetched in real-time from IQAir and AQICN monitoring stations around the world. The Air Quality Index (AQI) is calculated based on concentration measurements of particulate matter (PM2.5, PM10), ground-level ozone (O3), nitrogen dioxide (NO2), sulfur dioxide (SO2), and carbon monoxide (CO).</p>
+                <p class="mb-0"><strong>Data Sources:</strong> <a href="https://www.iqair.com" target="_blank">IQAir</a> and <a href="https://aqicn.org" target="_blank">AQICN</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script>
+// Global variables
+let currentCity = null;
+let miniMap = null;
+let marker = null;
+
+// Health recommendations based on AQI
+const healthRecommendations = {
+    'Good': [
+        'Air quality is considered satisfactory',
+        'Little or no risk to health',
+        'Enjoy outdoor activities'
+    ],
+    'Moderate': [
+        'Air quality is acceptable for most',
+        'Unusually sensitive people should consider reducing prolonged outdoor exertion',
+        'Good day for outdoor activities for most people'
+    ],
+    'Unhealthy for Sensitive Groups': [
+        'Members of sensitive groups may experience health effects',
+        'The general public is less likely to be affected',
+        'People with respiratory or heart disease, the elderly and children should limit prolonged outdoor exertion'
+    ],
+    'Unhealthy': [
+        'Everyone may begin to experience health effects',
+        'Members of sensitive groups may experience more serious health effects',
+        'Active children and adults, and people with respiratory disease should avoid prolonged outdoor exertion',
+        'Everyone else should limit prolonged outdoor exertion'
+    ],
+    'Very Unhealthy': [
+        'Health warnings of emergency conditions',
+        'The entire population is more likely to be affected',
+        'Active children and adults, and people with respiratory disease should avoid all outdoor exertion',
+        'Everyone else should limit outdoor exertion'
+    ],
+    'Hazardous': [
+        'Health alert: everyone may experience more serious health effects',
+        'Everyone should avoid all outdoor exertion',
+        'Remain indoors and keep activity levels low',
+        'Wear N95 mask if you must go outdoors'
+    ]
+};
+
+// Initialize all functionality on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the search button
+    const searchButton = document.getElementById('search-button');
+    const citySearchInput = document.getElementById('city-search');
+    
+    if (searchButton && citySearchInput) {
+        searchButton.addEventListener('click', function() {
+            const city = citySearchInput.value.trim();
+            if (city) {
+                fetchCityData(city);
+            }
+        });
+        
+        // Allow pressing Enter to search
+        citySearchInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                const city = citySearchInput.value.trim();
+                if (city) {
+                    fetchCityData(city);
+                }
+            }
+        });
+    }
+    
+    // Initialize the locate me button
+    const locateMeButton = document.getElementById('locate-me');
+    if (locateMeButton) {
+        locateMeButton.addEventListener('click', function() {
+            if (navigator.geolocation) {
+                locateMeButton.disabled = true;
+                locateMeButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Locating...';
+                
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        // Success callback
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        fetchNearestCity(lat, lon);
+                        
+                        // Reset button
+                        locateMeButton.disabled = false;
+                        locateMeButton.innerHTML = '<i class="fas fa-location-arrow me-2"></i> Near Me';
+                    },
+                    function(error) {
+                        // Error callback
+                        console.error('Geolocation error:', error);
+                        alert('Could not determine your location. Please make sure location services are enabled.');
+                        
+                        // Reset button
+                        locateMeButton.disabled = false;
+                        locateMeButton.innerHTML = '<i class="fas fa-location-arrow me-2"></i> Near Me';
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by your browser.');
+            }
+        });
+    }
+    
+    // Fetch most polluted cities for the right panel
+    fetchMostPollutedCities();
+});
+
+// Function to fetch city data from the IQAir API
+function fetchCityData(city) {
+    // Show loading state
+    document.getElementById('loading-placeholder').style.display = 'block';
+    document.getElementById('pollutants-section').style.display = 'none';
+    document.getElementById('health-recommendations').style.display = 'none';
+    document.getElementById('nearby-stations').style.display = 'none';
+    document.getElementById('mini-map-container').style.display = 'none';
+    document.querySelector('.featured-city-card').style.display = 'none';
+    
+    // Make API request
+    fetch(`/api/city-aqi/${encodeURIComponent(city)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('City not found');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Successfully fetched data
+            updateCityDisplay(data, city);
+        })
+        .catch(error => {
+            console.error('Error fetching city data:', error);
+            document.getElementById('loading-placeholder').innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Could not find air quality data for "${city}". Please try another city or use the "Near Me" feature.
+                </div>
+            `;
+        });
+}
+
+// Function to fetch nearest city data using lat/lon
+function fetchNearestCity(lat, lon) {
+    // Show loading state
+    document.getElementById('loading-placeholder').style.display = 'block';
+    document.getElementById('pollutants-section').style.display = 'none';
+    document.getElementById('health-recommendations').style.display = 'none';
+    document.getElementById('nearby-stations').style.display = 'none';
+    document.getElementById('mini-map-container').style.display = 'none';
+    document.querySelector('.featured-city-card').style.display = 'none';
+    
+    // Make API request
+    fetch(`/api/iqair/nearest?lat=${lat}&lon=${lon}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Could not find nearest city');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Successfully fetched data
+            const cityName = data.city || 'Nearest Location';
+            updateCityDisplay(data, cityName);
+            
+            // Also update the search input with the found city
+            const citySearchInput = document.getElementById('city-search');
+            if (citySearchInput && data.city) {
+                citySearchInput.value = data.city;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching nearest city data:', error);
+            document.getElementById('loading-placeholder').innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Could not find air quality data for your location. Please try searching for a specific city.
+                </div>
+            `;
+        });
+}
+
+// Function to update the city display with fetched data
+function updateCityDisplay(data, cityName) {
+    // Store current city data
+    currentCity = data;
+    
+    // Hide loading placeholder
+    document.getElementById('loading-placeholder').style.display = 'none';
+    
+    // Show city card
+    const cityCard = document.querySelector('.featured-city-card');
+    cityCard.style.display = 'block';
+    
+    // Update basic information
+    document.getElementById('featured-city-name').textContent = cityName;
+    
+    // Format time if available
+    if (data.time) {
+        const timestamp = new Date(data.time.v);
+        document.getElementById('featured-city-time').textContent = `Last updated: ${timestamp.toLocaleString()}`;
+    } else {
+        document.getElementById('featured-city-time').textContent = `Last updated: ${new Date().toLocaleString()}`;
+    }
+    
+    // Update AQI value and category
+    let aqiValue = 0;
+    let aqiCategory = 'Unknown';
+    
+    if (data.current && data.current.pollution) {
+        aqiValue = data.current.pollution.aqius || 0;
+        aqiCategory = getAQICategory(aqiValue);
+        document.getElementById('featured-city-aqi').textContent = aqiValue;
+        document.getElementById('featured-city-category').textContent = aqiCategory;
+        
+        // Set the background color based on AQI
+        const container = document.querySelector('.aqi-display-container');
+        container.className = 'aqi-display-container';
+        container.classList.add(`aqi-${aqiCategory.toLowerCase().replace(/\s+/g, '-')}`);
+        
+        // Update the AQI face image
+        const faceImg = document.getElementById('featured-city-face');
+        faceImg.src = getAQIFaceImage(aqiValue);
+    }
+    
+    // Update weather information if available
+    if (data.current && data.current.weather) {
+        const weather = data.current.weather;
+        
+        document.getElementById('featured-city-temp').textContent = `${weather.tp || '--'} °C`;
+        document.getElementById('featured-city-humidity').textContent = `${weather.hu || '--'} %`;
+        document.getElementById('featured-city-wind').textContent = `${weather.ws || '--'} m/s`;
+        document.getElementById('featured-city-pressure').textContent = `${weather.pr || '--'} hPa`;
+    }
+    
+    // Show pollutants section
+    document.getElementById('pollutants-section').style.display = 'block';
+    
+    // Update pollutant details (these values might not be available in all APIs)
+    if (data.iaqi) {
+        // AQICN API format
+        document.getElementById('detail-pm25').textContent = data.iaqi.pm25 ? `${data.iaqi.pm25.v} µg/m³` : '-- µg/m³';
+        document.getElementById('detail-pm10').textContent = data.iaqi.pm10 ? `${data.iaqi.pm10.v} µg/m³` : '-- µg/m³';
+        document.getElementById('detail-o3').textContent = data.iaqi.o3 ? `${data.iaqi.o3.v} ppb` : '-- ppb';
+        document.getElementById('detail-no2').textContent = data.iaqi.no2 ? `${data.iaqi.no2.v} ppb` : '-- ppb';
+        document.getElementById('detail-so2').textContent = data.iaqi.so2 ? `${data.iaqi.so2.v} ppb` : '-- ppb';
+        document.getElementById('detail-co').textContent = data.iaqi.co ? `${data.iaqi.co.v} ppm` : '-- ppm';
+    } else {
+        // IQAir API format (limited pollutant details)
+        document.getElementById('detail-pm25').textContent = (data.current && data.current.pollution) ? 
+            `${data.current.pollution.aqius} µg/m³` : '-- µg/m³';
+        document.getElementById('detail-pm10').textContent = '-- µg/m³';
+        document.getElementById('detail-o3').textContent = '-- ppb';
+        document.getElementById('detail-no2').textContent = '-- ppb';
+        document.getElementById('detail-so2').textContent = '-- ppb';
+        document.getElementById('detail-co').textContent = '-- ppm';
+    }
+    
+    // Update health recommendations
+    updateHealthRecommendations(aqiCategory);
+    
+    // Initialize mini map if coordinates are available
+    if (data.city && data.country && data.location) {
+        initMiniMap(data.location.coordinates[1], data.location.coordinates[0], `${data.city}, ${data.country}`);
+    } else if (data.geo && data.geo[0] && data.geo[1]) {
+        initMiniMap(data.geo[0], data.geo[1], cityName);
+    }
+    
+    // Show trend chart (for demonstration we'll use random data since historical data might not be available)
+    initTrendChart();
+}
+
+// Function to update health recommendations based on AQI category
+function updateHealthRecommendations(category) {
+    const recommendations = healthRecommendations[category] || [];
+    const recommendationsContainer = document.getElementById('health-recommendations');
+    const recommendationsList = document.getElementById('health-recommendations-list');
+    
+    if (recommendations.length > 0) {
+        recommendationsContainer.style.display = 'block';
+        recommendationsList.innerHTML = '';
+        
+        recommendations.forEach(recommendation => {
+            const li = document.createElement('li');
+            li.textContent = recommendation;
+            recommendationsList.appendChild(li);
+        });
+    } else {
+        recommendationsContainer.style.display = 'none';
+    }
+}
+
+// Function to initialize mini map
+function initMiniMap(lat, lon, locationName) {
+    // First make sure the container is visible
+    document.getElementById('mini-map-container').style.display = 'block';
+    
+    // If map already exists, remove it and recreate
+    if (miniMap) {
+        miniMap.remove();
+    }
+    
+    // Create map
+    miniMap = L.map('mini-map').setView([lat, lon], 10);
+    
+    // Add the basemap
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        maxZoom: 19
+    }).addTo(miniMap);
+    
+    // Add marker at the city location
+    const markerColor = getAQIColor(currentCity?.current?.pollution?.aqius || 0);
+    marker = L.circleMarker([lat, lon], {
+        radius: 8,
+        fillColor: markerColor,
+        color: '#fff',
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.8
+    }).addTo(miniMap);
+    
+    // Add popup
+    marker.bindPopup(`<b>${locationName}</b><br>AQI: ${currentCity?.current?.pollution?.aqius || 'N/A'}`).openPopup();
+    
+    // Force map to update its size after it's made visible
+    setTimeout(() => {
+        miniMap.invalidateSize();
+    }, 100);
+}
+
+// Function to initialize trend chart (with sample data)
+function initTrendChart() {
+    const ctx = document.getElementById('aqi-trend-chart').getContext('2d');
+    
+    // Generate sample data points (24 hours)
+    const labels = [];
+    const data = [];
+    const now = new Date();
+    const currentAQI = currentCity?.current?.pollution?.aqius || 50;
+    
+    for (let i = 23; i >= 0; i--) {
+        const hour = new Date(now.getTime() - i * 60 * 60 * 1000);
+        labels.push(hour.getHours() + ':00');
+        
+        // Generate slightly varying AQI values around the current value
+        // This is just for demonstration since historical data isn't always available
+        const variation = Math.floor(Math.random() * 20) - 10; // -10 to +10
+        const historicalAQI = Math.max(0, currentAQI + variation);
+        data.push(historicalAQI);
+    }
+    
+    // Create chart
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Air Quality Index (AQI)',
+                data: data,
+                fill: true,
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: 'rgba(0, 123, 255, 1)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            return `AQI: ${context.raw}`;
+                        }
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: '24-Hour AQI Trend'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'AQI Value'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Function to render the AQI distribution chart
+function renderAQIDistributionChart() {
+    const ctx = document.getElementById('aqi-distribution-chart').getContext('2d');
+    
+    // Get data from our CSV-loaded data
+    const categories = [];
+    const counts = [];
+    const backgroundColors = [];
+    
+    {% for category, count in csv_data.category_counts.items() %}
+    categories.push("{{ category }}");
+    counts.push({{ count }});
+    
+    // Set color based on category
+    {% if category == 'Good' %}
+    backgroundColors.push('rgba(0, 153, 102, 0.7)');
+    {% elif category == 'Moderate' %}
+    backgroundColors.push('rgba(255, 222, 51, 0.7)');
+    {% elif category == 'Unhealthy for Sensitive Groups' %}
+    backgroundColors.push('rgba(255, 153, 51, 0.7)');
+    {% elif category == 'Unhealthy' %}
+    backgroundColors.push('rgba(204, 0, 51, 0.7)');
+    {% elif category == 'Very Unhealthy' %}
+    backgroundColors.push('rgba(102, 0, 153, 0.7)');
+    {% elif category == 'Hazardous' %}
+    backgroundColors.push('rgba(126, 0, 35, 0.7)');
+    {% else %}
+    backgroundColors.push('rgba(100, 100, 100, 0.7)');
+    {% endif %}
+    {% endfor %}
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: categories,
+            datasets: [{
+                data: counts,
+                backgroundColor: backgroundColors,
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                borderWidth: 2,
+                hoverBorderColor: '#ffffff',
+                hoverBorderWidth: 4,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        font: {
+                            family: "'Poppins', sans-serif",
+                            size: 12
+                        },
+                        padding: 20,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Distribution of Air Quality Categories',
+                    font: {
+                        family: "'Poppins', sans-serif",
+                        size: 16,
+                        weight: 'bold'
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 30
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} cities (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateScale: true,
+                animateRotate: true
+            }
+        }
+    });
+}
+
+// Function to fetch most polluted cities for the right panel
+function fetchMostPollutedCities() {
+    // Initialize the AQI distribution chart
+    renderAQIDistributionChart();
+    
+    // Use our CSV data for the polluted cities
+    const tableBody = document.getElementById('polluted-cities-list');
+    if (!tableBody) return;
+    
+    // Clear previous content
+    tableBody.innerHTML = '';
+    
+    // Create array from the CSV data
+    const cities = [
+        {% for city in csv_data.top_cities[:10] %}
+        { 
+            city: "{{ city.City }}", 
+            country: "{{ city.Country }}", 
+            aqi: {{ city['AQI Value']|int }}
+        },
+        {% endfor %}
+    ];
+    
+    cities.forEach((city, index) => {
+        const row = document.createElement('tr');
+        row.className = 'table-row-animated';
+        row.style.animationDelay = `${index * 0.1}s`;
+        
+        const rankCell = document.createElement('td');
+        rankCell.className = 'rank-cell';
+        rankCell.textContent = index + 1;
+        
+        const cityCell = document.createElement('td');
+        cityCell.className = 'city-cell';
+        cityCell.textContent = city.city;
+        
+        const countryCell = document.createElement('td');
+        countryCell.className = 'country-cell';
+        countryCell.textContent = city.country;
+        
+        const aqiCell = document.createElement('td');
+        aqiCell.className = 'aqi-cell';
+        
+        // Create the badge with our new IQAir style
+        const aqiBadge = document.createElement('div');
+        aqiBadge.className = `aqi-cell-badge aqi-${getAQICellClass(city.aqi)}`;
+        aqiBadge.textContent = city.aqi;
+        aqiCell.appendChild(aqiBadge);
+        
+        row.appendChild(rankCell);
+        row.appendChild(cityCell);
+        row.appendChild(countryCell);
+        row.appendChild(aqiCell);
+        
+        // Add click event to load the city data
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function() {
+            const searchInput = document.getElementById('city-search');
+            if (searchInput) {
+                searchInput.value = city.city;
+                fetchCityData(city.city);
+            }
+        });
+        
+        tableBody.appendChild(row);
+    });
+}
+
+// Helper function to get AQI category from value
+function getAQICategory(aqi) {
+    if (aqi <= 50) return 'Good';
+    if (aqi <= 100) return 'Moderate';
+    if (aqi <= 150) return 'Unhealthy for Sensitive Groups';
+    if (aqi <= 200) return 'Unhealthy';
+    if (aqi <= 300) return 'Very Unhealthy';
+    return 'Hazardous';
+}
+
+// Helper function to get AQI color from value
+function getAQIColor(aqi) {
+    if (aqi <= 50) return '#009966'; // Good
+    if (aqi <= 100) return '#ffde33'; // Moderate
+    if (aqi <= 150) return '#ff9933'; // Unhealthy for Sensitive Groups
+    if (aqi <= 200) return '#cc0033'; // Unhealthy
+    if (aqi <= 300) return '#660099'; // Very Unhealthy
+    return '#7e0023'; // Hazardous
+}
+
+// Helper function to get AQI face image based on value
+function getAQIFaceImage(aqi) {
+    if (aqi <= 50) return '/static/images/aqi-good.svg';
+    if (aqi <= 100) return '/static/images/aqi-moderate.svg';
+    if (aqi <= 150) return '/static/images/aqi-sensitive.svg';
+    if (aqi <= 200) return '/static/images/aqi-unhealthy.svg';
+    if (aqi <= 300) return '/static/images/aqi-very-unhealthy.svg';
+    return '/static/images/aqi-hazardous.svg';
+}
+
+// Helper function to get CSS class for AQI value
+function getAQIValueClass(aqi) {
+    if (aqi <= 50) return 'aqi-good-bg';
+    if (aqi <= 100) return 'aqi-moderate-bg';
+    if (aqi <= 150) return 'aqi-sensitive-bg';
+    if (aqi <= 200) return 'aqi-unhealthy-bg';
+    if (aqi <= 300) return 'aqi-very-unhealthy-bg';
+    return 'aqi-hazardous-bg';
+}
+
+// Helper function to get CSS class for AQI cell badges in our IQAir style tables
+function getAQICellClass(aqi) {
+    if (aqi <= 50) return 'good';
+    if (aqi <= 100) return 'moderate';
+    if (aqi <= 150) return 'sensitive';
+    if (aqi <= 200) return 'unhealthy';
+    if (aqi <= 300) return 'very-unhealthy';
+    return 'hazardous';
+}
+</script>
+{% endblock %}

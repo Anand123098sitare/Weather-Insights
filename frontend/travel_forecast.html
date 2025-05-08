@@ -1,0 +1,1104 @@
+{% extends 'layout.html' %}
+
+{% block title %}Travel & Commute Forecast | Air Quality Dashboard{% endblock %}
+
+{% block styles %}
+<style>
+    /* Core Styles */
+    .forecast-container {
+        background-color: var(--card-bg);
+        border-radius: 1rem;
+        box-shadow: var(--card-shadow);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+    }
+    .forecast-container:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-shadow-hover);
+    }
+    
+    /* Enhanced Alert Banner */
+    .alert-banner {
+        border-radius: 1rem;
+        padding: 1.25rem 1.75rem;
+        margin-bottom: 2rem;
+        font-size: 1.25rem;
+        border-left: 8px solid;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        position: relative;
+        overflow: hidden;
+    }
+    .alert-banner::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 30%;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.15));
+        transform: skewX(-15deg);
+        z-index: 1;
+    }
+    .alert-banner i {
+        font-size: 2rem;
+        margin-right: 1rem;
+    }
+    .alert-banner.minimal {
+        background-color: rgba(40, 167, 69, 0.15);
+        border-left-color: #28a745;
+    }
+    .alert-banner.minor {
+        background-color: rgba(13, 202, 240, 0.15);
+        border-left-color: #0dcaf0;
+    }
+    .alert-banner.moderate {
+        background-color: rgba(255, 193, 7, 0.15);
+        border-left-color: #ffc107;
+    }
+    .alert-banner.severe {
+        background-color: rgba(220, 53, 69, 0.15);
+        border-left-color: #dc3545;
+    }
+    
+    /* Featured Commute Banner */
+    .featured-commute-banner {
+        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+        color: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    .featured-commute-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("{{ url_for('serve_frontend', path='static/img/weather-pattern.svg') }}") no-repeat;
+        background-size: cover;
+        opacity: 0.1;
+        z-index: 0;
+    }
+    .featured-commute-banner .content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    /* Form Styling */
+    .commute-form {
+        background-color: var(--card-bg);
+        border-radius: 1rem;
+        box-shadow: var(--card-shadow);
+        padding: 1.75rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+    
+    /* Route Cards */
+    .route-card {
+        background-color: var(--card-bg);
+        border-radius: 0.8rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+    .route-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .route-card.recommended {
+        border-left: 4px solid #28a745;
+        background: linear-gradient(to right, rgba(40, 167, 69, 0.05), transparent 50%);
+    }
+    
+    /* Weather Hour Cards */
+    .weather-hour {
+        text-align: center;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        background-color: rgba(255,255,255,0.07);
+        min-width: 90px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease;
+        margin: 0 0.3rem;
+    }
+    .weather-hour:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 12px rgba(0,0,0,0.08);
+    }
+    .weather-hour img {
+        width: 48px;
+        height: 48px;
+        filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+    }
+    
+    /* Recommendation Lists */
+    .recommendation-list {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    .recommendation-list li {
+        padding: 0.75rem 0;
+        border-bottom: 1px dashed rgba(0,0,0,0.1);
+        display: flex;
+        align-items: flex-start;
+    }
+    .recommendation-list li:last-child {
+        border-bottom: none;
+    }
+    .recommendation-list li i {
+        color: var(--primary-color);
+        margin-right: 0.75rem;
+        margin-top: 0.25rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Weekly Forecast Cards */
+    .weekly-day {
+        background-color: var(--card-bg);
+        border-radius: 0.8rem;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        border: 1px solid var(--border-color);
+        transition: all 0.2s ease;
+    }
+    .weekly-day:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .time-of-day {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+    .time-block {
+        text-align: center;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        flex: 1;
+        margin: 0 0.3rem;
+        transition: transform 0.2s ease;
+    }
+    .time-block:hover {
+        transform: scale(1.05);
+    }
+    .time-block.minimal {
+        background-color: rgba(40, 167, 69, 0.15);
+    }
+    .time-block.minor {
+        background-color: rgba(13, 202, 240, 0.15);
+    }
+    .time-block.moderate {
+        background-color: rgba(255, 193, 7, 0.15);
+    }
+    .time-block.severe {
+        background-color: rgba(220, 53, 69, 0.15);
+    }
+    
+    /* Impact Score */
+    .impact-score {
+        position: relative;
+        display: inline-block;
+        width: 80px;
+        height: 80px;
+        line-height: 80px;
+        text-align: center;
+        font-size: 1.8rem;
+        font-weight: bold;
+        border-radius: 50%;
+        color: white;
+        margin-bottom: 1rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .impact-score.minimal {
+        background: linear-gradient(135deg, #28a745, #5cb85c);
+    }
+    .impact-score.minor {
+        background: linear-gradient(135deg, #0dcaf0, #5bc0de);
+    }
+    .impact-score.moderate {
+        background: linear-gradient(135deg, #ffc107, #f0ad4e);
+    }
+    .impact-score.severe {
+        background: linear-gradient(135deg, #dc3545, #d9534f);
+    }
+    
+    /* Tab Navigation */
+    .tab-content {
+        padding-top: 1.5rem;
+    }
+    .nav-tabs {
+        border-bottom: 1px solid var(--border-color);
+        gap: 0.5rem;
+    }
+    .nav-tabs .nav-link {
+        border: none;
+        color: var(--text-color);
+        padding: 0.9rem 1.5rem;
+        border-radius: 0.75rem 0.75rem 0 0;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .nav-tabs .nav-link:hover {
+        background-color: rgba(var(--primary-rgb), 0.05);
+    }
+    .nav-tabs .nav-link.active {
+        color: var(--primary-color);
+        background-color: rgba(var(--primary-rgb), 0.08);
+        border-bottom: 3px solid var(--primary-color);
+        font-weight: 600;
+    }
+    
+    /* Form Controls */
+    .form-control, .form-select {
+        border-radius: 0.75rem;
+        padding: 0.9rem 1.2rem;
+        border: 1px solid var(--border-color);
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        transition: all 0.2s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-rgb), 0.25);
+        border-color: var(--primary-color);
+    }
+    
+    /* Buttons */
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        border-radius: 0.75rem;
+        padding: 0.9rem 1.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+    }
+    
+    /* Featured Alert Animation */
+    @keyframes pulse-bg {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    .animated-bg {
+        background: linear-gradient(270deg, rgba(3,169,244,0.2), rgba(33,150,243,0.3), rgba(0,188,212,0.2));
+        background-size: 600% 600%;
+        animation: pulse-bg 10s ease infinite;
+    }
+    
+    /* Search Box Enhancements */
+    .search-container {
+        width: 100%;
+    }
+    .search-container .input-group {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+    .search-container .form-control {
+        border-radius: 0.75rem 0 0 0.75rem;
+        padding: 0.9rem 1.2rem;
+        border: 1px solid rgba(var(--primary-rgb), 0.2);
+        border-right: none;
+    }
+    .search-container .btn {
+        border-radius: 0 0.75rem 0.75rem 0;
+        padding: 0.5rem 1.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Main Header Section -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <h1 class="display-5 fw-bold mb-2" data-aos="fade-right">
+                <i class="fas fa-route text-primary me-2"></i> Travel & Commute Forecast
+            </h1>
+            <p class="lead text-muted" data-aos="fade-right" data-aos-delay="100">
+                Get personalized weather impact predictions for your commute routes, with real-time alerts and time-saving recommendations.
+            </p>
+        </div>
+        <div class="col-lg-4 d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0">
+            <div class="search-container" data-aos="fade-left">
+                <div class="input-group">
+                    <input type="text" id="citySearch" list="cityList" class="form-control" placeholder="Enter your city...">
+                    <datalist id="cityList">
+                        {% for city in cities %}
+                        <option value="{{ city }}">
+                        {% endfor %}
+                    </datalist>
+                    <button class="btn btn-primary" type="button" id="searchBtn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Commute Banner -->
+    <div class="featured-commute-banner mb-4 d-none" id="featuredCommuteBanner" data-aos="fade-up">
+        <div class="content">
+            <div class="row align-items-center">
+                <div class="col-md-2 col-sm-4 text-center mb-3 mb-md-0">
+                    <div id="weatherIcon" class="mb-2">
+                        <i class="fas fa-cloud-rain fa-4x"></i>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-8 mb-3 mb-md-0">
+                    <h3 class="h2 mb-2" id="commuteHeadline">Rain expected on your drive home from work (4 PM–6 PM)</h3>
+                    <p class="lead mb-0" id="commuteSubheadline">Allow 10 extra minutes for your journey</p>
+                </div>
+                <div class="col-md-4 text-center text-md-end">
+                    <div class="d-flex justify-content-md-end justify-content-center align-items-center">
+                        <div class="text-center me-4">
+                            <div class="h1 mb-0 fw-bold" id="delayMinutes">10</div>
+                            <div>minute delay</div>
+                        </div>
+                        <button class="btn btn-light btn-lg fw-bold" id="viewDetailsBtn">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Banner (will be populated by JavaScript) -->
+    <div id="alertBanner" class="alert-banner d-none" data-aos="fade-up">
+        <!-- Dynamic content will be inserted here -->
+    </div>
+
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs mb-4" id="forecastTabs" role="tablist" data-aos="fade-up">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="commute-tab" data-bs-toggle="tab" data-bs-target="#commute" type="button" role="tab" aria-controls="commute" aria-selected="true">
+                <i class="fas fa-car-side me-1"></i> Daily Commute
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="routes-tab" data-bs-toggle="tab" data-bs-target="#routes" type="button" role="tab" aria-controls="routes" aria-selected="false">
+                <i class="fas fa-map-signs me-1"></i> Route Options
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="weekly-tab" data-bs-toggle="tab" data-bs-target="#weekly" type="button" role="tab" aria-controls="weekly" aria-selected="false">
+                <i class="fas fa-calendar-alt me-1"></i> Weekly Outlook
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="forecastTabContent">
+        <!-- Daily Commute Tab -->
+        <div class="tab-pane fade show active" id="commute" role="tabpanel" aria-labelledby="commute-tab">
+            <div class="row">
+                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="commute-form">
+                        <h4 class="mb-3">Plan Your Commute</h4>
+                        <form id="commuteForm">
+                            <div class="mb-3">
+                                <label for="commuteCity" class="form-label">City</label>
+                                <input type="text" class="form-control" id="commuteCity" placeholder="Enter city name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="commuteType" class="form-label">Transportation Type</label>
+                                <select class="form-select" id="commuteType" required>
+                                    <option value="drive">Drive</option>
+                                    <option value="transit">Public Transit</option>
+                                    <option value="bike">Bicycle</option>
+                                    <option value="walk">Walking</option>
+                                </select>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label for="startTime" class="form-label">Start Time</label>
+                                        <input type="time" class="form-control" id="startTime" value="08:00" required>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label for="endTime" class="form-label">End Time</label>
+                                        <input type="time" class="form-control" id="endTime" value="09:00" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="normalDuration" class="form-label">Normal Duration (minutes)</label>
+                                <input type="number" class="form-control" id="normalDuration" min="5" max="240" value="30" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Get Impact Forecast</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-8" data-aos="fade-up" data-aos-delay="200">
+                    <div class="forecast-container">
+                        <div id="commuteResults">
+                            <div class="text-center py-5 initial-message">
+                                <img src="{{ url_for('serve_frontend', path='static/img/forecast.svg') }}" alt="Forecast" class="mb-4" style="width: 120px; opacity: 0.7;">
+                                <h3 class="mb-3">Enter your commute details</h3>
+                                <p class="text-muted mb-0">
+                                    We'll analyze how the weather will affect your travel time and provide personalized recommendations.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Route Options Tab -->
+        <div class="tab-pane fade" id="routes" role="tabpanel" aria-labelledby="routes-tab">
+            <div class="row">
+                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="commute-form">
+                        <h4 class="mb-3">Compare Routes</h4>
+                        <form id="routesForm">
+                            <div class="mb-3">
+                                <label for="routesCity" class="form-label">City</label>
+                                <input type="text" class="form-control" id="routesCity" placeholder="Enter city name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fromLocation" class="form-label">From</label>
+                                <input type="text" class="form-control" id="fromLocation" placeholder="Starting location" value="Home" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="toLocation" class="form-label">To</label>
+                                <input type="text" class="form-control" id="toLocation" placeholder="Destination" value="Work" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="departureTime" class="form-label">Departure Time</label>
+                                <input type="time" class="form-control" id="departureTime" value="08:00" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Find Route Options</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-8" data-aos="fade-up" data-aos-delay="200">
+                    <div class="forecast-container">
+                        <div id="routesResults">
+                            <div class="text-center py-5 initial-message">
+                                <img src="{{ url_for('serve_frontend', path='static/img/forecast.svg') }}" alt="Forecast" class="mb-4" style="width: 120px; opacity: 0.7;">
+                                <h3 class="mb-3">Enter your route details</h3>
+                                <p class="text-muted mb-0">
+                                    We'll analyze multiple route options and find the most weather-optimized path for your journey.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Outlook Tab -->
+        <div class="tab-pane fade" id="weekly" role="tabpanel" aria-labelledby="weekly-tab">
+            <div class="row">
+                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="commute-form">
+                        <h4 class="mb-3">Weekly Travel Forecast</h4>
+                        <form id="weeklyForm">
+                            <div class="mb-3">
+                                <label for="weeklyCity" class="form-label">City</label>
+                                <input type="text" class="form-control" id="weeklyCity" placeholder="Enter city name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="forecastDays" class="form-label">Number of Days</label>
+                                <select class="form-select" id="forecastDays">
+                                    <option value="3">3 Days</option>
+                                    <option value="5" selected>5 Days</option>
+                                    <option value="7">7 Days</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Get Weekly Forecast</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-8" data-aos="fade-up" data-aos-delay="200">
+                    <div class="forecast-container">
+                        <div id="weeklyResults">
+                            <div class="text-center py-5 initial-message">
+                                <img src="{{ url_for('serve_frontend', path='static/img/forecast.svg') }}" alt="Forecast" class="mb-4" style="width: 120px; opacity: 0.7;">
+                                <h3 class="mb-3">Enter your city</h3>
+                                <p class="text-muted mb-0">
+                                    We'll generate a multi-day forecast showing how weather will impact your daily commutes throughout the week.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Info Section -->
+    <div class="row mt-5" data-aos="fade-up">
+        <div class="col-12">
+            <div class="forecast-container">
+                <h3 class="mb-4">Understanding Weather's Impact on Travel</h3>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h5><i class="fas fa-cloud-rain text-primary me-2"></i> Rain Effects</h5>
+                        <p>Rain can reduce visibility and create slippery road conditions. Light rain typically causes 10-20% delays, while heavy rain can result in 30-40% longer travel times.</p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h5><i class="fas fa-snowflake text-primary me-2"></i> Snow Conditions</h5>
+                        <p>Snow significantly impacts all forms of transportation. Light snow may cause 20-30% delays, while heavy snowfall can increase travel times by 50-60% or lead to service disruptions.</p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h5><i class="fas fa-wind text-primary me-2"></i> Wind Considerations</h5>
+                        <p>Strong winds above 20 mph can affect vehicle handling, particularly for high-profile vehicles. Cyclists may experience significant resistance when riding into headwinds.</p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h5><i class="fas fa-cloud-sun text-primary me-2"></i> Fog & Visibility</h5>
+                        <p>Fog, mist, and haze reduce visibility and require slower speeds for safety. These conditions typically add 15-25% to travel times, especially during early morning commutes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Shared variables
+    const citySearch = document.getElementById('citySearch');
+    const searchBtn = document.getElementById('searchBtn');
+    const commuteCity = document.getElementById('commuteCity');
+    const routesCity = document.getElementById('routesCity');
+    const weeklyCity = document.getElementById('weeklyCity');
+    const featuredCommuteBanner = document.getElementById('featuredCommuteBanner');
+    const viewDetailsBtn = document.getElementById('viewDetailsBtn');
+    const alertBanner = document.getElementById('alertBanner');
+    
+    // Weather icon mapping
+    const weatherIconMap = {
+        'Clear': 'fa-sun',
+        'Clouds': 'fa-cloud',
+        'Rain': 'fa-cloud-rain',
+        'Drizzle': 'fa-cloud-rain',
+        'Thunderstorm': 'fa-bolt',
+        'Snow': 'fa-snowflake',
+        'Mist': 'fa-smog',
+        'Smoke': 'fa-smog',
+        'Haze': 'fa-smog',
+        'Dust': 'fa-smog',
+        'Fog': 'fa-smog',
+        'Sand': 'fa-wind',
+        'Ash': 'fa-smog',
+        'Squall': 'fa-wind',
+        'Tornado': 'fa-wind'
+    };
+    
+    // Get weather icon class
+    function getWeatherIconClass(condition) {
+        return weatherIconMap[condition] || 'fa-cloud';
+    }
+    
+    // View details button action
+    viewDetailsBtn.addEventListener('click', function() {
+        // Scroll to the detailed commute results
+        document.querySelector('#commute-tab').click();
+        
+        // Smooth scroll to the element
+        const commuteResults = document.getElementById('commuteResults');
+        commuteResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    
+    // Sync city search across tabs
+    searchBtn.addEventListener('click', function() {
+        const city = citySearch.value.trim();
+        if (city) {
+            commuteCity.value = city;
+            routesCity.value = city;
+            weeklyCity.value = city;
+            
+            // Auto-fill commute form defaults tailored for work commute showcase
+            document.getElementById('startTime').value = '16:00'; // 4 PM
+            document.getElementById('endTime').value = '18:00'; // 6 PM
+            document.getElementById('commuteType').value = 'drive';
+            document.getElementById('normalDuration').value = '30';
+            
+            // Hide any previous alerts
+            alertBanner.classList.add('d-none');
+            
+            // Automatically trigger commute form submit
+            document.getElementById('commuteForm').dispatchEvent(new Event('submit'));
+        }
+    });
+    
+    // Commute Form
+    const commuteForm = document.getElementById('commuteForm');
+    const commuteResults = document.getElementById('commuteResults');
+    
+    commuteForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        commuteResults.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Analyzing weather impact on your commute...</p>
+            </div>
+        `;
+        
+        // Hide featured banner while loading
+        featuredCommuteBanner.classList.add('d-none');
+        
+        // Get form values
+        const city = commuteCity.value.trim();
+        const routeType = document.getElementById('commuteType').value;
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
+        const normalDuration = document.getElementById('normalDuration').value;
+        
+        // API call
+        console.log('Fetching commute impact for city:', city);
+        fetch(`/api/travel-forecast/commute-impact?city=${encodeURIComponent(city)}&start_time=${startTime}&end_time=${endTime}&route_type=${routeType}&normal_duration=${normalDuration}`)
+            .then(response => {
+                console.log('Commute impact response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Commute impact data received:', data);
+                if (data.status === 'success') {
+                    console.log('Commute impact data successful, rendering results');
+                    
+                    // Update featured commute banner
+                    updateFeaturedCommuteBanner(data.data, city, startTime, endTime, routeType);
+                    
+                    // Display detailed results
+                    displayCommuteResults(data.data);
+                } else {
+                    console.error('Commute impact data error:', data.message);
+                    featuredCommuteBanner.classList.add('d-none');
+                    commuteResults.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i> ${data.message || 'Error fetching forecast data. Please try again.'}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                featuredCommuteBanner.classList.add('d-none');
+                commuteResults.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i> Network error. Please check your connection and try again.
+                    </div>
+                `;
+            });
+    });
+    
+    // Routes Form
+    const routesForm = document.getElementById('routesForm');
+    const routesResults = document.getElementById('routesResults');
+    
+    routesForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        routesResults.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Finding the best routes based on weather conditions...</p>
+            </div>
+        `;
+        
+        // Get form values
+        const city = routesCity.value.trim();
+        const from = document.getElementById('fromLocation').value.trim();
+        const to = document.getElementById('toLocation').value.trim();
+        const departureTime = document.getElementById('departureTime').value;
+        
+        // API call
+        console.log('Fetching route options for city:', city);
+        fetch(`/api/travel-forecast/route-options?city=${encodeURIComponent(city)}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&departure_time=${departureTime}`)
+            .then(response => {
+                console.log('Route options response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Route options data received:', data);
+                if (data.status === 'success') {
+                    console.log('Route options data successful, rendering results');
+                    displayRouteOptions(data.data);
+                } else {
+                    console.error('Route options data error:', data.message);
+                    routesResults.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i> ${data.message || 'Error fetching route options. Please try again.'}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                routesResults.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i> Network error. Please check your connection and try again.
+                    </div>
+                `;
+            });
+    });
+    
+    // Weekly Form
+    const weeklyForm = document.getElementById('weeklyForm');
+    const weeklyResults = document.getElementById('weeklyResults');
+    
+    weeklyForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        weeklyResults.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Generating weekly travel forecast...</p>
+            </div>
+        `;
+        
+        // Get form values
+        const city = weeklyCity.value.trim();
+        const days = document.getElementById('forecastDays').value;
+        
+        // API call
+        console.log('Fetching weekly forecast for city:', city);
+        fetch(`/api/travel-forecast/weekly?city=${encodeURIComponent(city)}&days=${days}`)
+            .then(response => {
+                console.log('Weekly forecast response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Weekly forecast data received:', data);
+                if (data.status === 'success') {
+                    console.log('Weekly forecast data successful, rendering results');
+                    displayWeeklyForecast(data.data);
+                } else {
+                    console.error('Weekly forecast data error:', data.message);
+                    weeklyResults.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i> ${data.message || 'Error fetching weekly forecast. Please try again.'}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                weeklyResults.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i> Network error. Please check your connection and try again.
+                    </div>
+                `;
+            });
+    });
+    
+    // Function to update featured commute banner
+    function updateFeaturedCommuteBanner(data, city, startTime, endTime, routeType) {
+        // Get elements
+        const featuredCommuteBanner = document.getElementById('featuredCommuteBanner');
+        const weatherIcon = document.getElementById('weatherIcon');
+        const commuteHeadline = document.getElementById('commuteHeadline');
+        const commuteSubheadline = document.getElementById('commuteSubheadline');
+        const delayMinutes = document.getElementById('delayMinutes');
+        
+        // Format times for display
+        const startHour = parseInt(startTime.split(':')[0]);
+        const endHour = parseInt(endTime.split(':')[0]);
+        const startPeriod = startHour >= 12 ? 'PM' : 'AM';
+        const endPeriod = endHour >= 12 ? 'PM' : 'AM';
+        const displayStartHour = startHour > 12 ? startHour - 12 : startHour;
+        const displayEndHour = endHour > 12 ? endHour - 12 : endHour;
+        const timeRange = `${displayStartHour} ${startPeriod}–${displayEndHour} ${endPeriod}`;
+        
+        // Get weather condition
+        let weatherCondition = 'Clear';
+        if (data.hourly_forecast && data.hourly_forecast.length > 0) {
+            weatherCondition = data.hourly_forecast[0].condition;
+        }
+        
+        // Update icon
+        const iconClass = getWeatherIconClass(weatherCondition);
+        weatherIcon.innerHTML = `<i class="fas ${iconClass} fa-4x"></i>`;
+        
+        // Update headline and subheadline
+        const transportMode = routeType.charAt(0).toUpperCase() + routeType.slice(1);
+        commuteHeadline.textContent = `${weatherCondition} expected on your ${routeType} commute (${timeRange})`;
+        commuteSubheadline.textContent = `Allow ${data.delay_minutes} extra minutes for your journey`;
+        
+        // Update delay minutes
+        delayMinutes.textContent = data.delay_minutes;
+        
+        // Set banner background based on severity
+        featuredCommuteBanner.className = 'featured-commute-banner mb-4 animated-bg';
+        
+        // Add weather-based class for color scheme
+        if (weatherCondition.toLowerCase().includes('rain') || weatherCondition.toLowerCase().includes('drizzle')) {
+            featuredCommuteBanner.style.background = 'linear-gradient(135deg, #1e3c72, #2a5298)';
+        } else if (weatherCondition.toLowerCase().includes('snow')) {
+            featuredCommuteBanner.style.background = 'linear-gradient(135deg, #8e9eab, #eef2f3)';
+            featuredCommuteBanner.style.color = '#333';
+        } else if (weatherCondition.toLowerCase().includes('cloud')) {
+            featuredCommuteBanner.style.background = 'linear-gradient(135deg, #4b6cb7, #182848)';
+        } else if (weatherCondition.toLowerCase() === 'clear') {
+            featuredCommuteBanner.style.background = 'linear-gradient(135deg, #2193b0, #6dd5ed)';
+        } else if (weatherCondition.toLowerCase().includes('thunder')) {
+            featuredCommuteBanner.style.background = 'linear-gradient(135deg, #4a00e0, #8e2de2)';
+        } else {
+            featuredCommuteBanner.style.background = 'linear-gradient(135deg, #3a7bd5, #00d2ff)';
+        }
+        
+        // Show the banner
+        featuredCommuteBanner.classList.remove('d-none');
+    }
+    
+    // Function to display commute results
+    function displayCommuteResults(data) {
+        // Update alert banner
+        const alertBanner = document.getElementById('alertBanner');
+        alertBanner.className = `alert-banner ${data.severity}`;
+        alertBanner.innerHTML = `<i class="fas fa-info-circle me-2"></i> ${data.summary}`;
+        alertBanner.classList.remove('d-none');
+        
+        // Build hourly forecast HTML
+        let hourlyForecastHtml = '';
+        if (data.hourly_forecast && data.hourly_forecast.length > 0) {
+            hourlyForecastHtml = `
+                <div class="mt-4">
+                    <h5 class="mb-3">Hourly Weather</h5>
+                    <div class="d-flex overflow-auto pb-2">
+                        ${data.hourly_forecast.map(hour => `
+                            <div class="weather-hour mx-1">
+                                <div class="fw-bold">${hour.time}</div>
+                                <img src="https://openweathermap.org/img/wn/${hour.icon}@2x.png" alt="${hour.condition}">
+                                <div>${Math.round(hour.temperature)}°C</div>
+                                <div class="small text-muted">${hour.condition}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Build recommendations HTML
+        let recommendationsHtml = '';
+        if (data.recommendations && data.recommendations.length > 0) {
+            recommendationsHtml = `
+                <div class="mt-4">
+                    <h5 class="mb-3">Recommendations</h5>
+                    <ul class="recommendation-list">
+                        ${data.recommendations.map(rec => `
+                            <li><i class="fas fa-check-circle"></i> ${rec}</li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        // Build weather impacts HTML
+        let impactsHtml = '';
+        if (data.weather_impacts && data.weather_impacts.length > 0) {
+            impactsHtml = `
+                <div class="mt-4">
+                    <h5 class="mb-3">Weather Impact Details</h5>
+                    <ul class="recommendation-list">
+                        ${data.weather_impacts.map(impact => {
+                            if (impact.trim()) {
+                                return `<li><i class="fas fa-info-circle"></i> ${impact}</li>`;
+                            } else {
+                                return '';
+                            }
+                        }).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        // Update commute results
+        commuteResults.innerHTML = `
+            <h4 class="mb-3">Travel Impact Forecast</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="display-1 fw-bold me-3 ${data.severity === 'severe' ? 'text-danger' : data.severity === 'moderate' ? 'text-warning' : 'text-success'}">
+                            ${data.delay_minutes}
+                        </div>
+                        <div>
+                            <div class="h5 mb-0">minute${data.delay_minutes !== 1 ? 's' : ''} delay</div>
+                            <div class="text-muted">due to weather conditions</div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress mb-2" style="height: 8px;">
+                        <div class="progress-bar" role="progressbar" style="width: ${(data.normal_duration / data.total_duration) * 100}%;" aria-valuenow="${data.normal_duration}" aria-valuemin="0" aria-valuemax="${data.total_duration}"></div>
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: ${(data.delay_minutes / data.total_duration) * 100}%;" aria-valuenow="${data.delay_minutes}" aria-valuemin="0" aria-valuemax="${data.total_duration}"></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span>Normal: ${data.normal_duration} min</span>
+                        <span>Total: ${data.total_duration} min</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    ${recommendationsHtml}
+                </div>
+            </div>
+            
+            ${hourlyForecastHtml}
+            ${impactsHtml}
+        `;
+    }
+    
+    // Function to display route options
+    function displayRouteOptions(data) {
+        let routesHtml = '';
+        
+        if (data.routes && data.routes.length > 0) {
+            routesHtml = data.routes.map(route => {
+                const isRecommended = route.name === data.recommended_route;
+                return `
+                    <div class="route-card ${isRecommended ? 'recommended' : ''}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="mb-0">${route.name} ${isRecommended ? '<span class="badge bg-success ms-2">Recommended</span>' : ''}</h5>
+                            <span class="badge bg-${route.alert_type}">${route.severity.charAt(0).toUpperCase() + route.severity.slice(1)} Impact</span>
+                        </div>
+                        <p class="text-muted small mb-2">${route.description}</p>
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-road text-primary me-2"></i>
+                                    <div>
+                                        <div class="small text-muted">Distance</div>
+                                        <div class="fw-bold">${route.distance} km</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-clock text-primary me-2"></i>
+                                    <div>
+                                        <div class="small text-muted">Duration</div>
+                                        <div class="fw-bold">${route.duration} min <span class="text-${route.alert_type}">+${route.delay_minutes} min</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-${route.alert_type} py-2 px-3 mb-0">
+                            <small><i class="fas fa-info-circle me-1"></i> ${route.weather_impact}</small>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        routesResults.innerHTML = `
+            <h4 class="mb-3">Route Options</h4>
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <i class="fas fa-map-marker-alt text-danger me-1"></i> ${data.from} 
+                        <i class="fas fa-arrow-right mx-2"></i> 
+                        <i class="fas fa-map-marker-alt text-success me-1"></i> ${data.to}
+                    </div>
+                    <div class="badge bg-light text-dark">
+                        <i class="far fa-clock me-1"></i> Departure: ${data.departure_time}
+                    </div>
+                </div>
+                <div class="alert alert-info py-2">
+                    <i class="fas fa-cloud me-2"></i> Weather: ${data.weather_condition} (${data.weather_description})
+                </div>
+            </div>
+            ${routesHtml}
+        `;
+    }
+    
+    // Function to display weekly forecast
+    function displayWeeklyForecast(data) {
+        let daysHtml = '';
+        
+        if (data.forecast_days && data.forecast_days.length > 0) {
+            daysHtml = data.forecast_days.map(day => {
+                const date = new Date(day.date);
+                const formattedDate = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+                
+                return `
+                    <div class="weekly-day">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">${formattedDate}</h5>
+                            <span class="badge bg-${day.alert_type}">${day.severity.charAt(0).toUpperCase() + day.severity.slice(1)} Impact</span>
+                        </div>
+                        <div class="alert alert-${day.alert_type} mt-2 py-2">
+                            <i class="fas fa-${day.weather_condition.toLowerCase().includes('rain') ? 'cloud-rain' : 
+                                               day.weather_condition.toLowerCase().includes('snow') ? 'snowflake' : 
+                                               day.weather_condition.toLowerCase().includes('cloud') ? 'cloud' : 'sun'} me-2"></i>
+                            ${day.summary}
+                        </div>
+                        <div class="time-of-day">
+                            <div class="time-block ${day.morning.severity}">
+                                <div class="fw-bold">Morning</div>
+                                <div class="h5 my-1">${Math.round(day.morning.avg_delay_factor * 100)}%</div>
+                                <div class="small text-muted">Delay</div>
+                            </div>
+                            <div class="time-block ${day.afternoon.severity}">
+                                <div class="fw-bold">Afternoon</div>
+                                <div class="h5 my-1">${Math.round(day.afternoon.avg_delay_factor * 100)}%</div>
+                                <div class="small text-muted">Delay</div>
+                            </div>
+                            <div class="time-block ${day.evening.severity}">
+                                <div class="fw-bold">Evening</div>
+                                <div class="h5 my-1">${Math.round(day.evening.avg_delay_factor * 100)}%</div>
+                                <div class="small text-muted">Delay</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        weeklyResults.innerHTML = `
+            <h4 class="mb-3">Weekly Travel Forecast for ${data.city}</h4>
+            ${daysHtml}
+        `;
+    }
+    
+    // Pre-fill city if it's in the URL query params
+    const urlParams = new URLSearchParams(window.location.search);
+    const cityParam = urlParams.get('city');
+    if (cityParam) {
+        citySearch.value = cityParam;
+        commuteCity.value = cityParam;
+        routesCity.value = cityParam;
+        weeklyCity.value = cityParam;
+        
+        // Automatically submit the commute form
+        setTimeout(() => {
+            commuteForm.dispatchEvent(new Event('submit'));
+        }, 500);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,72 @@
+[
+  {
+    "city": "Delhi",
+    "state": "Delhi",
+    "country": "India",
+    "aqi": 187,
+    "category": "Unhealthy"
+  },
+  {
+    "city": "Ghaziabad",
+    "state": "Uttar Pradesh",
+    "country": "India",
+    "aqi": 182,
+    "category": "Unhealthy"
+  },
+  {
+    "city": "Noida",
+    "state": "Uttar Pradesh",
+    "country": "India",
+    "aqi": 175,
+    "category": "Unhealthy"
+  },
+  {
+    "city": "Gurugram",
+    "state": "Haryana",
+    "country": "India",
+    "aqi": 170,
+    "category": "Unhealthy"
+  },
+  {
+    "city": "Faridabad",
+    "state": "Haryana",
+    "country": "India",
+    "aqi": 160,
+    "category": "Unhealthy"
+  },
+  {
+    "city": "Patna",
+    "state": "Bihar",
+    "country": "India",
+    "aqi": 155,
+    "category": "Unhealthy"
+  },
+  {
+    "city": "Lucknow",
+    "state": "Uttar Pradesh",
+    "country": "India",
+    "aqi": 150,
+    "category": "Unhealthy for Sensitive Groups"
+  },
+  {
+    "city": "Kanpur",
+    "state": "Uttar Pradesh",
+    "country": "India",
+    "aqi": 145,
+    "category": "Unhealthy for Sensitive Groups"
+  },
+  {
+    "city": "Jodhpur",
+    "state": "Rajasthan",
+    "country": "India",
+    "aqi": 138,
+    "category": "Unhealthy for Sensitive Groups"
+  },
+  {
+    "city": "Muzaffarpur",
+    "state": "Bihar",
+    "country": "India",
+    "aqi": 134,
+    "category": "Unhealthy for Sensitive Groups"
+  }
+]

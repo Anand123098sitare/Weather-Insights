@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 50 Most Polluted Countries | Global Air Quality Monitoring</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/colorful-mode.css" id="theme-style">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        .chart-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+            height: 800px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+            overflow-x: auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .pagination button {
+            padding: 8px 16px;
+            margin: 0 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .pagination button:hover {
+            background-color: #45a049;
+        }
+        
+        .pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .page-info {
+            margin: 0 15px;
+            line-height: 35px;
+        }
+        
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .category-good { color: #00e400; }
+        .category-moderate { color: #ffff00; }
+        .category-unhealthy-sensitive { color: #ff7e00; }
+        .category-unhealthy { color: #ff0000; }
+        .category-very-unhealthy { color: #8f3f97; }
+        .category-hazardous { color: #7e0023; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Global Air Quality Monitoring</h1>
+            <p>Real-time pollution data and environmental insights</p>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/map">Map</a></li>
+                <li><a href="/most_polluted">Most Polluted</a></li>
+                <li><a href="/polluted_countries_ranking" class="active">Top 50 Ranking</a></li>
+                <li><a href="/cities_comparison">City Comparison</a></li>
+                <li><a href="/forecasting">Forecasting</a></li>
+                <li><a href="/about">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="dashboard-header">
+            <h1>Top 50 Most Polluted Countries in the World (2024)</h1>
+            <p>Based on annual average Air Quality Index (AQI) values</p>
+        </section>
+        
+        <section class="chart-container">
+            <h2>Air Quality Index by Country</h2>
+            <canvas id="countriesChart"></canvas>
+        </section>
+        
+        <section class="table-container">
+            <h2>Detailed Data - Top 50 Most Polluted Countries</h2>
+            <div class="pagination">
+                <button id="prevBtn" disabled>Previous</button>
+                <span class="page-info">Page <span id="currentPage">1</span> of <span id="totalPages">5</span></span>
+                <button id="nextBtn">Next</button>
+            </div>
+            <table id="countriesTable">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Country</th>
+                        <th>2024 Avg AQI</th>
+                        <th>Category</th>
+                        <th>Jan</th>
+                        <th>Feb</th>
+                        <th>Mar</th>
+                        <th>Apr</th>
+                        <th>May</th>
+                        <th>Jun</th>
+                        <th>Jul</th>
+                        <th>Aug</th>
+                        <th>Sep</th>
+                        <th>Oct</th>
+                        <th>Nov</th>
+                        <th>Dec</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About This Project</h3>
+                <p>This project visualizes global air quality data to raise awareness about pollution and its impact on health and the environment.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Data Sources</h3>
+                <p>Data compiled from various environmental agencies and monitoring stations worldwide.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>For questions or feedback, please contact us at info@airqualitymonitor.org</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Global Air Quality Monitoring. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Fetch country data
+        async function fetchCountriesData() {
+            try {
+                const response = await fetch('/api/most-polluted/data');
+                const data = await response.json();
+                
+                if (data && data.top_polluted_countries) {
+                    return data.top_polluted_countries.slice(0, 50); // Take top 50
+                }
+                return [];
+            } catch (error) {
+                console.error('Error fetching countries data:', error);
+                return [];
+            }
+        }
+        
+        // Get AQI category and color based on value
+        function getAQICategory(value) {
+            if (value <= 50) {
+                return { category: 'Good', color: '#00e400', class: 'category-good' };
+            } else if (value <= 100) {
+                return { category: 'Moderate', color: '#ffff00', class: 'category-moderate' };
+            } else if (value <= 150) {
+                return { category: 'Unhealthy for Sensitive Groups', color: '#ff7e00', class: 'category-unhealthy-sensitive' };
+            } else if (value <= 200) {
+                return { category: 'Unhealthy', color: '#ff0000', class: 'category-unhealthy' };
+            } else if (value <= 300) {
+                return { category: 'Very Unhealthy', color: '#8f3f97', class: 'category-very-unhealthy' };
+            } else {
+                return { category: 'Hazardous', color: '#7e0023', class: 'category-hazardous' };
+            }
+        }
+        
+        // Initialize the bar chart
+        function initChart(countriesData) {
+            // Sort data by AQI value in descending order
+            countriesData.sort((a, b) => b['2024 Avg'] - a['2024 Avg']);
+            
+            // Extract data for chart
+            const labels = countriesData.map(country => country.Country);
+            const data = countriesData.map(country => country['2024 Avg']);
+            const colors = countriesData.map(country => getAQICategory(country['2024 Avg']).color);
+            
+            // Create chart
+            const ctx = document.getElementById('countriesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average AQI (2024)',
+                        data: data,
+                        backgroundColor: colors,
+                        borderColor: colors.map(color => color),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    const aqi = context.raw;
+                                    const category = getAQICategory(aqi).category;
+                                    return `Category: ${category}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Air Quality Index (AQI)'
+                            },
+                            beginAtZero: true
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Country'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Populate the table with countries data
+        function populateTable(countriesData) {
+            const tableBody = document.querySelector('#countriesTable tbody');
+            const itemsPerPage = 10;
+            let currentPage = 1;
+            const totalPages = Math.ceil(countriesData.length / itemsPerPage);
+            
+            document.getElementById('totalPages').textContent = totalPages;
+            
+            function displayTablePage(page) {
+                tableBody.innerHTML = '';
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, countriesData.length);
+                
+                for (let i = startIndex; i < endIndex; i++) {
+                    const country = countriesData[i];
+                    const aqi = country['2024 Avg'];
+                    const aqiInfo = getAQICategory(aqi);
+                    
+                    const row = document.createElement('tr');
+                    
+                    // Create cells for rank, country, AQI, and category
+                    row.innerHTML = `
+                        <td>${country.Rank}</td>
+                        <td>${country.Country}</td>
+                        <td>${aqi}</td>
+                        <td class="${aqiInfo.class}">${aqiInfo.category}</td>
+                    `;
+                    
+                    // Add monthly data
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    for (let j = 0; j < months.length; j++) {
+                        const value = country[months[j]];
+                        const formattedValue = value === '--' ? '--' : value || '--';
+                        row.innerHTML += `<td>${formattedValue}</td>`;
+                    }
+                    
+                    tableBody.appendChild(row);
+                }
+                
+                // Update pagination controls
+                document.getElementById('currentPage').textContent = page;
+                document.getElementById('prevBtn').disabled = page === 1;
+                document.getElementById('nextBtn').disabled = page === totalPages;
+            }
+            
+            // Initialize first page of table
+            displayTablePage(currentPage);
+            
+            // Set up pagination event handlers
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayTablePage(currentPage);
+                }
+            });
+            
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    displayTablePage(currentPage);
+                }
+            });
+        }
+        
+        // Initialize page
+        async function initPage() {
+            const countriesData = await fetchCountriesData();
+            if (countriesData.length > 0) {
+                initChart(countriesData);
+                populateTable(countriesData);
+            }
+        }
+        
+        // Execute when page loads
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

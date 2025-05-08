@@ -1,0 +1,512 @@
+/* Enhanced Real-time Air Quality Page CSS */
+
+/* IQAir-style Tables */
+.iqair-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+  margin: 20px 0;
+}
+
+.iqair-table thead {
+  background: linear-gradient(135deg, #4b79a1, #283e51);
+  color: white;
+}
+
+.iqair-table th {
+  padding: 16px;
+  font-weight: 600;
+  text-align: left;
+  position: relative;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.iqair-table tbody tr {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.iqair-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.iqair-table tbody tr:hover {
+  background-color: rgba(75, 121, 161, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.iqair-table td {
+  padding: 16px;
+  font-size: 14px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.iqair-table .aqi-cell {
+  position: relative;
+  font-weight: 700;
+  text-align: center;
+  width: 80px;
+}
+
+.iqair-table .aqi-cell-badge {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.iqair-table .aqi-cell-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0)
+  );
+  z-index: 1;
+}
+
+.iqair-table .aqi-good {
+  background: linear-gradient(135deg, #00b09b, #96c93d);
+}
+
+.iqair-table .aqi-moderate {
+  background: linear-gradient(135deg, #f7b733, #fc4a1a);
+}
+
+.iqair-table .aqi-sensitive {
+  background: linear-gradient(135deg, #ff7e5f, #feb47b);
+}
+
+.iqair-table .aqi-unhealthy {
+  background: linear-gradient(135deg, #ff512f, #dd2476);
+}
+
+.iqair-table .aqi-very-unhealthy {
+  background: linear-gradient(135deg, #614385, #516395);
+}
+
+.iqair-table .aqi-hazardous {
+  background: linear-gradient(135deg, #7b4397, #dc2430);
+}
+
+.iqair-table .rank-cell {
+  width: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #4b79a1;
+}
+
+.iqair-table .city-cell {
+  font-weight: 600;
+  color: #283e51;
+}
+
+.iqair-table .country-cell {
+  color: #4b79a1;
+}
+
+.iqair-table tr:nth-child(1) .rank-cell {
+  color: #dc2430;
+  font-size: 22px;
+}
+
+.iqair-table tr:nth-child(2) .rank-cell {
+  color: #ff512f;
+  font-size: 20px;
+}
+
+.iqair-table tr:nth-child(3) .rank-cell {
+  color: #f7b733;
+  font-size: 19px;
+}
+
+/* Enhanced Visual Cards */
+.visual-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.4s ease;
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.visual-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.visual-card-header {
+  background: linear-gradient(135deg, #4b79a1, #283e51);
+  padding: 20px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.visual-card-header::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0)
+  );
+  z-index: 1;
+}
+
+.visual-card-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.visual-card-header h3 i {
+  margin-right: 10px;
+}
+
+.visual-card-body {
+  padding: 20px;
+}
+
+/* Interactive Data Visualization Components */
+.data-visualization {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.data-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.filter-pill {
+  background: #f4f7f9;
+  border: 1px solid #e0e6eb;
+  border-radius: 30px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.filter-pill:hover {
+  background: #e0e6eb;
+}
+
+.filter-pill.active {
+  background: linear-gradient(135deg, #4b79a1, #283e51);
+  color: white;
+  border-color: #283e51;
+}
+
+.filter-pill i {
+  margin-right: 5px;
+}
+
+/* Heat Map Legend */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 15px 0;
+  padding: 15px;
+  background: rgba(244, 247, 249, 0.7);
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.legend-text {
+  font-size: 12px;
+  color: #4a4a4a;
+}
+
+/* AQI Trend Chart enhancements */
+.trend-chart-container {
+  position: relative;
+  height: 350px;
+  margin-top: 20px;
+}
+
+.trend-chart-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Real-time pulse effect */
+.pulse-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: #ff512f;
+  border-radius: 50%;
+  margin-right: 8px;
+  position: relative;
+}
+
+.pulse-dot::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(255, 81, 47, 0.6);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Enhanced AQI Scale Display */
+.aqi-intro {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  color: #4a4a4a;
+}
+
+.aqi-scale {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.aqi-scale-item {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.aqi-scale-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.aqi-scale-badge {
+  width: 120px;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  padding: 20px 15px;
+  position: relative;
+}
+
+.aqi-scale-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0)
+  );
+  z-index: 1;
+}
+
+.aqi-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+  position: relative;
+  z-index: 2;
+}
+
+.aqi-category {
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.aqi-scale-details {
+  flex: 1;
+  padding: 20px;
+  background-color: white;
+}
+
+.aqi-scale-details h5 {
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aqi-scale-details p {
+  color: #4a4a4a;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+}
+
+.aqi-health-tips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.aqi-tip-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.aqi-tip-item i {
+  color: #4b79a1;
+}
+
+/* Color Classes */
+.text-orange {
+  color: #ff9933;
+}
+
+.text-purple {
+  color: #660099;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .aqi-scale-item {
+    flex-direction: column;
+  }
+  
+  .aqi-scale-badge {
+    width: 100%;
+    padding: 15px;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .aqi-number {
+    margin-bottom: 0;
+    margin-right: 10px;
+  }
+}
+
+/* Colorful mode specific enhancements */
+.colorful-mode .visual-card-header {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+}
+
+.colorful-mode .iqair-table thead {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+}
+
+.colorful-mode .filter-pill.active {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  border-color: #6a11cb;
+}
+
+.colorful-mode .pulse-dot {
+  background-color: #6a11cb;
+}
+
+.colorful-mode .pulse-dot::after {
+  background-color: rgba(106, 17, 203, 0.6);
+}
+
+.colorful-mode .aqi-tip-item i {
+  color: #6a11cb;
+}
+
+/* Custom AQI badge classes for charts and tables */
+.badge-moderate {
+  background-color: #ffde33;
+  color: #333;
+}
+
+.badge-sensitive {
+  background-color: #ff9933;
+  color: #333;
+}
+
+.badge-unhealthy {
+  background-color: #cc0033;
+  color: white;
+}
+
+.badge-very-unhealthy {
+  background-color: #660099;
+  color: white;
+}
+
+.badge-hazardous {
+  background-color: #7e0023;
+  color: white;
+}

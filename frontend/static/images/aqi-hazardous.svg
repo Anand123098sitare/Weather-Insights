@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <circle cx="100" cy="100" r="90" fill="#7f0000" />
+  <circle cx="100" cy="100" r="85" fill="#b71c1c" />
+  <path d="M65,80 L85,80 M135,80 L115,80" stroke="white" stroke-width="8" />
+  <circle cx="65" cy="80" r="10" fill="white" />
+  <circle cx="135" cy="80" r="10" fill="white" />
+  <path d="M65,140 Q100,90 135,140" stroke="white" stroke-width="8" fill="none" />
+  <path d="M80,40 L100,60 L120,40" stroke="white" stroke-width="6" fill="none" />
+  <circle cx="100" cy="70" r="5" fill="white" />
+</svg>

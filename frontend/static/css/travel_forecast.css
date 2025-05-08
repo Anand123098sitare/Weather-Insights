@@ -1,0 +1,191 @@
+/* Travel & Commute Forecast Styles */
+
+.forecast-container {
+    background-color: var(--card-bg);
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.forecast-container:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-shadow-hover);
+}
+
+.alert-banner {
+    border-radius: 0.8rem;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    border-left: 5px solid;
+}
+
+.alert-banner.minimal {
+    background-color: rgba(40, 167, 69, 0.15);
+    border-left-color: #28a745;
+}
+
+.alert-banner.minor {
+    background-color: rgba(13, 202, 240, 0.15);
+    border-left-color: #0dcaf0;
+}
+
+.alert-banner.moderate {
+    background-color: rgba(255, 193, 7, 0.15);
+    border-left-color: #ffc107;
+}
+
+.alert-banner.severe {
+    background-color: rgba(220, 53, 69, 0.15);
+    border-left-color: #dc3545;
+}
+
+.commute-form {
+    background-color: var(--card-bg);
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.route-card {
+    background-color: var(--card-bg);
+    border-radius: 0.8rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.route-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+.route-card.recommended {
+    border-left: 4px solid #28a745;
+}
+
+.weather-hour {
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: rgba(255,255,255,0.05);
+    min-width: 80px;
+}
+
+.weather-hour img {
+    width: 40px;
+    height: 40px;
+}
+
+.recommendation-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.recommendation-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed rgba(0,0,0,0.1);
+    display: flex;
+    align-items: flex-start;
+}
+
+.recommendation-list li:last-child {
+    border-bottom: none;
+}
+
+.recommendation-list li i {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.weekly-day {
+    background-color: var(--card-bg);
+    border-radius: 0.8rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.weekly-day:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.time-of-day {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.time-block {
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    flex: 1;
+    margin: 0 0.25rem;
+}
+
+.time-block.minimal {
+    background-color: rgba(40, 167, 69, 0.15);
+}
+
+.time-block.minor {
+    background-color: rgba(13, 202, 240, 0.15);
+}
+
+.time-block.moderate {
+    background-color: rgba(255, 193, 7, 0.15);
+}
+
+.time-block.severe {
+    background-color: rgba(220, 53, 69, 0.15);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .time-of-day {
+        flex-direction: column;
+    }
+    
+    .time-block {
+        margin: 0.25rem 0;
+    }
+}
+
+/* Colorful mode adjustments */
+.colorful-mode .forecast-container {
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.colorful-mode .commute-form {
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.colorful-mode .route-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.colorful-mode .weekly-day {
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.colorful-mode .weather-hour {
+    background-color: rgba(255,255,255,0.1);
+}

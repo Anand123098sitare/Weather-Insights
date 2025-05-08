@@ -1,0 +1,1492 @@
+{% extends "layout.html" %}
+
+{% block title %}World's Most Polluted Countries 2024{% endblock %}
+
+{% block page_id %}most-polluted{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1627588891335-ebdb145dd3ef');">
+    <div class="container">
+        <h1>World's Most Polluted Countries 2024</h1>
+        <p>Explore real-time air quality rankings and pollution data for countries around the world</p>
+    </div>
+</section>
+
+<!-- Main Content -->
+<div class="container mt-4">
+    <!-- Toggle Buttons -->
+    <div class="btn-group mb-4" role="group" aria-label="Toggle between countries and cities">
+        <button type="button" class="btn btn-primary active" id="countries-tab-btn">Most Polluted Countries</button>
+        <button type="button" class="btn btn-outline-primary" id="cities-tab-btn">Most Polluted Cities</button>
+    </div>
+    
+    <!-- Countries Tab -->
+    <div id="countries-tab" class="tab-content mb-5">
+        <!-- View Toggle -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0"><i class="fas fa-globe me-2"></i>World's Most Polluted Countries 2024</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-primary active" id="view-chart-btn">Chart View</button>
+                        <button class="btn btn-outline-primary" id="view-table-btn">Table View</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chart View -->
+        <div id="chart-view">
+            <!-- Top 10 Countries Visualization -->
+            <div class="row mb-4">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Top 10 Most Polluted Countries (2024)</h5>
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="chart-container" style="height: 450px;">
+                                <canvas id="polluted-countries-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <small class="text-muted">Data based on average AQI values for 2024</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">AQI Category Distribution</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container mb-3">
+                                <canvas id="category-distribution-chart"></canvas>
+                            </div>
+                            <div class="aqi-legend">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div style="width: 15px; height: 15px; background-color: #009966; border-radius: 3px; margin-right: 8px;"></div>
+                                    <small>Good (0-50)</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div style="width: 15px; height: 15px; background-color: #ffde33; border-radius: 3px; margin-right: 8px;"></div>
+                                    <small>Moderate (51-100)</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div style="width: 15px; height: 15px; background-color: #ff9933; border-radius: 3px; margin-right: 8px;"></div>
+                                    <small>Unhealthy for Sensitive Groups (101-150)</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div style="width: 15px; height: 15px; background-color: #cc0033; border-radius: 3px; margin-right: 8px;"></div>
+                                    <small>Unhealthy (151-200)</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div style="width: 15px; height: 15px; background-color: #660099; border-radius: 3px; margin-right: 8px;"></div>
+                                    <small>Very Unhealthy (201-300)</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div style="width: 15px; height: 15px; background-color: #7e0023; border-radius: 3px; margin-right: 8px;"></div>
+                                    <small>Hazardous (301+)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts were removed as requested -->
+        </div>
+        
+        <!-- Table View -->
+        <div id="table-view" style="display: none;">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Complete AQI Ranking Table</h5>
+                    <button class="btn btn-sm btn-light" id="download-table-btn">
+                        <i class="fas fa-download me-1"></i> Export to CSV
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="polluted-countries-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="text-center">Rank</th>
+                                    <th>Country</th>
+                                    <th class="text-center">2024 Avg AQI</th>
+                                    <th>Category</th>
+                                    {% if has_realtime_data %}
+                                    <th class="text-center bg-light">Real-time AQI</th>
+                                    {% endif %}
+                                    <th class="text-center">Jan</th>
+                                    <th class="text-center">Feb</th>
+                                    <th class="text-center">Mar</th>
+                                    <th class="text-center">Apr</th>
+                                    <th class="text-center">May</th>
+                                    <th class="text-center">Jun</th>
+                                    <th class="text-center">Jul</th>
+                                    <th class="text-center">Aug</th>
+                                    <th class="text-center">Sep</th>
+                                    <th class="text-center">Oct</th>
+                                    <th class="text-center">Nov</th>
+                                    <th class="text-center">Dec</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for country in top_polluted_countries %}
+                                <tr>
+                                    <td class="text-center"><span class="badge bg-secondary">{{ country.Rank }}</span></td>
+                                    <td>{{ country.Country }}</td>
+                                    <td class="text-center fw-bold">
+                                        <span class="badge 
+                                            {% if country['2024 Avg'] <= 50 %}bg-success
+                                            {% elif country['2024 Avg'] <= 100 %}badge-moderate
+                                            {% elif country['2024 Avg'] <= 150 %}badge-sensitive
+                                            {% elif country['2024 Avg'] <= 200 %}badge-unhealthy
+                                            {% elif country['2024 Avg'] <= 300 %}badge-very-unhealthy
+                                            {% else %}badge-hazardous{% endif %}"
+                                            style="min-width: 50px;">
+                                            {{ country['2024 Avg'] }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if country['2024 Avg'] <= 50 %}
+                                            Good
+                                        {% elif country['2024 Avg'] <= 100 %}
+                                            Moderate
+                                        {% elif country['2024 Avg'] <= 150 %}
+                                            Unhealthy for Sensitive Groups
+                                        {% elif country['2024 Avg'] <= 200 %}
+                                            Unhealthy
+                                        {% elif country['2024 Avg'] <= 300 %}
+                                            Very Unhealthy
+                                        {% else %}
+                                            Hazardous
+                                        {% endif %}
+                                    </td>
+                                    {% if has_realtime_data %}
+                                    <td class="text-center bg-light">
+                                        {% if country.Realtime_AQI %}
+                                            <span class="badge 
+                                                {% if country.Realtime_AQI <= 50 %}bg-success
+                                                {% elif country.Realtime_AQI <= 100 %}badge-moderate
+                                                {% elif country.Realtime_AQI <= 150 %}badge-sensitive
+                                                {% elif country.Realtime_AQI <= 200 %}badge-unhealthy
+                                                {% elif country.Realtime_AQI <= 300 %}badge-very-unhealthy
+                                                {% else %}badge-hazardous{% endif %}"
+                                                style="min-width: 50px;">
+                                                {{ country.Realtime_AQI }}
+                                            </span>
+                                            <small class="d-block text-muted mt-1"><i class="fas fa-sync-alt fa-xs me-1"></i>Live</small>
+                                        {% else %}
+                                            <span class="text-muted">--</span>
+                                        {% endif %}
+                                    </td>
+                                    {% endif %}
+                                    <td class="text-center">{{ country['Jan'] }}</td>
+                                    <td class="text-center">{{ country['Feb'] }}</td>
+                                    <td class="text-center">{{ country['Mar'] }}</td>
+                                    <td class="text-center">{{ country['Apr'] }}</td>
+                                    <td class="text-center">{{ country['May'] }}</td>
+                                    <td class="text-center">{{ country['Jun'] }}</td>
+                                    <td class="text-center">{{ country['Jul'] }}</td>
+                                    <td class="text-center">{{ country['Aug'] }}</td>
+                                    <td class="text-center">{{ country['Sep'] }}</td>
+                                    <td class="text-center">{{ country['Oct'] }}</td>
+                                    <td class="text-center">{{ country['Nov'] }}</td>
+                                    <td class="text-center">{{ country['Dec'] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cities Tab -->
+    <div id="cities-tab" class="tab-content mb-5" style="display: none;">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-city me-2"></i>Most Polluted Cities</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="city-state-select" class="form-label">Select City:</label>
+                        <select id="city-state-select" class="form-select">
+                            <option value="">Select a city</option>
+                            {% for city in cities_with_states %}
+                            <option value="{{ city.City }}|{{ city.State }}">{{ city.City }}, {{ city.State }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="city-data-section" style="display: none;">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title border-bottom pb-2">City Information</h5>
+                                    <p class="card-text">
+                                        <strong>City:</strong> <span id="city-name" class="text-primary">-</span><br>
+                                        <strong>State/Province:</strong> <span id="city-state">-</span><br>
+                                        <strong>Average AQI (2024):</strong> <span id="city-avg-aqi" class="badge bg-warning text-dark">-</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title border-bottom pb-2">Health Recommendations</h5>
+                                    <ul id="health-recommendations" class="mt-3">
+                                        <li><strong>Air Quality Monitoring:</strong> Regularly check local air quality forecasts and real-time AQI values.</li>
+                                        <li><strong>Reduce Outdoor Activities:</strong> Limit strenuous outdoor activities during high pollution days.</li>
+                                        <li><strong>Indoor Air Quality:</strong> Use air purifiers with HEPA filters to improve indoor air quality.</li>
+                                        <li><strong>Masks:</strong> Consider wearing N95 or KN95 masks when outdoors during periods of high pollution.</li>
+                                        <li><strong>Travel Planning:</strong> If you have respiratory conditions, consider air quality when planning travel.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Monthly Air Quality Trend</h5>
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="chart-container" style="height: 350px;">
+                                <canvas id="city-monthly-chart"></canvas>
+                            </div>
+                            
+                            <!-- AQI Color Scale Legend -->
+                            <div class="mt-3 d-flex justify-content-center flex-wrap">
+                                <div class="aqi-legend-item mx-2">
+                                    <span class="aqi-legend-color" style="background-color: #009966;"></span>
+                                    <span class="aqi-legend-text">Good (0-50)</span>
+                                </div>
+                                <div class="aqi-legend-item mx-2">
+                                    <span class="aqi-legend-color" style="background-color: #ffde33;"></span>
+                                    <span class="aqi-legend-text">Moderate (51-100)</span>
+                                </div>
+                                <div class="aqi-legend-item mx-2">
+                                    <span class="aqi-legend-color" style="background-color: #ff9933;"></span>
+                                    <span class="aqi-legend-text">Sensitive (101-150)</span>
+                                </div>
+                                <div class="aqi-legend-item mx-2">
+                                    <span class="aqi-legend-color" style="background-color: #cc0033;"></span>
+                                    <span class="aqi-legend-text">Unhealthy (151-200)</span>
+                                </div>
+                                <div class="aqi-legend-item mx-2">
+                                    <span class="aqi-legend-color" style="background-color: #660099;"></span>
+                                    <span class="aqi-legend-text">Very Unhealthy (201-300)</span>
+                                </div>
+                                <div class="aqi-legend-item mx-2">
+                                    <span class="aqi-legend-color" style="background-color: #7e0023;"></span>
+                                    <span class="aqi-legend-text">Hazardous (301+)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Understanding Urban Air Pollution</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="border-bottom pb-2">Major Urban Pollution Sources:</h5>
+                        <ul class="mt-3">
+                            <li><strong>Transportation:</strong> Vehicle emissions are a major source of nitrogen oxides and particulate matter in urban areas.</li>
+                            <li><strong>Industrial Activities:</strong> Factories, power plants, and refineries emit various pollutants.</li>
+                            <li><strong>Construction:</strong> Building activities generate dust and particulate matter.</li>
+                            <li><strong>Residential Heating/Cooking:</strong> Especially in developing regions, the burning of solid fuels for heating and cooking contributes significantly to indoor and outdoor air pollution.</li>
+                            <li><strong>Waste Burning:</strong> Open burning of waste releases harmful chemicals and particulate matter.</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="border-bottom pb-2">Urban Planning Solutions:</h5>
+                        <ul class="mt-3">
+                            <li><strong>Public Transportation:</strong> Expanding efficient public transit systems to reduce private vehicle use.</li>
+                            <li><strong>Green Spaces:</strong> Increasing urban vegetation to help filter air pollutants.</li>
+                            <li><strong>Low Emission Zones:</strong> Restricting high-polluting vehicles in certain areas.</li>
+                            <li><strong>Clean Energy:</strong> Transitioning to renewable energy sources for power generation.</li>
+                            <li><strong>Building Standards:</strong> Implementing and enforcing stricter emissions standards for buildings and industry.</li>
+                        </ul>
+                        <img src="https://images.unsplash.com/photo-1667436311383-cb35d18a3f06" alt="City smog" class="img-fluid rounded mt-3 shadow">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Global Air Pollution Info -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-globe-americas me-2"></i>Global Air Pollution Crisis</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="border-bottom pb-2">Key Facts About Global Air Pollution:</h5>
+                    <ul class="mt-3">
+                        <li>According to the World Health Organization (WHO), air pollution is responsible for approximately 7 million premature deaths annually worldwide.</li>
+                        <li>Over 90% of the world's population lives in areas where air quality exceeds WHO guideline limits.</li>
+                        <li>Developing countries, particularly in Asia and Africa, face the highest levels of air pollution.</li>
+                        <li>PM2.5 (fine particulate matter) is considered the most harmful pollutant to human health due to its ability to penetrate deep into the lungs and bloodstream.</li>
+                        <li>Air pollution is linked to respiratory diseases, heart disease, stroke, and lung cancer.</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="border-bottom pb-2">Air Quality Improvement Strategies:</h5>
+                    <ul class="mt-3">
+                        <li><strong>Policy Implementation:</strong> Enforcing stricter air quality standards and emissions regulations.</li>
+                        <li><strong>Clean Energy Transition:</strong> Moving away from fossil fuels towards renewable energy sources.</li>
+                        <li><strong>Sustainable Transportation:</strong> Promoting electric vehicles, public transportation, and active mobility.</li>
+                        <li><strong>Industrial Emissions Control:</strong> Implementing cleaner production technologies and emissions controls in industry.</li>
+                        <li><strong>Public Awareness:</strong> Educating the public about air pollution, its health impacts, and mitigation strategies.</li>
+                    </ul>
+                    <img src="https://images.unsplash.com/photo-1466611653911-95081537e5b7" alt="Clean environment" class="img-fluid rounded mt-3 shadow">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    /* AQI Badge Colors */
+    .badge-moderate {
+        background-color: #ffde33;
+        color: #000;
+    }
+    .badge-sensitive {
+        background-color: #ff9933;
+        color: #fff;
+    }
+    .badge-unhealthy {
+        background-color: #cc0033;
+        color: #fff;
+    }
+    .badge-very-unhealthy {
+        background-color: #660099;
+        color: #fff;
+    }
+    .badge-hazardous {
+        background-color: #7e0023;
+        color: #fff;
+    }
+    
+    /* AQI Legend Styles */
+    .aqi-legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        font-size: 0.8rem;
+    }
+    
+    .aqi-legend-color {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        border-radius: 3px;
+        margin-right: 5px;
+    }
+    
+    .aqi-legend-text {
+        color: #555;
+    }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // The annotation plugin is automatically registered when included via CDN
+    // Tab switching functionality
+    const countriesTabBtn = document.getElementById('countries-tab-btn');
+    const citiesTabBtn = document.getElementById('cities-tab-btn');
+    const countriesTab = document.getElementById('countries-tab');
+    const citiesTab = document.getElementById('cities-tab');
+    
+    countriesTabBtn.addEventListener('click', function() {
+        countriesTab.style.display = 'block';
+        citiesTab.style.display = 'none';
+        countriesTabBtn.classList.add('active');
+        countriesTabBtn.classList.remove('btn-outline-primary');
+        countriesTabBtn.classList.add('btn-primary');
+        citiesTabBtn.classList.remove('active');
+        citiesTabBtn.classList.remove('btn-primary');
+        citiesTabBtn.classList.add('btn-outline-primary');
+    });
+    
+    citiesTabBtn.addEventListener('click', function() {
+        countriesTab.style.display = 'none';
+        citiesTab.style.display = 'block';
+        citiesTabBtn.classList.add('active');
+        citiesTabBtn.classList.remove('btn-outline-primary');
+        citiesTabBtn.classList.add('btn-primary');
+        countriesTabBtn.classList.remove('active');
+        countriesTabBtn.classList.remove('btn-primary');
+        countriesTabBtn.classList.add('btn-outline-primary');
+    });
+    
+    // View toggle functionality
+    const viewChartBtn = document.getElementById('view-chart-btn');
+    const viewTableBtn = document.getElementById('view-table-btn');
+    const chartView = document.getElementById('chart-view');
+    const tableView = document.getElementById('table-view');
+    
+    if (viewChartBtn && viewTableBtn) {
+        viewChartBtn.addEventListener('click', function() {
+            chartView.style.display = 'block';
+            tableView.style.display = 'none';
+            viewChartBtn.classList.add('active');
+            viewChartBtn.classList.remove('btn-outline-primary');
+            viewChartBtn.classList.add('btn-primary');
+            viewTableBtn.classList.remove('active');
+            viewTableBtn.classList.remove('btn-primary');
+            viewTableBtn.classList.add('btn-outline-primary');
+        });
+        
+        viewTableBtn.addEventListener('click', function() {
+            chartView.style.display = 'none';
+            tableView.style.display = 'block';
+            viewTableBtn.classList.add('active');
+            viewTableBtn.classList.remove('btn-outline-primary');
+            viewTableBtn.classList.add('btn-primary');
+            viewChartBtn.classList.remove('active');
+            viewChartBtn.classList.remove('btn-primary');
+            viewChartBtn.classList.add('btn-outline-primary');
+        });
+    }
+    
+    // City selection handling
+    const cityStateSelect = document.getElementById('city-state-select');
+    if (cityStateSelect) {
+        cityStateSelect.addEventListener('change', function() {
+            const value = this.value;
+            if (value) {
+                const [city, state] = value.split('|');
+                loadCityData(city, state);
+                
+                // Show city data section
+                document.getElementById('city-data-section').style.display = 'block';
+            } else {
+                document.getElementById('city-data-section').style.display = 'none';
+            }
+        });
+    }
+    
+    // Download chart functionality
+    const downloadChartBtn = document.getElementById('download-chart-btn');
+    if (downloadChartBtn) {
+        downloadChartBtn.addEventListener('click', function() {
+            const canvas = document.getElementById('top-50-countries-bar-chart');
+            if (canvas) {
+                const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+                const link = document.createElement('a');
+                link.download = 'world-aqi-ranking-2024.png';
+                link.href = image;
+                link.click();
+            }
+        });
+    }
+    
+    // Download table functionality
+    const downloadTableBtn = document.getElementById('download-table-btn');
+    if (downloadTableBtn) {
+        downloadTableBtn.addEventListener('click', function() {
+            const table = document.getElementById('polluted-countries-table');
+            if (table) {
+                let csv = [];
+                const rows = table.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const cols = row.querySelectorAll('td, th');
+                    const rowData = Array.from(cols).map(col => {
+                        // Replace HTML to get clean text
+                        let text = col.textContent.trim();
+                        // Escape commas and quotes
+                        return `"${text.replace(/"/g, '""')}"`;
+                    });
+                    csv.push(rowData.join(','));
+                });
+                
+                const csvContent = csv.join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.setAttribute('download', 'world-aqi-ranking-2024.csv');
+                link.click();
+            }
+        });
+    }
+    
+    // Load countries charts
+    initializeCharts();
+    
+    function initializeCharts() {
+        // Get data from table
+        const countriesData = extractCountriesData();
+        
+        if (countriesData.length > 0) {
+            // Create Top 10 Countries Chart
+            createTop10Chart(countriesData);
+            
+            // Create category distribution pie chart
+            createCategoryDistributionChart(countriesData);
+            
+            // Note: Complete Global AQI Ranking and Monthly Air Quality Trends charts were removed
+        }
+    }
+    
+    function extractCountriesData() {
+        const data = [];
+        const table = document.getElementById('polluted-countries-table');
+        
+        if (table) {
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td');
+                if (cols.length >= 15) {
+                    // Extract the numeric value from the AQI badge
+                    const aqiText = cols[2].textContent.trim();
+                    const aqi = parseFloat(aqiText);
+                    
+                    const countryData = {
+                        rank: parseInt(cols[0].textContent.trim()),
+                        country: cols[1].textContent.trim(),
+                        aqi: aqi,
+                        category: cols[3].textContent.trim(),
+                        monthly: [
+                            parseFloat(cols[4].textContent.trim()),
+                            parseFloat(cols[5].textContent.trim()),
+                            parseFloat(cols[6].textContent.trim()),
+                            parseFloat(cols[7].textContent.trim()),
+                            parseFloat(cols[8].textContent.trim()),
+                            parseFloat(cols[9].textContent.trim()),
+                            parseFloat(cols[10].textContent.trim()),
+                            parseFloat(cols[11].textContent.trim()),
+                            parseFloat(cols[12].textContent.trim()),
+                            parseFloat(cols[13].textContent.trim()),
+                            parseFloat(cols[14].textContent.trim()),
+                            parseFloat(cols[15].textContent.trim())
+                        ]
+                    };
+                    data.push(countryData);
+                }
+            });
+        }
+        
+        return data;
+    }
+    
+    function createTop10Chart(countriesData) {
+        const top10Data = countriesData.slice(0, 10);
+        const countries = top10Data.map(d => d.country);
+        const aqiValues = top10Data.map(d => d.aqi);
+        const backgroundColors = top10Data.map(d => getAQIColor(d.aqi));
+        
+        const ctx = document.getElementById('polluted-countries-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: countries,
+                datasets: [{
+                    label: 'AQI Value',
+                    data: aqiValues,
+                    backgroundColor: backgroundColors,
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barThickness: 30,
+                    maxBarThickness: 35
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                return `AQI: ${value} (${getAQICategory(value)})`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Air Quality Index (AQI)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function createAllCountriesChart(countriesData) {
+        // Limit to 50 countries for readability
+        const limitedData = countriesData.slice(0, 50);
+        const countries = limitedData.map(d => d.country);
+        const aqiValues = limitedData.map(d => d.aqi);
+        const backgroundColors = limitedData.map(d => getAQIColor(d.aqi));
+        
+        // Add rank numbers to country names for better readability
+        const rankedCountries = countries.map((country, index) => `${index + 1}. ${country}`);
+        
+        // Create a gradient effect for bars
+        const ctx = document.getElementById('top-50-countries-bar-chart').getContext('2d');
+        
+        // Enhanced styling for horizontal bar chart
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: rankedCountries,
+                datasets: [{
+                    label: 'Air Quality Index',
+                    data: aqiValues,
+                    backgroundColor: backgroundColors,
+                    borderColor: 'rgba(255, 255, 255, 0.6)',
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    barThickness: 16,
+                    maxBarThickness: 20
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Global AQI Ranking 2024',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 20
+                        }
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#333',
+                        bodyColor: '#555',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
+                        padding: 12,
+                        boxPadding: 5,
+                        cornerRadius: 8,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                // Extract country name without rank number
+                                const fullLabel = tooltipItems[0].label;
+                                const country = fullLabel.substring(fullLabel.indexOf('.') + 2);
+                                return country;
+                            },
+                            label: function(context) {
+                                const value = context.raw;
+                                if (value === null || value === undefined || isNaN(value)) {
+                                    return null;
+                                }
+                                return `AQI: ${value.toFixed(1)} (${getAQICategory(value)})`;
+                            },
+                            labelColor: function(context) {
+                                const value = context.raw;
+                                if (value === null || value === undefined || isNaN(value)) {
+                                    return { borderColor: 'transparent', backgroundColor: 'transparent' };
+                                }
+                                
+                                const color = getAQIColor(value);
+                                return {
+                                    borderColor: color,
+                                    backgroundColor: color
+                                };
+                            },
+                            // Add footer with health implications
+                            footer: function(tooltipItems) {
+                                const value = tooltipItems[0].raw;
+                                return ['Health Implication: ' + getHealthImplication(value)];
+                            },
+                            footerFont: {
+                                size: 12,
+                                style: 'italic'
+                            },
+                            footerColor: '#666'
+                        }
+                    },
+                    annotation: {
+                        annotations: {
+                            healthyLine: {
+                                type: 'line',
+                                xMin: 50,
+                                xMax: 50,
+                                borderColor: 'rgba(0, 153, 102, 0.5)',
+                                borderWidth: 1,
+                                borderDash: [3, 3],
+                                label: {
+                                    display: true,
+                                    content: 'Good',
+                                    position: 'start',
+                                    backgroundColor: 'rgba(0, 153, 102, 0.8)',
+                                    font: { size: 10 }
+                                }
+                            },
+                            moderateLine: {
+                                type: 'line',
+                                xMin: 100,
+                                xMax: 100,
+                                borderColor: 'rgba(255, 222, 51, 0.5)',
+                                borderWidth: 1,
+                                borderDash: [3, 3],
+                                label: {
+                                    display: true,
+                                    content: 'Moderate',
+                                    position: 'start',
+                                    backgroundColor: 'rgba(255, 222, 51, 0.8)',
+                                    font: { size: 10 }
+                                }
+                            },
+                            unhealthyLine: {
+                                type: 'line',
+                                xMin: 150,
+                                xMax: 150,
+                                borderColor: 'rgba(255, 153, 51, 0.5)',
+                                borderWidth: 1,
+                                borderDash: [3, 3],
+                                label: {
+                                    display: true,
+                                    content: 'Unhealthy for Sensitive Groups',
+                                    position: 'start',
+                                    backgroundColor: 'rgba(255, 153, 51, 0.8)',
+                                    font: { size: 10 }
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Air Quality Index (AQI)',
+                            font: {
+                                size: 13,
+                                weight: 'bold'
+                            },
+                            padding: { top: 10 }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            },
+                            // Limit the number of y-axis labels for better readability
+                            callback: function(value, index) {
+                                // Only show every 5th label for better readability
+                                return index % 5 === 0 ? this.getLabelForValue(value) : '';
+                            }
+                        }
+                    }
+                },
+                layout: {
+                    padding: {
+                        right: 20
+                    }
+                }
+            }
+        });
+    }
+    
+    // Helper function to get health implications based on AQI value
+    function getHealthImplication(aqi) {
+        if (aqi <= 50) {
+            return 'Air quality is considered satisfactory with minimal or no health risk.';
+        } else if (aqi <= 100) {
+            return 'Acceptable air quality, but may cause minor concern for a small group of sensitive individuals.';
+        } else if (aqi <= 150) {
+            return 'Members of sensitive groups may experience health effects.';
+        } else if (aqi <= 200) {
+            return 'Everyone may begin to experience health effects, with more serious impacts on sensitive groups.';
+        } else if (aqi <= 300) {
+            return 'Health warnings of emergency conditions; the entire population is likely to be affected.';
+        } else {
+            return 'Health alert: everyone may experience more serious health effects.';
+        }
+    }
+    
+    function createCategoryDistributionChart(countriesData) {
+        const categoryCount = {
+            'Good': 0,
+            'Moderate': 0,
+            'Unhealthy for Sensitive Groups': 0,
+            'Unhealthy': 0,
+            'Very Unhealthy': 0,
+            'Hazardous': 0
+        };
+        
+        countriesData.forEach(country => {
+            if (country.aqi <= 50) {
+                categoryCount['Good']++;
+            } else if (country.aqi <= 100) {
+                categoryCount['Moderate']++;
+            } else if (country.aqi <= 150) {
+                categoryCount['Unhealthy for Sensitive Groups']++;
+            } else if (country.aqi <= 200) {
+                categoryCount['Unhealthy']++;
+            } else if (country.aqi <= 300) {
+                categoryCount['Very Unhealthy']++;
+            } else {
+                categoryCount['Hazardous']++;
+            }
+        });
+        
+        const ctx = document.getElementById('category-distribution-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(categoryCount),
+                datasets: [{
+                    data: Object.values(categoryCount),
+                    backgroundColor: [
+                        '#009966', // Good
+                        '#ffde33', // Moderate
+                        '#ff9933', // Unhealthy for Sensitive Groups
+                        '#cc0033', // Unhealthy
+                        '#660099', // Very Unhealthy
+                        '#7e0023'  // Hazardous
+                    ],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const total = Object.values(categoryCount).reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${context.label}: ${value} countries (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function createMonthlyTrendChart(countriesData) {
+        // Get top 5 countries
+        const top5Data = countriesData.slice(0, 5);
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        // Create datasets with improved styling
+        const datasets = top5Data.map((country, index) => {
+            // Define a distinctive color palette with better visibility
+            const colorSchemes = [
+                { borderColor: '#FF5A5F', backgroundColor: 'rgba(255, 90, 95, 0.1)', pointColor: '#FF5A5F' },  // Red
+                { borderColor: '#3490DE', backgroundColor: 'rgba(52, 144, 222, 0.1)', pointColor: '#3490DE' },  // Blue
+                { borderColor: '#39A275', backgroundColor: 'rgba(57, 162, 117, 0.1)', pointColor: '#39A275' },  // Green
+                { borderColor: '#FFC857', backgroundColor: 'rgba(255, 200, 87, 0.1)', pointColor: '#FFC857' },  // Yellow
+                { borderColor: '#845EC2', backgroundColor: 'rgba(132, 94, 194, 0.1)', pointColor: '#845EC2' }   // Purple
+            ];
+            
+            // Get color scheme for this country
+            const colorScheme = colorSchemes[index % colorSchemes.length];
+            
+            // Calculate maximum AQI value for this country to be displayed in label
+            const validValues = country.monthly.filter(val => !isNaN(val));
+            const maxAQI = validValues.length > 0 ? Math.max(...validValues) : 0;
+            
+            return {
+                label: `${country.country} (Max AQI: ${maxAQI.toFixed(1)})`,
+                data: country.monthly,
+                fill: true,  // Enable fill for better visualization
+                backgroundColor: colorScheme.backgroundColor,
+                borderColor: colorScheme.borderColor,
+                pointBackgroundColor: colorScheme.pointColor,
+                borderWidth: 3,
+                tension: 0.3,  // Smoother curves
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                pointBorderWidth: 2,
+                pointBorderColor: 'white'
+            };
+        });
+        
+        // Create chart
+        const ctx = document.getElementById('monthly-trend-chart').getContext('2d');
+        
+        // Create gradient background
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        gradient.addColorStop(1, 'rgba(240, 245, 250, 0.5)');
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            boxWidth: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#333',
+                        bodyColor: '#555',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
+                        padding: 12,
+                        boxPadding: 5,
+                        cornerRadius: 8,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return `${tooltipItems[0].label} 2024`;
+                            },
+                            label: function(context) {
+                                const value = context.raw;
+                                if (value === null || value === undefined || isNaN(value)) {
+                                    return `${context.dataset.label.split(' (')[0]}: No data`;
+                                }
+                                return `${context.dataset.label.split(' (')[0]}: AQI ${value.toFixed(1)} (${getAQICategory(value)})`;
+                            },
+                            labelColor: function(context) {
+                                const datasetIndex = context.datasetIndex;
+                                const colorSchemes = [
+                                    { color: '#FF5A5F' },  // Red
+                                    { color: '#3490DE' },  // Blue
+                                    { color: '#39A275' },  // Green
+                                    { color: '#FFC857' },  // Yellow
+                                    { color: '#845EC2' }   // Purple
+                                ];
+                                
+                                return {
+                                    borderColor: colorSchemes[datasetIndex % colorSchemes.length].color,
+                                    backgroundColor: colorSchemes[datasetIndex % colorSchemes.length].color
+                                };
+                            }
+                        }
+                    },
+                    annotation: {
+                        annotations: {
+                            threshold150: {
+                                type: 'line',
+                                yMin: 150,
+                                yMax: 150,
+                                borderColor: 'rgba(255, 153, 51, 0.5)',
+                                borderWidth: 1,
+                                borderDash: [5, 5],
+                                label: {
+                                    display: true,
+                                    content: 'Unhealthy for Sensitive Groups (150)',
+                                    position: 'start',
+                                    backgroundColor: 'rgba(255, 153, 51, 0.8)',
+                                    font: { size: 10 }
+                                }
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Air Quality Index (AQI)',
+                            font: {
+                                size: 13,
+                                weight: 'bold'
+                            },
+                            padding: { bottom: 10 }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            },
+                            callback: function(value) {
+                                return value;
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Helper function to load city data
+    async function loadCityData(city, state) {
+        try {
+            // Display loading indicators
+            document.getElementById('city-name').textContent = city;
+            document.getElementById('city-state').textContent = state;
+            document.getElementById('city-avg-aqi').textContent = 'Loading...';
+            
+            // Show a loading spinner in the chart container
+            const chartContainer = document.getElementById('city-monthly-chart').parentNode;
+            chartContainer.innerHTML = `
+                <div class="d-flex justify-content-center align-items-center" style="height: 350px;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="ms-2">Loading city data...</span>
+                </div>
+            `;
+            
+            // Fetch city data from API
+            const response = await fetch(`/api/city-data/${encodeURIComponent(city)}/${encodeURIComponent(state)}`);
+            
+            if (!response.ok) {
+                throw new Error(`API returned status ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data && !data.error) {
+                // Restore chart canvas
+                chartContainer.innerHTML = '<canvas id="city-monthly-chart"></canvas>';
+                
+                // Display city info
+                if (data.avg_aqi) {
+                    document.getElementById('city-avg-aqi').textContent = data.avg_aqi.toFixed(1);
+                    
+                    // Set color of badge based on AQI value
+                    const avgAqiBadge = document.getElementById('city-avg-aqi');
+                    avgAqiBadge.className = 'badge';
+                    
+                    if (data.avg_aqi <= 50) {
+                        avgAqiBadge.classList.add('bg-success');
+                    } else if (data.avg_aqi <= 100) {
+                        avgAqiBadge.classList.add('badge-moderate');
+                    } else if (data.avg_aqi <= 150) {
+                        avgAqiBadge.classList.add('badge-sensitive');
+                    } else if (data.avg_aqi <= 200) {
+                        avgAqiBadge.classList.add('badge-unhealthy');
+                    } else if (data.avg_aqi <= 300) {
+                        avgAqiBadge.classList.add('badge-very-unhealthy');
+                    } else {
+                        avgAqiBadge.classList.add('badge-hazardous');
+                    }
+                } else {
+                    document.getElementById('city-avg-aqi').textContent = 'N/A';
+                }
+                
+                // Create city monthly chart
+                createCityMonthlyChart(city, data);
+            } else {
+                throw new Error(data.error || 'No data available');
+            }
+        } catch (error) {
+            console.error('Error loading city data:', error);
+            
+            // Set fallback values
+            document.getElementById('city-avg-aqi').textContent = 'N/A';
+            
+            // Show error message in chart container
+            const chartContainer = document.getElementById('city-monthly-chart').parentNode;
+            chartContainer.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error loading city data. Please try again later.
+                </div>
+            `;
+        }
+    }
+    
+    function createCityMonthlyChart(cityName, cityData) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        // Handle various data formats by checking if cityData has either monthly_data array or individual month properties
+        let monthlyData;
+        
+        if (Array.isArray(cityData.monthly_data)) {
+            // If data comes as an array from the API
+            monthlyData = cityData.monthly_data.map(val => val === null || val === undefined ? null : val);
+        } else {
+            // If data comes as individual month properties
+            monthlyData = months.map(month => {
+                const val = cityData[month];
+                // Handle missing or non-numeric values
+                if (val === undefined || val === null || val === '--' || isNaN(parseFloat(val))) {
+                    return null;  // Use null instead of 0 to not show the point at all
+                }
+                return parseFloat(val);
+            });
+        }
+        
+        // Get colors based on AQI value categories for points
+        const pointColors = monthlyData.map(value => {
+            if (value === null || value === undefined) return 'rgba(200, 200, 200, 0.2)'; // Light gray for missing data
+            return getAQIColor(value);
+        });
+        
+        const ctx = document.getElementById('city-monthly-chart').getContext('2d');
+        
+        // Clear previous chart if exists
+        if (window.cityMonthlyChart) {
+            window.cityMonthlyChart.destroy();
+        }
+        
+        // Find minimum and maximum values for reference lines
+        const validValues = monthlyData.filter(val => val !== undefined && val !== null && !isNaN(val) && val > 0);
+        const minValue = validValues.length > 0 ? Math.min(...validValues) : 0;
+        const maxValue = validValues.length > 0 ? Math.max(...validValues) : 0;
+        const avgValue = validValues.length > 0 ? validValues.reduce((sum, val) => sum + val, 0) / validValues.length : 0;
+        
+        // Create a multi-segment dataset with color-coded segments
+        const datasets = [];
+        
+        // Main dataset with points only (no line)
+        datasets.push({
+            label: `${cityName} Monthly AQI (2024)`,
+            data: monthlyData,
+            borderColor: 'transparent',  // No line
+            backgroundColor: 'transparent',
+            pointBackgroundColor: pointColors,
+            pointBorderColor: 'white',
+            pointBorderWidth: 2,
+            pointRadius: 8,
+            pointHoverRadius: 10,
+            order: 1  // Display on top
+        });
+        
+        // Create colored line segments between each valid point
+        for (let i = 0; i < monthlyData.length - 1; i++) {
+            // Skip if either point is null
+            if (monthlyData[i] === null || monthlyData[i+1] === null) continue;
+            
+            // Create a segment dataset with only two points
+            const segmentData = Array(months.length).fill(null);
+            segmentData[i] = monthlyData[i];
+            segmentData[i+1] = monthlyData[i+1];
+            
+            // Choose color based on average AQI of the two points
+            const avgSegmentAQI = (monthlyData[i] + monthlyData[i+1]) / 2;
+            const segmentColor = getAQIColor(avgSegmentAQI);
+            
+            datasets.push({
+                data: segmentData,
+                borderColor: segmentColor,
+                backgroundColor: 'transparent',
+                borderWidth: 3,
+                pointRadius: 0,  // Hide points for line segments
+                tension: 0.3,
+                fill: false,
+                showLine: true,
+                order: 2,  // Display beneath points
+                // Don't show in legend
+                label: `Segment ${i}`,
+                hidden: false
+            });
+        }
+        
+        window.cityMonthlyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            // Only show the legend for the main dataset
+                            filter: function(legendItem) {
+                                return !legendItem.text.startsWith('Segment');
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                // Skip tooltips for segment lines
+                                if (context.dataset.label.startsWith('Segment')) {
+                                    return null;
+                                }
+                                
+                                const value = context.raw;
+                                if (value === null || value === undefined || isNaN(value)) {
+                                    return 'No data available';
+                                }
+                                
+                                const category = getAQICategory(value);
+                                return [
+                                    `AQI: ${value}`,
+                                    `Category: ${category}`
+                                ];
+                            },
+                            // Add colored box for the category
+                            labelColor: function(context) {
+                                if (context.dataset.label.startsWith('Segment')) {
+                                    return {
+                                        borderColor: 'transparent',
+                                        backgroundColor: 'transparent'
+                                    };
+                                }
+                                
+                                const value = context.raw;
+                                if (value === null || value === undefined || isNaN(value)) {
+                                    return {
+                                        borderColor: 'gray',
+                                        backgroundColor: 'gray'
+                                    };
+                                }
+                                
+                                const color = getAQIColor(value);
+                                return {
+                                    borderColor: color,
+                                    backgroundColor: color
+                                };
+                            }
+                        }
+                    },
+                    annotation: {
+                        annotations: {
+                            avgLine: {
+                                type: 'line',
+                                yMin: avgValue,
+                                yMax: avgValue,
+                                borderColor: 'rgba(75, 192, 192, 0.8)',
+                                borderWidth: 2,
+                                borderDash: [5, 5],
+                                label: {
+                                    display: true,
+                                    content: `Avg: ${avgValue.toFixed(1)}`,
+                                    position: 'end',
+                                    backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Air Quality Index (AQI)'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value;  // Just return the value
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Add category thresholds if we have valid values
+        if (validValues.length > 0) {
+            // Very Unhealthy threshold (AQI > 200)
+            if (maxValue > 200) {
+                window.cityMonthlyChart.options.plugins.annotation.annotations.veryUnhealthyLine = {
+                    type: 'line',
+                    yMin: 200,
+                    yMax: 200,
+                    borderColor: 'rgba(102, 0, 153, 0.5)',
+                    borderWidth: 1,
+                    borderDash: [2, 2],
+                    label: {
+                        display: true,
+                        content: 'Very Unhealthy',
+                        position: 'start',
+                        backgroundColor: 'rgba(102, 0, 153, 0.8)',
+                        font: {
+                            size: 10
+                        }
+                    }
+                };
+            }
+            
+            // Unhealthy threshold (AQI > 150)
+            if (maxValue > 150) {
+                window.cityMonthlyChart.options.plugins.annotation.annotations.unhealthyLine = {
+                    type: 'line',
+                    yMin: 150,
+                    yMax: 150,
+                    borderColor: 'rgba(204, 0, 51, 0.5)',
+                    borderWidth: 1,
+                    borderDash: [2, 2],
+                    label: {
+                        display: true,
+                        content: 'Unhealthy',
+                        position: 'start',
+                        backgroundColor: 'rgba(204, 0, 51, 0.8)',
+                        font: {
+                            size: 10
+                        }
+                    }
+                };
+            }
+            
+            // Hazardous threshold (AQI > 300)
+            if (maxValue > 300) {
+                window.cityMonthlyChart.options.plugins.annotation.annotations.hazardousLine = {
+                    type: 'line',
+                    yMin: 300,
+                    yMax: 300,
+                    borderColor: 'rgba(126, 0, 35, 0.5)',
+                    borderWidth: 2,
+                    borderDash: [2, 2],
+                    label: {
+                        display: true,
+                        content: 'Hazardous',
+                        position: 'start',
+                        backgroundColor: 'rgba(126, 0, 35, 0.8)',
+                        font: {
+                            size: 10
+                        }
+                    }
+                };
+            }
+            
+            // Update the chart to apply all annotations
+            window.cityMonthlyChart.update();
+        }
+    }
+    
+    // Helper function to get AQI color based on value
+    function getAQIColor(aqi) {
+        if (aqi <= 50) {
+            return '#009966'; // Good
+        } else if (aqi <= 100) {
+            return '#ffde33'; // Moderate
+        } else if (aqi <= 150) {
+            return '#ff9933'; // Unhealthy for Sensitive Groups
+        } else if (aqi <= 200) {
+            return '#cc0033'; // Unhealthy
+        } else if (aqi <= 300) {
+            return '#660099'; // Very Unhealthy
+        } else {
+            return '#7e0023'; // Hazardous
+        }
+    }
+    
+    // Helper function to get AQI category based on value
+    function getAQICategory(aqi) {
+        if (aqi <= 50) {
+            return 'Good';
+        } else if (aqi <= 100) {
+            return 'Moderate';
+        } else if (aqi <= 150) {
+            return 'Unhealthy for Sensitive Groups';
+        } else if (aqi <= 200) {
+            return 'Unhealthy';
+        } else if (aqi <= 300) {
+            return 'Very Unhealthy';
+        } else {
+            return 'Hazardous';
+        }
+    }
+});
+</script>
+{% endblock %}

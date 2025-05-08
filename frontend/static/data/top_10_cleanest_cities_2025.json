@@ -1,0 +1,72 @@
+[
+  {
+    "city": "Shimla",
+    "state": "Himachal Pradesh",
+    "country": "India",
+    "aqi": 25,
+    "category": "Good"
+  },
+  {
+    "city": "Nainital",
+    "state": "Uttarakhand",
+    "country": "India",
+    "aqi": 28,
+    "category": "Good"
+  },
+  {
+    "city": "Munnar",
+    "state": "Kerala",
+    "country": "India",
+    "aqi": 30,
+    "category": "Good"
+  },
+  {
+    "city": "Mysore",
+    "state": "Karnataka",
+    "country": "India",
+    "aqi": 32,
+    "category": "Good"
+  },
+  {
+    "city": "Ooty",
+    "state": "Tamil Nadu",
+    "country": "India",
+    "aqi": 33,
+    "category": "Good"
+  },
+  {
+    "city": "Coimbatore",
+    "state": "Tamil Nadu",
+    "country": "India",
+    "aqi": 35,
+    "category": "Good"
+  },
+  {
+    "city": "Thiruvananthapuram",
+    "state": "Kerala",
+    "country": "India",
+    "aqi": 38,
+    "category": "Good"
+  },
+  {
+    "city": "Kohima",
+    "state": "Nagaland",
+    "country": "India",
+    "aqi": 40,
+    "category": "Good"
+  },
+  {
+    "city": "Aizawl",
+    "state": "Mizoram",
+    "country": "India",
+    "aqi": 42,
+    "category": "Good"
+  },
+  {
+    "city": "Shillong",
+    "state": "Meghalaya",
+    "country": "India",
+    "aqi": 44,
+    "category": "Good"
+  }
+]

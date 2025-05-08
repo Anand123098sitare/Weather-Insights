@@ -1,0 +1,200 @@
+/* Weather Analysis CSS */
+
+/* City weather section */
+.city-weather-header {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    backdrop-filter: blur(5px);
+    border-left: 4px solid var(--primary-color);
+}
+
+.current-temp {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding: 0 10px;
+}
+
+.weather-details {
+    margin-top: 25px;
+}
+
+.weather-detail-card {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 15px;
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.weather-detail-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.weather-detail-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    margin-right: 15px;
+}
+
+.weather-detail-info h5 {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    color: #777;
+}
+
+.weather-detail-info p {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Forecast cards */
+.forecast-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    height: 100%;
+}
+
+.forecast-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.forecast-day {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.forecast-date {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 15px;
+}
+
+.forecast-icon {
+    margin-bottom: 10px;
+}
+
+.forecast-temp {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.forecast-desc {
+    color: #555;
+    margin-bottom: 15px;
+    text-transform: capitalize;
+}
+
+.forecast-wind, .forecast-humidity {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+/* Weather map */
+.weather-map-container {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.weather-map-legend-item {
+    width: 20px;
+    height: 10px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.weather-map-legend-item.temp {
+    background: linear-gradient(to right, #3366ff, #ff3300);
+}
+
+.weather-map-legend-item.precip {
+    background: linear-gradient(to right, #99ccff, #003399);
+}
+
+/* Weather popup */
+.weather-popup {
+    min-width: 200px;
+}
+
+.weather-popup h5 {
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.weather-popup-details {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* AQI Weather relation box */
+#aqi-weather-relation {
+    border-radius: 10px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+#aqi-weather-relation h4 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #333;
+}
+
+#aqi-weather-relation p {
+    margin-bottom: 0;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .current-temp {
+        font-size: 2.2rem;
+    }
+    
+    .forecast-card {
+        margin-bottom: 15px;
+    }
+    
+    .forecast-day {
+        font-size: 1rem;
+    }
+    
+    .forecast-temp {
+        font-size: 1.3rem;
+    }
+    
+    .weather-detail-card {
+        margin-bottom: 15px;
+    }
+}

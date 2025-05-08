@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Weather Insights</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('serve_frontend', path='static/css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('serve_frontend', path='static/css/auth.css') }}">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <a href="/" class="auth-back-home">
+            <i class="fas fa-home"></i> Back to Weather Insights Home
+        </a>
+        
+        <div class="auth-logo">
+            <i class="fas fa-cloud-sun"></i>
+        </div>
+        
+        <div class="auth-header">
+            <h2>Welcome Back</h2>
+            <p>Sign in to access your personalized weather insights</p>
+        </div>
+        
+        <form action="/login" method="post" class="auth-form">
+            {% if error %}
+            <div class="alert alert-danger mb-4" style="color: #e74c3c; background-color: #fae2e1; padding: 10px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #e74c3c;">
+                <i class="fas fa-exclamation-circle mr-2"></i> {{ error }}
+            </div>
+            {% endif %}
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} mb-4" style="color: {% if category == 'success' %}#27ae60{% else %}#e74c3c{% endif %}; background-color: {% if category == 'success' %}#d4f8e8{% else %}#fae2e1{% endif %}; padding: 10px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid {% if category == 'success' %}#27ae60{% else %}#e74c3c{% endif %};">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-circle{% endif %} mr-2"></i> {{ message }}
+                </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+            
+            <div class="auth-form-group">
+                <label for="email">Email</label>
+                <i class="fas fa-envelope auth-input-icon"></i>
+                <input type="email" id="email" name="email" class="auth-input" placeholder="Your email address" required>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="password">Password</label>
+                <i class="fas fa-lock auth-input-icon"></i>
+                <input type="password" id="password" name="password" class="auth-input" placeholder="Your password" required>
+            </div>
+            
+            <div class="auth-forgot-password">
+                <a href="#">Forgot password?</a>
+            </div>
+            
+            <button type="submit" class="auth-button">Log In</button>
+        </form>
+        
+        <div class="auth-divider">
+            <span>or continue with</span>
+        </div>
+        
+        <div class="auth-social-buttons">
+            <button type="button" class="auth-social-button google">
+                <i class="fab fa-google"></i>
+            </button>
+            <button type="button" class="auth-social-button facebook">
+                <i class="fab fa-facebook-f"></i>
+            </button>
+            <button type="button" class="auth-social-button twitter">
+                <i class="fab fa-twitter"></i>
+            </button>
+        </div>
+        
+        <div class="auth-footer">
+            Don't have an account? <a href="/register">Sign up</a>
+        </div>
+    </div>
+</body>
+</html>

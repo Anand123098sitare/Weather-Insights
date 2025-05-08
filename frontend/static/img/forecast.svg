@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" fill="none">
+  <g id="Forecast">
+    <circle id="Sun" cx="80" cy="70" r="35" fill="#FFD700" />
+    <path id="SunRays" d="M80 20V35M80 105V120M30 70H45M115 70H130M46.7 36.7L57.1 47.1M102.9 47.1L113.3 36.7M46.7 103.3L57.1 92.9M102.9 92.9L113.3 103.3" stroke="#FFD700" stroke-width="5" stroke-linecap="round" />
+    
+    <g id="Cloud">
+      <path d="M160 85C160 68.4315 146.569 55 130 55C113.431 55 100 68.4315 100 85C100 85 100 85 100 85C100 85 90 85 90 85C82.8203 85 77 90.8203 77 98C77 105.18 82.8203 111 90 111H150C157.18 111 163 105.18 163 98C163 90.8203 157.18 85 150 85C150 85 150 85 150 85C150 85 160 85 160 85Z" fill="#FFFFFF" stroke="#CCCCCC" stroke-width="2"/>
+    </g>
+    
+    <g id="Raindrops">
+      <path d="M110 125L105 145" stroke="#4A90E2" stroke-width="4" stroke-linecap="round"/>
+      <path d="M125 120L120 140" stroke="#4A90E2" stroke-width="4" stroke-linecap="round"/>
+      <path d="M140 125L135 145" stroke="#4A90E2" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    
+    <g id="ThermometerIcon">
+      <rect x="35" y="150" width="15" height="30" rx="7.5" stroke="#FF5252" stroke-width="2" fill="white"/>
+      <rect x="40" y="155" width="5" height="20" rx="2.5" fill="#FF5252"/>
+      <circle cx="42.5" cy="180" r="4" fill="#FF5252"/>
+    </g>
+    
+    <g id="ClockIcon">
+      <circle cx="70" cy="165" r="15" stroke="#666666" stroke-width="2" fill="white"/>
+      <line x1="70" y1="165" x2="70" y2="155" stroke="#666666" stroke-width="2" stroke-linecap="round"/>
+      <line x1="70" y1="165" x2="78" y2="165" stroke="#666666" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    
+    <g id="CarIcon">
+      <rect x="100" y="160" width="30" height="10" rx="5" fill="#666666"/>
+      <rect x="105" y="150" width="20" height="10" rx="4" fill="#666666"/>
+      <circle cx="108" cy="170" r="4" fill="#333333"/>
+      <circle cx="122" cy="170" r="4" fill="#333333"/>
+    </g>
+    
+    <g id="RouteIcon">
+      <circle cx="150" cy="150" r="5" fill="#FF5252"/>
+      <circle cx="170" cy="180" r="5" fill="#4CAF50"/>
+      <path d="M150 150L160 165L170 180" stroke="#666666" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 2"/>
+    </g>
+  </g>
+</svg>

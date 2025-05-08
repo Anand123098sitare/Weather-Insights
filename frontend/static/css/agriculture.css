@@ -1,0 +1,534 @@
+/* Agriculture Weather Tools CSS */
+.agriculture-header {
+    position: relative;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80');
+    background-size: cover;
+    background-position: center;
+    padding: 5rem 0;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 2rem;
+}
+
+.agriculture-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.agriculture-header p {
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.plant-icon {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.city-selection {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 2rem auto 0;
+}
+
+.city-selection .form-control {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.city-selection .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.city-selection .btn {
+    background-color: #4CAF50;
+    border: none;
+}
+
+.city-selection .btn:hover {
+    background-color: #45a049;
+}
+
+/* Tabs and Content Sections */
+.nav-pills .nav-link {
+    border-radius: 50px;
+    font-weight: 600;
+    padding: 0.8rem 1.5rem;
+    transition: all 0.3s ease;
+    margin: 0 0.25rem;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #4CAF50;
+    color: white;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+.tab-content {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
+    margin-top: 1.5rem;
+}
+
+/* Recommendation Cards */
+.recommendation-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.recommendation-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.recommendation-card .card-header {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    border-bottom: none;
+}
+
+.recommendation-card .card-body {
+    padding: 1.5rem;
+}
+
+.recommendation-card .highlight {
+    background-color: #f0f7f0;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #4CAF50;
+}
+
+.recommendation-card .highlight strong {
+    color: #2e7d32;
+}
+
+.recommendation-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.recommendation-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: flex-start;
+}
+
+.recommendation-list li:last-child {
+    border-bottom: none;
+}
+
+.recommendation-list li i {
+    color: #4CAF50;
+    margin-right: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+/* Soil Type Cards */
+.soil-type-card {
+    cursor: pointer;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.soil-type-card.active {
+    background-color: #e8f5e9;
+    border-color: #4CAF50;
+    box-shadow: 0 3px 10px rgba(76, 175, 80, 0.2);
+}
+
+.soil-type-card:hover:not(.active) {
+    background-color: #f1f1f1;
+}
+
+.soil-type-icon {
+    font-size: 1.5rem;
+    color: #4CAF50;
+    margin-right: 0.75rem;
+}
+
+/* Data Visualization */
+.forecast-chart {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.forecast-day-card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.forecast-day-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+}
+
+.forecast-day-header {
+    padding: 1rem;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+.forecast-day-body {
+    padding: 1rem;
+}
+
+.forecast-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 50px;
+    display: inline-block;
+    margin: 0.25rem 0;
+}
+
+.forecast-badge.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.forecast-badge.warning {
+    background-color: #fff3e0;
+    color: #e65100;
+}
+
+.forecast-badge.danger {
+    background-color: #ffebee;
+    color: #b71c1c;
+}
+
+.forecast-badge.info {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+}
+
+/* Planting Calendar */
+.planting-calendar {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.season-card {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid #4CAF50;
+}
+
+.season-card h5 {
+    color: #2e7d32;
+    margin-bottom: 1rem;
+}
+
+.plant-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.plant-badge {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-radius: 50px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .agriculture-header {
+        padding: 3rem 0;
+    }
+    
+    .agriculture-header h1 {
+        font-size: 2rem;
+    }
+    
+    .nav-pills .nav-link {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .tab-content {
+        padding: 1.25rem;
+    }
+    
+    .recommendation-card .card-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .recommendation-card .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Loading indicators */
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.loader {
+    border: 5px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 5px solid #4CAF50;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fade-enter {
+    opacity: 0;
+}
+
+.fade-enter-active {
+    opacity: 1;
+    transition: opacity 300ms;
+}
+
+.fade-exit {
+    opacity: 1;
+}
+
+.fade-exit-active {
+    opacity: 0;
+    transition: opacity 300ms;
+}
+
+/* Weather Icons */
+.weather-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.weather-icon.sunny {
+    color: #FFA000;
+}
+
+.weather-icon.cloudy {
+    color: #78909C;
+}
+
+.weather-icon.rainy {
+    color: #42A5F5;
+}
+
+.weather-icon.stormy {
+    color: #5C6BC0;
+}
+
+/* Water Droplet Progress */
+.water-level-container {
+    position: relative;
+    height: 100px;
+    width: 70px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 0 0 35px 35px;
+    border: 3px solid #2196F3;
+    border-top: none;
+}
+
+.water-level {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #2196F3;
+    transition: height 0.5s ease;
+}
+
+.water-droplet {
+    position: relative;
+    margin: 0 auto 1rem;
+    width: 70px;
+    height: 100px;
+    border-radius: 0 0 35px 35px;
+}
+
+.water-droplet::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: #fff;
+    border-radius: 35px 35px 0 0;
+    z-index: 2;
+}
+
+.water-level-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    z-index: 1;
+}
+
+/* Watering recommendation animation */
+.watering-time-highlight {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    font-weight: bold;
+    border-radius: 8px;
+    margin: 0.5rem 0;
+    border-left: 4px solid #4CAF50;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+    }
+}
+
+/* ET Scale */
+.et-scale {
+    display: flex;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.et-scale-segment {
+    height: 100%;
+    flex: 1;
+}
+
+.et-scale-very-low { background-color: #B2DFDB; }
+.et-scale-low { background-color: #4DB6AC; }
+.et-scale-moderate { background-color: #009688; }
+.et-scale-high { background-color: #00796B; }
+.et-scale-very-high { background-color: #004D40; }
+
+.et-marker {
+    position: relative;
+    height: 20px;
+}
+
+.et-marker-pointer {
+    position: absolute;
+    width: 10px;
+    height: 20px;
+    background-color: #D32F2F;
+    border-radius: 3px;
+    transform: translateX(-50%);
+    transition: left 0.5s ease;
+}
+
+.et-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #616161;
+    margin-top: 5px;
+}
+
+/* Plant Care */
+.plant-care-container {
+    margin-top: 2rem;
+}
+
+.plant-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.plant-option {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.plant-option.active {
+    background-color: #e8f5e9;
+    border-color: #4CAF50;
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+.plant-option:hover:not(.active) {
+    background-color: #f1f1f1;
+    transform: translateY(-2px);
+}
+
+.alert-card {
+    background-color: #ffebee;
+    border-left: 4px solid #f44336;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.alert-card.warning {
+    background-color: #fff3e0;
+    border-left-color: #ff9800;
+}
+
+.alert-card.info {
+    background-color: #e3f2fd;
+    border-left-color: #2196f3;
+}

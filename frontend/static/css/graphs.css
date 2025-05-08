@@ -1,0 +1,235 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #121212;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255, 0, 100, 0.13) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(0, 200, 255, 0.13) 0%, transparent 40%);
+}
+
+.page-header {
+  text-align: center;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.page-header h1 {
+  font-size: 2.5em;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  background: linear-gradient(to right, #ff416c, #ff4b2b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.controls {
+  width: 95%;
+  margin: 20px auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  justify-content: center;
+  background: rgba(30, 30, 30, 0.7);
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 950px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.controls label {
+  font-weight: 500;
+  margin-right: 5px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+#countrySelectors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.controls select, .controls button {
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  min-width: 160px;
+  background-color: #1f1f1f;
+  color: #fff;
+  border: 1px solid #444;
+  transition: all 0.3s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.controls select:hover,
+.controls button:hover {
+  background-color: #2e2e2e;
+  border-color: #666;
+}
+
+.controls select:focus {
+  outline: none;
+  border-color: #ff416c;
+  box-shadow: 0 0 0 2px rgba(255, 65, 108, 0.25);
+}
+
+.controls button {
+  background: linear-gradient(to right, #ff416c, #ff4b2b);
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  border: none;
+  letter-spacing: 0.5px;
+}
+
+.controls button:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 10px rgba(255, 65, 108, 0.5), 0 0 20px rgba(255, 75, 43, 0.3);
+}
+
+.chart-box {
+  background: #1e1e1e;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.7);
+  width: 90%;
+  max-width: 950px;
+  margin: 30px auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, transparent 65%, rgba(255, 65, 108, 0.1) 100%);
+  pointer-events: none;
+}
+
+/* Sun toggle floating button */
+#sun-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  z-index: 9999;
+  animation: float 5s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 207, 51, 0.7));
+  transition: all 0.3s;
+}
+
+#sun-toggle:hover {
+  filter: drop-shadow(0 0 15px rgba(255, 207, 51, 0.9));
+  transform: scale(1.1) rotate(15deg);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(5deg); }
+  66% { transform: translateY(5px) rotate(-5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+#sun-toggle svg {
+  transition: all 0.3s;
+}
+
+#sun-toggle:hover svg {
+  transform: rotate(180deg);
+}
+
+
+/* Colorful mode theme */
+.colorful-mode {
+  background: radial-gradient(circle at top left, #ff7eb3, #65d6ce, #ffc75f);
+  color: #111;
+  animation: gradient-shift 15s ease infinite alternate;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.colorful-mode .page-header h1 {
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+}
+
+.colorful-mode #back-to-home {
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+}
+
+.colorful-mode #back-to-home:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.colorful-mode canvas {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+}
+
+.colorful-mode .chart-box {
+  background: rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.colorful-mode .chart-box::before {
+  background: linear-gradient(45deg, transparent 65%, rgba(101, 214, 206, 0.2) 100%);
+}
+
+.colorful-mode .controls {
+  background: rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.colorful-mode .controls label {
+  color: #333;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.colorful-mode .controls select, 
+.colorful-mode .controls button {
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #111;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.colorful-mode .controls select:hover {
+  background-color: #fff;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.colorful-mode .controls button {
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+  color: #fff;
+  border: none;
+}
+
+.colorful-mode .controls button:hover {
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+  transform: scale(1.04);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(106, 17, 203, 0.5), 0 0 20px rgba(37, 117, 252, 0.3);
+}

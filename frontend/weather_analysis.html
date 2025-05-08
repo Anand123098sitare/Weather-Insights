@@ -1,0 +1,1121 @@
+{% extends 'layout.html' %}
+
+{% block title %}Global Weather Analysis | Air Quality Monitor{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('serve_frontend', path='static/css/weather_analysis.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center" data-aos="fade-down">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-cloud-sun text-primary me-3"></i>Global Weather Analysis
+            </h1>
+            <p class="lead">Explore real-time weather data, historical trends, and climate patterns worldwide</p>
+            <div class="page-divider my-4 mx-auto"></div>
+        </div>
+    </div>
+
+    <!-- City Weather Search Section -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto" data-aos="fade-up">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4">
+                    <h2 class="fw-bold mb-4"><i class="fas fa-search-location me-2 text-primary"></i>Global Weather Explorer</h2>
+                    <p class="mb-4">
+                        Search for current weather conditions and trends for any city worldwide.
+                    </p>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="weather-city-search" placeholder="Enter city name">
+                                <label for="weather-city-search">Enter City Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary btn-lg w-100 h-100" id="weather-search-btn">
+                                <i class="fas fa-search me-2"></i> Get Weather Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading indicator -->
+                    <div id="weather-loading" class="text-center my-5 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Fetching weather data...</p>
+                    </div>
+                    
+                    <!-- Weather results -->
+                    <div id="weather-results" class="d-none">
+                        <div class="city-weather-header mb-4">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                <div class="d-flex align-items-center">
+                                    <img id="weather-icon" src="" alt="Weather icon" class="me-3">
+                                    <div>
+                                        <h3 class="mb-0" id="weather-city">City Name</h3>
+                                        <p class="text-muted mb-0" id="weather-date">Current Date</p>
+                                    </div>
+                                </div>
+                                <div class="current-temp">
+                                    <span id="weather-temp">--</span>°C
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row weather-details mb-4">
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="weather-detail-card">
+                                    <div class="weather-detail-icon">
+                                        <i class="fas fa-thermometer-half"></i>
+                                    </div>
+                                    <div class="weather-detail-info">
+                                        <h5>Feels Like</h5>
+                                        <p id="weather-feels-like">--°C</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="weather-detail-card">
+                                    <div class="weather-detail-icon">
+                                        <i class="fas fa-tint"></i>
+                                    </div>
+                                    <div class="weather-detail-info">
+                                        <h5>Humidity</h5>
+                                        <p id="weather-humidity">--%</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="weather-detail-card">
+                                    <div class="weather-detail-icon">
+                                        <i class="fas fa-wind"></i>
+                                    </div>
+                                    <div class="weather-detail-info">
+                                        <h5>Wind</h5>
+                                        <p id="weather-wind">-- m/s</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="weather-detail-card">
+                                    <div class="weather-detail-icon">
+                                        <i class="fas fa-compress-arrows-alt"></i>
+                                    </div>
+                                    <div class="weather-detail-info">
+                                        <h5>Pressure</h5>
+                                        <p id="weather-pressure">-- hPa</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="aqi-weather-relation" class="mt-4 p-3 rounded-3">
+                            <h4><i class="fas fa-info-circle me-2"></i>Air Quality Impact</h4>
+                            <p id="aqi-weather-description">Based on current weather conditions, the air quality index might be affected.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Initial placeholder -->
+                    <div id="weather-placeholder" class="text-center my-5">
+                        <img src="{{ url_for('serve_frontend', path='static/img/weather.svg') }}" alt="Weather" class="img-fluid mb-4" style="max-width: 200px;">
+                        <h4>Search for a city to view current weather</h4>
+                        <p class="text-muted">Get real-time weather data and see how it affects air quality</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Forecast Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4" data-aos="fade-up">
+            <h2 class="fw-bold">5-Day Weather Forecast</h2>
+            <p class="text-muted">Detailed weather predictions for the selected city</p>
+        </div>
+        
+        <div class="col-lg-10 mx-auto" data-aos="fade-up">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4">
+                    <div id="forecast-container" class="d-none">
+                        <div class="row" id="forecast-cards">
+                            <!-- Forecast cards will be inserted here -->
+                        </div>
+                    </div>
+                    
+                    <div id="forecast-placeholder" class="text-center my-5">
+                        <h4>No forecast data available</h4>
+                        <p class="text-muted">Search for a city to view weather forecast data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historical Weather Trends -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4" data-aos="fade-up">
+            <h2 class="fw-bold">Historical Weather Analysis</h2>
+            <p class="text-muted">Explore temperature and precipitation trends over time</p>
+        </div>
+        
+        <div class="col-md-6 mb-4" data-aos="fade-right">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-4">Temperature Trends</h3>
+                    <p class="card-text mb-4">Monthly average temperatures for the selected city</p>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="temperatureChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 p-4">
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-info-circle me-2"></i> Data shown represents monthly averages over the past year
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4" data-aos="fade-left">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-4">Precipitation Analysis</h3>
+                    <p class="card-text mb-4">Monthly precipitation levels for the selected city</p>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="precipitationChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 p-4">
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-info-circle me-2"></i> Data shown in millimeters of precipitation per month
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Climate Patterns and Weather-AQI Correlation -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4" data-aos="fade-up">
+            <h2 class="fw-bold">Climate Patterns & Air Quality</h2>
+            <p class="text-muted">Explore the relationship between weather patterns and air quality</p>
+        </div>
+        
+        <div class="col-lg-6 mb-4" data-aos="fade-right">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-4">Weather-AQI Correlation</h3>
+                    <p class="card-text mb-4">How different weather conditions affect air quality indices</p>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="weatherAqiCorrelationChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 p-4">
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-info-circle me-2"></i> Data based on historical patterns across multiple cities
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4" data-aos="fade-left">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-4">Seasonal Impact on Air Quality</h3>
+                    <p class="card-text mb-4">How seasons affect air pollution levels</p>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="seasonalImpactChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 p-4">
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-info-circle me-2"></i> Average AQI levels across different seasons
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Weather Map -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4" data-aos="fade-up">
+            <h2 class="fw-bold">Global Weather Map</h2>
+            <p class="text-muted">Interactive map showing current weather conditions worldwide</p>
+        </div>
+        
+        <div class="col-lg-12" data-aos="fade-up">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4">
+                    <div class="weather-map-container" style="height: 550px;">
+                        <div id="weather-map" style="height: 100%;"></div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 p-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="weather-map-legend-item temp"></div>
+                                <span class="ms-2">Temperature (°C)</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="weather-map-legend-item precip"></div>
+                                <span class="ms-2">Precipitation (mm)</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-info-circle me-2"></i> Click on a location to see detailed weather data
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ===== Weather Search Functionality =====
+        const citySearch = document.getElementById('weather-city-search');
+        const searchBtn = document.getElementById('weather-search-btn');
+        const weatherLoading = document.getElementById('weather-loading');
+        const weatherResults = document.getElementById('weather-results');
+        const weatherPlaceholder = document.getElementById('weather-placeholder');
+        const forecastContainer = document.getElementById('forecast-container');
+        const forecastPlaceholder = document.getElementById('forecast-placeholder');
+        
+        // Weather display elements
+        const weatherCity = document.getElementById('weather-city');
+        const weatherDate = document.getElementById('weather-date');
+        const weatherIcon = document.getElementById('weather-icon');
+        const weatherTemp = document.getElementById('weather-temp');
+        const weatherFeelsLike = document.getElementById('weather-feels-like');
+        const weatherHumidity = document.getElementById('weather-humidity');
+        const weatherWind = document.getElementById('weather-wind');
+        const weatherPressure = document.getElementById('weather-pressure');
+        const aqiWeatherDescription = document.getElementById('aqi-weather-description');
+        
+        // Function to fetch current weather
+        function fetchWeatherData() {
+            const city = citySearch.value.trim();
+            if (!city) {
+                alert('Please enter a city name');
+                return;
+            }
+            
+            // Show loading, hide results and placeholder
+            weatherLoading.classList.remove('d-none');
+            weatherResults.classList.add('d-none');
+            weatherPlaceholder.classList.add('d-none');
+            forecastContainer.classList.add('d-none');
+            forecastPlaceholder.classList.remove('d-none');
+            
+            // Fetch weather data from our API
+            fetch(`/api/weather/${encodeURIComponent(city)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error: ${response.status} - ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    weatherLoading.classList.add('d-none');
+                    
+                    if (data.error || !data.weather || !data.main) {
+                        const errorMsg = data.error || 'Could not get weather data for this city. Please try another city.';
+                        weatherPlaceholder.classList.remove('d-none');
+                        
+                        // Show error message on placeholder
+                        const placeholderImage = weatherPlaceholder.querySelector('img');
+                        const placeholderHeading = weatherPlaceholder.querySelector('h4');
+                        const placeholderText = weatherPlaceholder.querySelector('p');
+                        
+                        placeholderHeading.textContent = 'Weather data unavailable';
+                        placeholderText.textContent = errorMsg;
+                        
+                        return;
+                    }
+                    
+                    // Display weather data
+                    weatherResults.classList.remove('d-none');
+                    
+                    // Update current weather details - make sure all properties exist before using them
+                    const countryCode = data.sys && data.sys.country ? data.sys.country : '';
+                    weatherCity.textContent = `${data.name}${countryCode ? ', ' + countryCode : ''}`;
+                    weatherDate.textContent = new Date().toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    // Check if weather data exists and contains the first weather item
+                    if (data.weather && data.weather.length > 0) {
+                        weatherIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+                    }
+                    
+                    // Set temperature and other data, checking for existence
+                    weatherTemp.textContent = Math.round(data.main.temp);
+                    weatherFeelsLike.textContent = `${Math.round(data.main.feels_like)}°C`;
+                    weatherHumidity.textContent = `${data.main.humidity}%`;
+                    
+                    if (data.wind) {
+                        weatherWind.textContent = `${data.wind.speed} m/s`;
+                    }
+                    
+                    weatherPressure.textContent = `${data.main.pressure} hPa`;
+                    
+                    // Set AQI description based on weather
+                    updateAqiWeatherRelation(data);
+                    
+                    // Fetch and display forecast
+                    fetchForecast(city);
+                    
+                    // Update historical charts
+                    fetchHistoricalData(city);
+                })
+                .catch(error => {
+                    console.error('Error fetching weather data:', error);
+                    weatherLoading.classList.add('d-none');
+                    weatherPlaceholder.classList.remove('d-none');
+                    
+                    // Update error message on placeholder
+                    const placeholderHeading = weatherPlaceholder.querySelector('h4');
+                    const placeholderText = weatherPlaceholder.querySelector('p');
+                    
+                    placeholderHeading.textContent = 'Could not fetch weather data';
+                    placeholderText.textContent = `Please try again or search for a different city. Error: ${error.message}`;
+                });
+        }
+        
+        // Function to update AQI-Weather relation box
+        function updateAqiWeatherRelation(weatherData) {
+            const relation = document.getElementById('aqi-weather-relation');
+            const description = document.getElementById('aqi-weather-description');
+            
+            // Safely extract weather data
+            if (!weatherData || !weatherData.weather || !weatherData.weather.length || !weatherData.main || !weatherData.wind) {
+                description.textContent = "Weather data incomplete. Unable to determine air quality impact.";
+                relation.style.backgroundColor = `rgba(0, 0, 0, 0.05)`;
+                relation.style.borderLeft = `4px solid #888`;
+                return;
+            }
+            
+            // Weather condition impacts on air quality
+            const weatherItem = weatherData.weather[0];
+            const condition = weatherItem.main ? weatherItem.main.toLowerCase() : '';
+            const weatherDesc = weatherItem.description ? weatherItem.description.toLowerCase() : '';
+            const humidity = weatherData.main.humidity;
+            const windSpeed = weatherData.wind.speed;
+            
+            let impact = '';
+            let color = '';
+            
+            if (condition.includes('rain') || condition.includes('drizzle') || weatherDesc.includes('rain') || weatherDesc.includes('drizzle')) {
+                impact = 'Rainfall tends to improve air quality by washing away pollutants.';
+                color = 'var(--success-color)';
+            } else if (condition.includes('snow') || weatherDesc.includes('snow')) {
+                impact = 'Snowfall can temporarily improve air quality by trapping pollutants.';
+                color = 'var(--info-color)';
+            } else if ((condition.includes('clear') || weatherDesc.includes('clear')) && windSpeed > 3) {
+                impact = 'Clear conditions with good wind speeds typically improve air dispersion and quality.';
+                color = 'var(--success-color)';
+            } else if ((condition.includes('clear') || weatherDesc.includes('clear')) && windSpeed < 2) {
+                impact = 'Clear conditions with low wind can lead to pollutant buildup, especially in urban areas.';
+                color = 'var(--warning-color)';
+            } else if (condition.includes('cloud') || weatherDesc.includes('cloud')) {
+                impact = 'Cloudy conditions can trap pollutants depending on temperature and wind.';
+                color = 'var(--warning-color)';
+            } else if (condition.includes('fog') || condition.includes('mist') || condition.includes('haze') || 
+                       weatherDesc.includes('fog') || weatherDesc.includes('mist') || weatherDesc.includes('haze')) {
+                impact = 'Foggy or misty conditions typically indicate poor air dispersion and potentially higher pollution levels.';
+                color = 'var(--danger-color)';
+            } else {
+                // Default if no specific condition is matched
+                impact = 'Current weather conditions have varying effects on air quality depending on other factors.';
+                color = 'var(--info-color)';
+            }
+            
+            // Add humidity impact
+            if (humidity > 80) {
+                impact += ' High humidity can enhance particle formation and worsen air quality.';
+            } else if (humidity < 30) {
+                impact += ' Low humidity can increase dust particles in the air.';
+            }
+            
+            description.textContent = impact;
+            relation.style.backgroundColor = `${color}20`;
+            relation.style.borderLeft = `4px solid ${color}`;
+        }
+        
+        // Function to fetch 5-day forecast
+        function fetchForecast(city) {
+            fetch(`/api/weather-forecast/${encodeURIComponent(city)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error: ${response.status} - ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error || !data.list) {
+                        const errorMsg = data.error || 'Could not get forecast data for this city.';
+                        console.error('Forecast error:', errorMsg);
+                        forecastPlaceholder.classList.remove('d-none');
+                        forecastContainer.classList.add('d-none');
+                        
+                        // Show error message on forecast placeholder
+                        const placeholderElement = document.querySelector('#forecast-placeholder p');
+                        if (placeholderElement) {
+                            placeholderElement.textContent = errorMsg;
+                        }
+                        return;
+                    }
+                    
+                    // Show forecast container
+                    forecastContainer.classList.remove('d-none');
+                    forecastPlaceholder.classList.add('d-none');
+                    
+                    // Generate forecast cards
+                    const forecastCards = document.getElementById('forecast-cards');
+                    forecastCards.innerHTML = '';
+                    
+                    // Check if data has the expected structure
+                    if (Array.isArray(data.list) && data.list.length > 0) {
+                        data.list.forEach((forecast, index) => {
+                            // Make sure forecast has the required properties
+                            if (!forecast.dt || !forecast.weather || !forecast.weather.length || !forecast.main) {
+                                console.error('Invalid forecast data format:', forecast);
+                                return;
+                            }
+                            
+                            // Only show one forecast per day (we'll take the noon forecast)
+                            const forecastDate = new Date(forecast.dt * 1000);
+                            const timeStr = forecastDate.getHours();
+                            
+                            // Filter to get one forecast per day (around noon)
+                            if (timeStr >= 11 && timeStr <= 14 || index % 8 === 0) {
+                                const card = createForecastCard(forecast);
+                                forecastCards.appendChild(card);
+                            }
+                        });
+                    } else {
+                        console.error('Invalid forecast data format. Missing list array.');
+                        forecastCards.innerHTML = '<div class="alert alert-warning">No forecast data available</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching forecast:', error);
+                    forecastPlaceholder.classList.remove('d-none');
+                    forecastContainer.classList.add('d-none');
+                    
+                    // Update error message on forecast placeholder
+                    const placeholderElement = document.querySelector('#forecast-placeholder p');
+                    if (placeholderElement) {
+                        placeholderElement.textContent = `Failed to retrieve forecast data: ${error.message}`;
+                    }
+                });
+        }
+        
+        // Function to create forecast card
+        function createForecastCard(forecast) {
+            // Safe access to forecasts data
+            if (!forecast || !forecast.dt || !forecast.main || !forecast.weather || !forecast.weather.length) {
+                console.error('Invalid forecast data format:', forecast);
+                const div = document.createElement('div');
+                div.className = 'col';
+                div.innerHTML = `
+                    <div class="forecast-card">
+                        <div class="forecast-day">N/A</div>
+                        <div class="forecast-date">Data unavailable</div>
+                        <div class="forecast-temp">--°C</div>
+                    </div>
+                `;
+                return div;
+            }
+            
+            try {
+                const date = new Date(forecast.dt * 1000);
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                const dayDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                
+                const weatherIcon = forecast.weather[0].icon || 'unknown';
+                const weatherDesc = forecast.weather[0].description || 'Unknown weather condition';
+                const temp = forecast.main.temp ? Math.round(forecast.main.temp) : '--';
+                const windSpeed = forecast.wind?.speed || '--';
+                const humidity = forecast.main.humidity || '--';
+                
+                const div = document.createElement('div');
+                div.className = 'col';
+                
+                div.innerHTML = `
+                    <div class="forecast-card">
+                        <div class="forecast-day">${dayName}</div>
+                        <div class="forecast-date">${dayDate}</div>
+                        <div class="forecast-icon">
+                            <img src="https://openweathermap.org/img/wn/${weatherIcon}@2x.png" alt="${weatherDesc}">
+                        </div>
+                        <div class="forecast-temp">${temp}°C</div>
+                        <div class="forecast-desc">${weatherDesc}</div>
+                        <div class="forecast-wind">
+                            <i class="fas fa-wind"></i> ${windSpeed} m/s
+                        </div>
+                        <div class="forecast-humidity">
+                            <i class="fas fa-tint"></i> ${humidity}%
+                        </div>
+                    </div>
+                `;
+                
+                return div;
+            } catch (error) {
+                console.error('Error creating forecast card:', error);
+                const div = document.createElement('div');
+                div.className = 'col';
+                div.innerHTML = `
+                    <div class="forecast-card">
+                        <div class="forecast-day">Error</div>
+                        <div class="forecast-date">Could not process data</div>
+                        <div class="forecast-temp">--°C</div>
+                    </div>
+                `;
+                return div;
+            }
+        }
+        
+        // Function to fetch historical data for charts
+        function fetchHistoricalData(city) {
+            fetch(`/api/weather-history/${encodeURIComponent(city)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error: ${response.status} - ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error || !data.temperature || !data.precipitation) {
+                        const errorMsg = data.error || 'Historical data is incomplete or not available.';
+                        console.error('Historical data error:', errorMsg);
+                        
+                        // Show error message in charts
+                        document.getElementById('temperatureChart').parentElement.innerHTML = 
+                            `<div class="alert alert-warning text-center">Temperature history data unavailable</div>`;
+                        document.getElementById('precipitationChart').parentElement.innerHTML = 
+                            `<div class="alert alert-warning text-center">Precipitation history data unavailable</div>`;
+                        return;
+                    }
+                    
+                    // Update temperature chart
+                    createTemperatureChart(data.temperature);
+                    
+                    // Update precipitation chart
+                    createPrecipitationChart(data.precipitation);
+                })
+                .catch(error => {
+                    console.error('Error fetching historical data:', error);
+                    
+                    // Show error message in charts
+                    document.getElementById('temperatureChart').parentElement.innerHTML = 
+                        `<div class="alert alert-warning text-center">Temperature history data unavailable: ${error.message}</div>`;
+                    document.getElementById('precipitationChart').parentElement.innerHTML = 
+                        `<div class="alert alert-warning text-center">Precipitation history data unavailable: ${error.message}</div>`;
+                });
+                
+            // Also load correlation data
+            fetch('/api/weather-aqi-correlation')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error: ${response.status} - ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.correlations || !data.seasons) {
+                        console.error('Correlation data incomplete or not available');
+                        
+                        // Show error message in charts
+                        document.getElementById('weatherAqiCorrelationChart').parentElement.innerHTML = 
+                            `<div class="alert alert-warning text-center">Weather-AQI correlation data unavailable</div>`;
+                        document.getElementById('seasonalImpactChart').parentElement.innerHTML = 
+                            `<div class="alert alert-warning text-center">Seasonal impact data unavailable</div>`;
+                        return;
+                    }
+                    
+                    createWeatherAqiCorrelationChart(data.correlations);
+                    createSeasonalImpactChart(data.seasons);
+                })
+                .catch(error => {
+                    console.error('Error fetching correlation data:', error);
+                    
+                    // Show error message in charts
+                    document.getElementById('weatherAqiCorrelationChart').parentElement.innerHTML = 
+                        `<div class="alert alert-warning text-center">Weather-AQI correlation data unavailable: ${error.message}</div>`;
+                    document.getElementById('seasonalImpactChart').parentElement.innerHTML = 
+                        `<div class="alert alert-warning text-center">Seasonal impact data unavailable: ${error.message}</div>`;
+                });
+        }
+        
+        // Function to create temperature chart
+        function createTemperatureChart(data) {
+            try {
+                const chartContainer = document.getElementById('temperatureChart').parentElement;
+                // First, check if we have valid data
+                if (!data || !data.labels || !data.values || data.labels.length === 0 || data.values.length === 0) {
+                    console.error('Invalid temperature data format:', data);
+                    chartContainer.innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Temperature history data is not available for this location
+                        </div>`;
+                    return;
+                }
+                
+                // Restore the canvas if it was replaced with an error message
+                if (!document.getElementById('temperatureChart')) {
+                    chartContainer.innerHTML = '<canvas id="temperatureChart" width="400" height="300"></canvas>';
+                }
+                
+                const ctx = document.getElementById('temperatureChart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (window.temperatureChart) {
+                    try {
+                        window.temperatureChart.destroy();
+                    } catch (e) {
+                        console.error('Error destroying temperature chart:', e);
+                        // Continue with creating a new chart anyway
+                    }
+                }
+                
+                window.temperatureChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Average Temperature (°C)',
+                            data: data.values,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: 'rgba(255, 99, 132, 1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                grid: {
+                                    drawBorder: false
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating temperature chart:', error);
+                document.getElementById('temperatureChart').parentElement.innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Unable to display temperature chart: ${error.message}
+                    </div>`;
+            }
+        }
+        
+        // Function to create precipitation chart
+        function createPrecipitationChart(data) {
+            try {
+                const chartContainer = document.getElementById('precipitationChart').parentElement;
+                // First, check if we have valid data
+                if (!data || !data.labels || !data.values || data.labels.length === 0 || data.values.length === 0) {
+                    console.error('Invalid precipitation data format:', data);
+                    chartContainer.innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Precipitation history data is not available for this location
+                        </div>`;
+                    return;
+                }
+                
+                // Restore the canvas if it was replaced with an error message
+                if (!document.getElementById('precipitationChart')) {
+                    chartContainer.innerHTML = '<canvas id="precipitationChart" width="400" height="300"></canvas>';
+                }
+                
+                const ctx = document.getElementById('precipitationChart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (window.precipitationChart) {
+                    try {
+                        window.precipitationChart.destroy();
+                    } catch (e) {
+                        console.error('Error destroying precipitation chart:', e);
+                        // Continue with creating a new chart anyway
+                    }
+                }
+                
+                window.precipitationChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Precipitation (mm)',
+                            data: data.values,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating precipitation chart:', error);
+                document.getElementById('precipitationChart').parentElement.innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Unable to display precipitation chart: ${error.message}
+                    </div>`;
+            }
+        }
+        
+        // Function to create Weather-AQI correlation chart
+        function createWeatherAqiCorrelationChart(data) {
+            try {
+                const chartContainer = document.getElementById('weatherAqiCorrelationChart').parentElement;
+                // First, check if we have valid data
+                if (!data || !data.parameters || !data.datasets || data.parameters.length === 0 || data.datasets.length === 0) {
+                    console.error('Invalid Weather-AQI correlation data format:', data);
+                    chartContainer.innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Weather-AQI correlation data is not available
+                        </div>`;
+                    return;
+                }
+                
+                // Restore the canvas if it was replaced with an error message
+                if (!document.getElementById('weatherAqiCorrelationChart')) {
+                    chartContainer.innerHTML = '<canvas id="weatherAqiCorrelationChart" width="400" height="300"></canvas>';
+                }
+                
+                const ctx = document.getElementById('weatherAqiCorrelationChart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (window.weatherAqiCorrelationChart) {
+                    try {
+                        window.weatherAqiCorrelationChart.destroy();
+                    } catch (e) {
+                        console.error('Error destroying Weather-AQI correlation chart:', e);
+                        // Continue with creating a new chart anyway
+                    }
+                }
+                
+                window.weatherAqiCorrelationChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: data.parameters,
+                        datasets: data.datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.dataset.label || '';
+                                        const value = context.raw;
+                                        return `${label}: ${value} (correlation strength)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating Weather-AQI correlation chart:', error);
+                document.getElementById('weatherAqiCorrelationChart').parentElement.innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Unable to display Weather-AQI correlation chart: ${error.message}
+                    </div>`;
+            }
+        }
+        
+        // Function to create Seasonal Impact chart
+        function createSeasonalImpactChart(data) {
+            try {
+                const chartContainer = document.getElementById('seasonalImpactChart').parentElement;
+                // First, check if we have valid data
+                if (!data || !data.seasons || !data.aqi_values || data.seasons.length === 0 || data.aqi_values.length === 0) {
+                    console.error('Invalid Seasonal Impact data format:', data);
+                    chartContainer.innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Seasonal impact data is not available
+                        </div>`;
+                    return;
+                }
+                
+                // Restore the canvas if it was replaced with an error message
+                if (!document.getElementById('seasonalImpactChart')) {
+                    chartContainer.innerHTML = '<canvas id="seasonalImpactChart" width="400" height="300"></canvas>';
+                }
+                
+                const ctx = document.getElementById('seasonalImpactChart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (window.seasonalImpactChart) {
+                    try {
+                        window.seasonalImpactChart.destroy();
+                    } catch (e) {
+                        console.error('Error destroying Seasonal Impact chart:', e);
+                        // Continue with creating a new chart anyway
+                    }
+                }
+                
+                window.seasonalImpactChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.seasons,
+                        datasets: [{
+                            label: 'Average AQI',
+                            data: data.aqi_values,
+                            backgroundColor: [
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)',
+                                'rgba(255, 99, 132, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)',
+                                'rgba(255, 99, 132, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Air Quality Index (AQI)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.raw;
+                                        return `AQI: ${value}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating Seasonal Impact chart:', error);
+                document.getElementById('seasonalImpactChart').parentElement.innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Unable to display Seasonal Impact chart: ${error.message}
+                    </div>`;
+            }
+        }
+        
+        // Initialize weather map
+        function initializeWeatherMap() {
+            try {
+                // Create Leaflet map
+                const mapContainer = document.getElementById('weather-map');
+                const map = L.map('weather-map').setView([20, 0], 2);
+                
+                // Add OpenStreetMap tile layer
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+                
+                // Show loading indicator
+                mapContainer.insertAdjacentHTML('afterend', `
+                    <div id="map-loading" class="text-center my-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading global weather data...</p>
+                    </div>
+                `);
+                
+                // Fetch global weather data for the map
+                fetch('/api/global-weather-map')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Remove loading indicator
+                        document.getElementById('map-loading')?.remove();
+                        
+                        if (!data || !Array.isArray(data) || data.length === 0) {
+                            throw new Error('No global weather data available');
+                        }
+                        
+                        // Add markers for each location
+                        data.forEach(location => {
+                            try {
+                                if (!location || !location.coord || !location.weather || !location.weather[0]) {
+                                    console.warn('Invalid location data:', location);
+                                    return;
+                                }
+                                
+                                const { lat, lon } = location.coord;
+                                const marker = L.marker([lat, lon]).addTo(map);
+                                
+                                const weather = location.weather[0];
+                                const countryCode = location.sys && location.sys.country ? location.sys.country : '';
+                                const temp = location.main && location.main.temp ? Math.round(location.main.temp) : 'N/A';
+                                const humidity = location.main && location.main.humidity ? location.main.humidity : 'N/A';
+                                const windSpeed = location.wind && location.wind.speed ? location.wind.speed : 'N/A';
+                                
+                                // Create popup with weather information
+                                marker.bindPopup(`
+                                    <div class="weather-popup">
+                                        <h5>${location.name}${countryCode ? `, ${countryCode}` : ''}</h5>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://openweathermap.org/img/wn/${weather.icon}@2x.png" alt="${weather.description}">
+                                            <span class="ms-2">${temp}°C</span>
+                                        </div>
+                                        <p class="text-capitalize">${weather.description}</p>
+                                        <div class="weather-popup-details">
+                                            <div><i class="fas fa-tint me-1"></i> Humidity: ${humidity}%</div>
+                                            <div><i class="fas fa-wind me-1"></i> Wind: ${windSpeed} m/s</div>
+                                        </div>
+                                    </div>
+                                `);
+                            } catch (locationError) {
+                                console.error('Error processing location data:', locationError);
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching global weather data:', error);
+                        document.getElementById('map-loading')?.remove();
+                        
+                        // Show error message above the map
+                        mapContainer.insertAdjacentHTML('afterend', `
+                            <div class="alert alert-warning text-center">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Unable to load global weather data: ${error.message}
+                            </div>
+                        `);
+                    });
+            } catch (error) {
+                console.error('Error initializing weather map:', error);
+                const mapContainer = document.getElementById('weather-map');
+                if (mapContainer) {
+                    mapContainer.innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Unable to initialize weather map: ${error.message}
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        // Event listeners
+        searchBtn.addEventListener('click', fetchWeatherData);
+        citySearch.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                fetchWeatherData();
+            }
+        });
+        
+        // Initialize map when DOM is loaded
+        initializeWeatherMap();
+        
+        // Load correlation data on page load
+        fetch('/api/weather-aqi-correlation')
+            .then(response => response.json())
+            .then(data => {
+                createWeatherAqiCorrelationChart(data.correlations);
+                createSeasonalImpactChart(data.seasons);
+            })
+            .catch(error => {
+                console.error('Error fetching correlation data:', error);
+            });
+    });
+</script>
+{% endblock %}

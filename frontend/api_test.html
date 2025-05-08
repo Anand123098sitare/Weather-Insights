@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test | Air Quality Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        pre {
+            background-color: #f5f5f5;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow: auto;
+            max-height: 400px;
+        }
+        .endpoint-card {
+            margin-bottom: 1.5rem;
+        }
+        .result-container {
+            margin-top: 1rem;
+            display: none;
+        }
+        .loading-spinner {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">Air Quality API Test</a>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h1 class="mb-4">API Endpoint Tester</h1>
+        <p class="lead">Use this page to test the Flask backend API endpoints and see the JSON responses.</p>
+        
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="list-group" id="endpoint-list">
+                    <a href="#" class="list-group-item list-group-item-action active" data-endpoint="/api/dashboard/data">Dashboard Data</a>
+                    <a href="#" class="list-group-item list-group-item-action" data-endpoint="/api/map/data">Map Data</a>
+                    <a href="#" class="list-group-item list-group-item-action" data-endpoint="/api/most-polluted/data">Most Polluted Data</a>
+                    <a href="#" class="list-group-item list-group-item-action" data-endpoint="/api/aqi-csv-data">AQI CSV Data</a>
+                    <a href="#" class="list-group-item list-group-item-action" data-endpoint="/api/heatmap-data">Heatmap Data</a>
+                    <a href="#" class="list-group-item list-group-item-action" data-endpoint="/api/countries-for-comparison">Countries for Comparison</a>
+                    <a href="#" class="list-group-item list-group-item-action" data-endpoint="/api/cities-for-comparison">Cities for Comparison</a>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">Custom Endpoint</div>
+                    <div class="card-body">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="custom-endpoint" placeholder="/api/...">
+                            <button class="btn btn-primary" id="test-custom-endpoint">Test</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span id="current-endpoint">/api/dashboard/data</span>
+                        <button class="btn btn-sm btn-primary" id="test-endpoint">Test Endpoint</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="loading-spinner text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading data...</p>
+                        </div>
+                        
+                        <div class="result-container">
+                            <div class="mb-3">
+                                <strong>Status:</strong> <span id="result-status"></span>
+                            </div>
+                            <div>
+                                <strong>Response:</strong>
+                                <pre id="result-json"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API base URL - empty for same-origin requests
+        const API_BASE_URL = '';
+        
+        // Current selected endpoint
+        let currentEndpoint = '/api/dashboard/data';
+        
+        // DOM elements
+        const endpointList = document.getElementById('endpoint-list');
+        const currentEndpointEl = document.getElementById('current-endpoint');
+        const testEndpointBtn = document.getElementById('test-endpoint');
+        const customEndpointInput = document.getElementById('custom-endpoint');
+        const testCustomEndpointBtn = document.getElementById('test-custom-endpoint');
+        const loadingSpinner = document.querySelector('.loading-spinner');
+        const resultContainer = document.querySelector('.result-container');
+        const resultStatus = document.getElementById('result-status');
+        const resultJson = document.getElementById('result-json');
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            testEndpoint(currentEndpoint);
+        });
+        
+        function setupEventListeners() {
+            // Endpoint selection
+            endpointList.addEventListener('click', function(event) {
+                if (event.target.classList.contains('list-group-item')) {
+                    event.preventDefault();
+                    
+                    // Update active state
+                    document.querySelector('.list-group-item.active').classList.remove('active');
+                    event.target.classList.add('active');
+                    
+                    // Update current endpoint
+                    currentEndpoint = event.target.dataset.endpoint;
+                    currentEndpointEl.textContent = currentEndpoint;
+                    
+                    // Test the selected endpoint
+                    testEndpoint(currentEndpoint);
+                }
+            });
+            
+            // Test endpoint button
+            testEndpointBtn.addEventListener('click', function() {
+                testEndpoint(currentEndpoint);
+            });
+            
+            // Test custom endpoint button
+            testCustomEndpointBtn.addEventListener('click', function() {
+                const customEndpoint = customEndpointInput.value.trim();
+                
+                if (customEndpoint) {
+                    currentEndpoint = customEndpoint;
+                    currentEndpointEl.textContent = currentEndpoint;
+                    testEndpoint(currentEndpoint);
+                }
+            });
+            
+            // Submit custom endpoint on Enter key
+            customEndpointInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    testCustomEndpointBtn.click();
+                }
+            });
+        }
+        
+        async function testEndpoint(endpoint) {
+            // Show loading spinner
+            loadingSpinner.style.display = 'block';
+            resultContainer.style.display = 'none';
+            
+            try {
+                // Make the API request
+                const response = await fetch(`${API_BASE_URL}${endpoint}`);
+                const contentType = response.headers.get('content-type');
+                
+                // Get status information
+                const status = response.status;
+                const statusText = response.statusText;
+                
+                // Update status display
+                resultStatus.textContent = `${status} ${statusText}`;
+                resultStatus.className = '';
+                resultStatus.classList.add(status >= 200 && status < 300 ? 'text-success' : 'text-danger');
+                
+                // Parse response based on content type
+                let data;
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                    resultJson.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    const text = await response.text();
+                    resultJson.textContent = text;
+                }
+                
+            } catch (error) {
+                console.error('API request failed:', error);
+                resultStatus.textContent = 'Error: ' + error.message;
+                resultStatus.className = 'text-danger';
+                resultJson.textContent = '';
+            }
+            
+            // Hide loading spinner and show results
+            loadingSpinner.style.display = 'none';
+            resultContainer.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

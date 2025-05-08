@@ -1,0 +1,74 @@
+[
+  {
+    "city": "New York",
+    "country": "USA",
+    "aqi": 45,
+    "image": "https://images.unsplash.com/photo-1518235506717-e1ed3306a89b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+  },
+  {
+    "city": "London",
+    "country": "UK",
+    "aqi": 60,
+    "image": "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+  },
+  {
+    "city": "Paris",
+    "country": "France",
+    "aqi": 70,
+    "image": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+  },
+  {
+    "city": "Tokyo",
+    "country": "Japan",
+    "aqi": 63,
+    "image": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+  },
+  {
+    "city": "Delhi",
+    "country": "India",
+    "aqi": 187,
+    "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+  },
+  {
+    "city": "Mumbai",
+    "country": "India",
+    "aqi": 120,
+    "image": "https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+  },
+  {
+    "city": "Beijing",
+    "country": "China",
+    "aqi": 158,
+    "image": "https://images.unsplash.com/photo-1584890132139-7e2c29d05fce?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+  },
+  {
+    "city": "Sydney",
+    "country": "Australia",
+    "aqi": 29,
+    "image": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+  },
+  {
+    "city": "Rio de Janeiro",
+    "country": "Brazil",
+    "aqi": 68,
+    "image": "https://images.unsplash.com/photo-1544989164-31dc3c645975?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+  },
+  {
+    "city": "Dubai",
+    "country": "UAE",
+    "aqi": 110,
+    "image": "https://images.unsplash.com/photo-1518684079-3c830dcef090?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+  },
+  {
+    "city": "Moscow",
+    "country": "Russia",
+    "aqi": 88,
+    "image": "https://images.unsplash.com/photo-1513326738677-b964603b136d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+  },
+  {
+    "city": "Singapore",
+    "country": "Singapore",
+    "aqi": 52,
+    "image": "https://images.unsplash.com/photo-1559671927-20037a21e159?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+  }
+]

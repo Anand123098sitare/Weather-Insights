@@ -1,0 +1,113 @@
+/* Global Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.navbar-brand i {
+    color: #c1e0ff;
+}
+
+/* Card styles */
+.dashboard-card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* AQI Categories */
+.aqi-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.category-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    margin-right: 8px;
+    display: inline-block;
+}
+
+.category-label {
+    flex: 1;
+}
+
+.category-value {
+    font-weight: bold;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* Gauge container */
+.gauge-container {
+    width: 80px;
+    height: 80px;
+    background-color: #f5f5f5;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Progress bar styling */
+.progress {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    background-color: #0d6efd;
+    transition: width 1s ease;
+}
+
+/* AQI value colors */
+.aqi-good {
+    color: #009966;
+}
+
+.aqi-moderate {
+    color: #ffde33;
+}
+
+.aqi-sensitive {
+    color: #ff9933;
+}
+
+.aqi-unhealthy {
+    color: #cc0033;
+}
+
+.aqi-very-unhealthy {
+    color: #660099;
+}
+
+.aqi-hazardous {
+    color: #7e0023;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .category-item {
+        font-size: 0.8rem;
+    }
+    
+    .gauge-container {
+        width: 60px;
+        height: 60px;
+    }
+}

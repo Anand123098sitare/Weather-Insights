@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <linearGradient x1="0%" y1="0%" x2="100%" y2="100%" id="linearGradient">
+            <stop stop-color="#3a7bd5" offset="0%"></stop>
+            <stop stop-color="#00d2ff" offset="100%"></stop>
+        </linearGradient>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+            <feOffset dx="2" dy="4" result="offsetblur" />
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.3" />
+            </feComponentTransfer>
+            <feMerge>
+                <feMergeNode />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="WeatherIcons" stroke="none" fill="none">
+        <!-- Sun -->
+        <circle id="Sun" fill="#FFC107" cx="100" cy="85" r="35" filter="url(#shadow)"></circle>
+        <g id="SunRays" stroke="#FFC107" stroke-width="3" stroke-linecap="round">
+            <path d="M100,30 L100,40"></path>
+            <path d="M100,130 L100,140"></path>
+            <path d="M45,85 L55,85"></path>
+            <path d="M145,85 L155,85"></path>
+            <path d="M63,48 L70,55"></path>
+            <path d="M130,115 L137,122"></path>
+            <path d="M63,122 L70,115"></path>
+            <path d="M130,55 L137,48"></path>
+        </g>
+        
+        <!-- Thermometer -->
+        <rect id="ThermometerBase" fill="#FFFFFF" x="30" y="130" width="20" height="40" rx="10" filter="url(#shadow)"></rect>
+        <circle id="ThermometerBulb" fill="url(#linearGradient)" cx="40" cy="160" r="10" filter="url(#shadow)"></circle>
+        <rect id="ThermometerTube" fill="#FFFFFF" x="37" y="120" width="6" height="40" rx="3"></rect>
+        <rect id="ThermometerMercury" fill="url(#linearGradient)" x="37" y="140" width="6" height="20" rx="3"></rect>
+        
+        <!-- Wind -->
+        <path d="M160,140 C160,134.477153 155.522847,130 150,130 C144.477153,130 140,134.477153 140,140 L100,140 C94.4771525,140 90,144.477153 90,150 C90,155.522847 94.4771525,160 100,160 L150,160" id="Wind1" stroke="url(#linearGradient)" stroke-width="3" stroke-linecap="round"></path>
+        <path d="M140,160 C140,154.477153 135.522847,150 130,150 C124.477153,150 120,154.477153 120,160 L80,160 C74.4771525,160 70,164.477153 70,170 C70,175.522847 74.4771525,180 80,180 L130,180" id="Wind2" stroke="url(#linearGradient)" stroke-width="3" stroke-linecap="round"></path>
+        
+        <!-- Clouds -->
+        <path d="M180,100 C180,83.4314575 166.568542,70 150,70 C133.431458,70 120,83.4314575 120,100 L75,100 C64.5065898,100 56,108.506589 56,119 C56,129.49341 64.5065898,138 75,138 L165,138 C175.49341,138 184,129.49341 184,119 C184,114.545447 182.591049,110.40846 180.22422,107 L180,100 Z" id="Cloud" fill="#FFFFFF" opacity="0.3" filter="url(#shadow)"></path>
+    </g>
+</svg>

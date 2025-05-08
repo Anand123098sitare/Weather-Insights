@@ -1,0 +1,302 @@
+{% extends "layout.html" %}
+
+{% block title %}About Our Air Quality Platform{% endblock %}
+
+{% block page_id %}about{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1560962340-4f952471ea57');">
+    <div class="container">
+        <h1>About Our Air Quality Platform</h1>
+        <p>Learn about our mission to provide comprehensive air quality data and raise awareness about global air pollution.</p>
+    </div>
+</section>
+
+<!-- Main Content -->
+<div class="container mt-4">
+    <!-- Mission Section -->
+    <section class="dashboard-card mb-5">
+        <h3><i class="fas fa-bullseye me-2"></i>Our Mission</h3>
+        <div class="row">
+            <div class="col-md-8">
+                <p>The Global Air Quality Monitoring Platform is dedicated to providing accurate, up-to-date information about air quality around the world. Our mission is to:</p>
+                <ul>
+                    <li>Raise awareness about the global air pollution crisis and its health impacts</li>
+                    <li>Make air quality data accessible and understandable to everyone</li>
+                    <li>Empower individuals and communities to take action to improve air quality</li>
+                    <li>Support policymakers and researchers with comprehensive air pollution data</li>
+                    <li>Track progress in air quality improvement efforts worldwide</li>
+                </ul>
+                <p>We believe that access to information is the first step toward meaningful change. By providing transparent air quality data, we hope to contribute to a cleaner, healthier future for all.</p>
+            </div>
+            <div class="col-md-4">
+                <img src="https://images.unsplash.com/photo-1499937479142-61a6ce103b26" alt="Air quality monitoring" class="img-fluid rounded">
+            </div>
+        </div>
+    </section>
+    
+    <!-- Data Sources Section -->
+    <section class="dashboard-card mb-5">
+        <h3><i class="fas fa-database me-2"></i>Our Data Sources</h3>
+        <p>We aggregate air quality data from multiple trusted sources to provide a comprehensive global picture of air pollution. Our primary data sources include:</p>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-globe me-2"></i>IQAir</h5>
+                        <p class="card-text">IQAir provides real-time air quality data from thousands of monitoring stations worldwide. We use their data to populate our interactive map and track the most polluted cities globally.</p>
+                        <a href="https://www.iqair.com" target="_blank" class="btn btn-outline-primary">Visit IQAir</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>AQI.in</h5>
+                        <p class="card-text">AQI.in offers extensive air quality data for India and other countries, with detailed historical records. We use their data for historical analysis and country-level comparisons.</p>
+                        <a href="https://www.aqi.in" target="_blank" class="btn btn-outline-primary">Visit AQI.in</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-flask me-2"></i>Government Environmental Agencies</h5>
+                        <p class="card-text">We incorporate data from various national environmental protection agencies to ensure comprehensive coverage and data accuracy.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-university me-2"></i>Research Institutions</h5>
+                        <p class="card-text">Data from academic and research institutions helps us validate our information and provide context for air quality trends.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert alert-info mt-3">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Data Updates:</strong> Our air quality data is updated regularly to provide the most current information available. The last update timestamp is displayed in the footer of each page.
+        </div>
+    </section>
+    
+    <!-- Technology Section -->
+    <section class="dashboard-card mb-5">
+        <h3><i class="fas fa-code me-2"></i>Our Technology Stack</h3>
+        <p>Our platform is built using modern technologies to provide a seamless, responsive experience:</p>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Backend</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fab fa-python me-2"></i>Python</li>
+                            <li><i class="fas fa-server me-2"></i>Flask Framework</li>
+                            <li><i class="fas fa-database me-2"></i>SQLAlchemy ORM</li>
+                            <li><i class="fas fa-spider me-2"></i>BeautifulSoup for Web Scraping</li>
+                            <li><i class="fas fa-table me-2"></i>Pandas for Data Processing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Frontend</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fab fa-html5 me-2"></i>HTML5</li>
+                            <li><i class="fab fa-css3-alt me-2"></i>CSS3</li>
+                            <li><i class="fab fa-js me-2"></i>JavaScript</li>
+                            <li><i class="fab fa-bootstrap me-2"></i>Bootstrap 5</li>
+                            <li><i class="fas fa-chart-bar me-2"></i>Chart.js</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Mapping</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-map me-2"></i>Leaflet.js</li>
+                            <li><i class="fas fa-map-marker-alt me-2"></i>Folium</li>
+                            <li><i class="fas fa-layer-group me-2"></i>Leaflet MarkerCluster</li>
+                            <li><i class="fas fa-globe me-2"></i>OpenStreetMap</li>
+                            <li><i class="fas fa-location-arrow me-2"></i>GeoJSON</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Understanding AQI Section -->
+    <section class="dashboard-card mb-5">
+        <h3><i class="fas fa-lungs me-2"></i>Understanding Air Quality Index (AQI)</h3>
+        <p>The Air Quality Index (AQI) is a standardized indicator developed by the US Environmental Protection Agency (EPA) to communicate how clean or polluted the air is and what associated health effects might be a concern.</p>
+        
+        <div class="table-responsive mt-4">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>AQI Range</th>
+                        <th>Category</th>
+                        <th>Color</th>
+                        <th>Health Implications</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0-50</td>
+                        <td>Good</td>
+                        <td><span class="badge" style="background-color: #009966; color: white;">Good</span></td>
+                        <td>Air quality is satisfactory, and air pollution poses little or no risk.</td>
+                    </tr>
+                    <tr>
+                        <td>51-100</td>
+                        <td>Moderate</td>
+                        <td><span class="badge" style="background-color: #ffde33; color: black;">Moderate</span></td>
+                        <td>Air quality is acceptable. However, there may be a risk for some people, particularly those who are unusually sensitive to air pollution.</td>
+                    </tr>
+                    <tr>
+                        <td>101-150</td>
+                        <td>Unhealthy for Sensitive Groups</td>
+                        <td><span class="badge" style="background-color: #ff9933; color: white;">USG</span></td>
+                        <td>Members of sensitive groups may experience health effects. The general public is less likely to be affected.</td>
+                    </tr>
+                    <tr>
+                        <td>151-200</td>
+                        <td>Unhealthy</td>
+                        <td><span class="badge" style="background-color: #cc0033; color: white;">Unhealthy</span></td>
+                        <td>Everyone may begin to experience health effects. Members of sensitive groups may experience more serious health effects.</td>
+                    </tr>
+                    <tr>
+                        <td>201-300</td>
+                        <td>Very Unhealthy</td>
+                        <td><span class="badge" style="background-color: #660099; color: white;">Very Unhealthy</span></td>
+                        <td>Health alert: The risk of health effects is increased for everyone.</td>
+                    </tr>
+                    <tr>
+                        <td>301+</td>
+                        <td>Hazardous</td>
+                        <td><span class="badge" style="background-color: #7e0023; color: white;">Hazardous</span></td>
+                        <td>Health warning of emergency conditions: everyone is more likely to be affected.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="alert alert-warning mt-3">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Note:</strong> Different countries may use variations of the AQI with different scales and breakpoints. Our platform primarily uses the US EPA standard for consistency.
+        </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section class="dashboard-card mb-5">
+        <h3><i class="fas fa-envelope me-2"></i>Contact Us</h3>
+        <p>We value your feedback and questions about our platform. Here's how you can reach us:</p>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">General Inquiries</h5>
+                        <p><i class="fas fa-envelope me-2"></i>Email: info@globalairquality.org</p>
+                        <p><i class="fas fa-phone me-2"></i>Phone: +1 (555) 123-4567</p>
+                        <p><i class="fas fa-map-marker-alt me-2"></i>Address: 123 Clean Air Street, Environment City, EC 12345</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Connect With Us</h5>
+                        <p>Follow us on social media for updates and air quality news:</p>
+                        <div class="social-icons">
+                            <a href="#" class="me-3"><i class="fab fa-twitter fa-2x"></i></a>
+                            <a href="#" class="me-3"><i class="fab fa-facebook fa-2x"></i></a>
+                            <a href="#" class="me-3"><i class="fab fa-instagram fa-2x"></i></a>
+                            <a href="#" class="me-3"><i class="fab fa-linkedin fa-2x"></i></a>
+                            <a href="#"><i class="fab fa-github fa-2x"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- FAQ Section -->
+    <section class="dashboard-card mb-5">
+        <h3><i class="fas fa-question-circle me-2"></i>Frequently Asked Questions</h3>
+        
+        <div class="accordion mt-4" id="faqAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        How often is the air quality data updated?
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Our air quality data is updated regularly throughout the day. The exact frequency depends on the data source, but most locations are updated at least once every hour. For real-time critical information, we recommend checking our interactive map.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Why do different air quality monitoring sources sometimes show different AQI values?
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Differences in AQI values between sources can occur for several reasons: different measurement methods, different calculation formulas (as some countries use their own AQI calculation methods), different monitoring station locations, and timing differences in data updates. We attempt to standardize our data where possible for consistency.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        How can I protect myself on days with poor air quality?
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        On days with poor air quality, you can: limit outdoor activities (especially strenuous ones), stay indoors with windows closed, use air purifiers with HEPA filters, wear N95 masks when outdoors, avoid high-traffic areas, and check our website for real-time updates on air quality in your area.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        Can I use your data for research or other projects?
+                    </button>
+                </h2>
+                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Yes, our data is available for non-commercial research and educational purposes with proper attribution. For commercial use or large-scale data access, please contact us directly to discuss your needs and obtain proper permissions.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFive">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                        What can I do to help improve air quality in my community?
+                    </button>
+                </h2>
+                <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        You can help improve local air quality by: using public transportation or carpooling, reducing energy consumption at home, avoiding burning trash or yard waste, supporting clean air policies and regulations, planting trees and vegetation, and raising awareness about air pollution in your community.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

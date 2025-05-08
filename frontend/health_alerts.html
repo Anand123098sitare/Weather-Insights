@@ -1,0 +1,1177 @@
+{% extends "layout.html" %}
+
+{% block title %}Health Alerts - Air Quality and Weather{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="dashboard-header">
+                <h1><i class="fas fa-heartbeat me-2 text-danger"></i>Health Alerts</h1>
+                <p class="lead">
+                    Get personalized health alerts based on air quality, pollen count, UV index, and cold & flu risk for your location
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Health Profile Section -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="dashboard-card">
+                <h3><i class="fas fa-search me-2"></i>Your Location & Health Profile</h3>
+                <div class="row mt-3">
+                    <!-- City Search -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="city-search"><i class="fas fa-map-marker-alt me-2"></i>City</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="city-search" placeholder="Enter city name" list="city-list">
+                                <datalist id="city-list">
+                                    {% for city in cities %}
+                                    <option value="{{ city }}">
+                                    {% endfor %}
+                                </datalist>
+                                <button class="btn btn-primary" id="search-btn" type="button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Search for your city to get personalized health alerts</div>
+                        </div>
+                        <div class="mb-3">
+                            <button class="btn btn-outline-secondary btn-sm" id="locate-me">
+                                <i class="fas fa-location-arrow me-2"></i>Use my location
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Health Profile -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label><i class="fas fa-notes-medical me-2"></i>Health Concerns</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input health-concern" type="checkbox" id="asthma" value="asthma">
+                                    <label class="form-check-label" for="asthma">Asthma</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input health-concern" type="checkbox" id="allergies" value="allergies">
+                                    <label class="form-check-label" for="allergies">Allergies</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input health-concern" type="checkbox" id="heart_disease" value="heart_disease">
+                                    <label class="form-check-label" for="heart_disease">Heart Disease</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input health-concern" type="checkbox" id="copd" value="copd">
+                                    <label class="form-check-label" for="copd">COPD</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="activity-level"><i class="fas fa-running me-2"></i>Activity Level</label>
+                                    <select class="form-select" id="activity-level">
+                                        <option value="low">Low (Mostly Indoors)</option>
+                                        <option value="moderate" selected>Moderate (Daily Walks)</option>
+                                        <option value="high">High (Regular Exercise)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="age-group"><i class="fas fa-user me-2"></i>Age Group</label>
+                                    <select class="form-select" id="age-group">
+                                        <option value="child">Child (0-12)</option>
+                                        <option value="teen">Teen (13-19)</option>
+                                        <option value="adult" selected>Adult (20-64)</option>
+                                        <option value="senior">Senior (65+)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Current Weather Summary -->
+        <div class="col-lg-4">
+            <div class="dashboard-card h-100">
+                <h3><i class="fas fa-cloud-sun me-2"></i>Current Weather</h3>
+                <div id="weather-loading" class="text-center my-4 d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading weather data...</p>
+                </div>
+                <div id="weather-content" class="mt-3 d-none">
+                    <div class="d-flex align-items-center">
+                        <div class="weather-icon me-3">
+                            <img id="weather-icon" src="" alt="Weather" class="img-fluid" style="width: 64px;">
+                        </div>
+                        <div>
+                            <h4 id="city-name">City Name</h4>
+                            <div class="temperature-display">
+                                <span id="temperature" class="h2">--°C</span>
+                                <span id="weather-description" class="ms-2">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-4 text-center">
+                            <div><i class="fas fa-wind me-1"></i></div>
+                            <div id="wind-speed">-- km/h</div>
+                            <div class="text-muted small">Wind</div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div><i class="fas fa-tint me-1"></i></div>
+                            <div id="humidity">--%</div>
+                            <div class="text-muted small">Humidity</div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div><i class="fas fa-compress-alt me-1"></i></div>
+                            <div id="pressure">-- hPa</div>
+                            <div class="text-muted small">Pressure</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="weather-placeholder" class="text-center my-4">
+                    <i class="fas fa-cloud-sun fa-3x text-muted mb-3"></i>
+                    <p>Search for a city to see current weather conditions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Primary Health Alert -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div id="primary-alert" class="d-none">
+                <div class="alert alert-info">
+                    <div class="d-flex align-items-center">
+                        <div class="alert-icon me-3">
+                            <i class="fas fa-info-circle fa-2x"></i>
+                        </div>
+                        <div>
+                            <h4 class="alert-heading mb-1" id="alert-heading">Health Alert</h4>
+                            <p class="mb-0" id="alert-message">Search for a city to see health alerts for your area.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Alert Details Cards -->
+    <div class="row mb-4" id="health-alert-cards">
+        <!-- Air Quality Card -->
+        <div class="col-lg-6 mb-4">
+            <div class="dashboard-card h-100">
+                <div class="d-flex justify-content-between">
+                    <h3><i class="fas fa-lungs me-2 text-primary"></i>Air Quality Health Risk</h3>
+                    <div class="aqi-badge" id="aqi-badge">
+                        <span class="badge bg-info">AQI: --</span>
+                    </div>
+                </div>
+                <div class="card-loading text-center my-4 d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div class="card-content d-none">
+                    <div class="mt-3">
+                        <div class="aqi-category mb-2">
+                            <span id="aqi-category-text">Good</span> <span class="text-muted">for your health profile</span>
+                        </div>
+                        <div class="progress mb-3" style="height: 10px;">
+                            <div class="progress-bar bg-success" id="aqi-progress" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        
+                        <div class="alert alert-success" id="aqi-alert">
+                            <p id="aqi-advice">Air quality is good. It's a great day for outdoor activities.</p>
+                        </div>
+                        
+                        <div id="aqi-recommendations" class="mt-3">
+                            <h5><i class="fas fa-clipboard-list me-2"></i>Recommendations</h5>
+                            <ul class="recommendations-list">
+                                <li>No specific recommendations for good air quality.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-placeholder text-center my-4">
+                    <i class="fas fa-lungs fa-3x text-muted mb-3"></i>
+                    <p>Search for a city to see air quality health impacts</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pollen Count Card -->
+        <div class="col-lg-6 mb-4">
+            <div class="dashboard-card h-100">
+                <div class="d-flex justify-content-between">
+                    <h3><i class="fas fa-seedling me-2 text-success"></i>Pollen Count</h3>
+                    <div class="pollen-badge" id="pollen-badge">
+                        <span class="badge bg-info">Level: --</span>
+                    </div>
+                </div>
+                <div class="card-loading text-center my-4 d-none">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div class="card-content d-none">
+                    <div class="mt-3">
+                        <div class="pollen-category mb-2">
+                            <span id="pollen-category-text">Low</span> <span id="pollen-description" class="text-muted">Most people won't be affected.</span>
+                        </div>
+                        <div class="progress mb-3" style="height: 10px;">
+                            <div class="progress-bar bg-success" id="pollen-progress" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        
+                        <div class="pollen-types mt-3 mb-3">
+                            <h5><i class="fas fa-leaf me-2"></i>Active Pollen Types</h5>
+                            <div class="d-flex flex-wrap gap-2" id="pollen-types">
+                                <span class="badge bg-light text-dark">No data available</span>
+                            </div>
+                        </div>
+                        
+                        <div id="pollen-recommendations" class="mt-3">
+                            <h5><i class="fas fa-clipboard-list me-2"></i>Recommendations</h5>
+                            <ul class="recommendations-list">
+                                <li>No specific recommendations for low pollen counts.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-placeholder text-center my-4">
+                    <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
+                    <p>Search for a city to see pollen levels and allergen alerts</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- UV Index Card -->
+        <div class="col-lg-6 mb-4">
+            <div class="dashboard-card h-100">
+                <div class="d-flex justify-content-between">
+                    <h3><i class="fas fa-sun me-2 text-warning"></i>UV Index</h3>
+                    <div class="uv-badge" id="uv-badge">
+                        <span class="badge bg-info">UV: --</span>
+                    </div>
+                </div>
+                <div class="card-loading text-center my-4 d-none">
+                    <div class="spinner-border text-warning" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div class="card-content d-none">
+                    <div class="mt-3">
+                        <div class="uv-category mb-2">
+                            <span id="uv-category-text">Low</span> <span id="uv-description" class="text-muted">Low danger from the sun's UV rays.</span>
+                        </div>
+                        <div class="progress mb-3" style="height: 10px;">
+                            <div class="progress-bar" id="uv-progress" role="progressbar" style="width: 25%; background-color: #299501;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        
+                        <div class="alert alert-success" id="uv-alert">
+                            <p id="uv-protection">No protection needed.</p>
+                        </div>
+                        
+                        <div id="uv-recommendations" class="mt-3">
+                            <h5><i class="fas fa-clipboard-list me-2"></i>Recommendations</h5>
+                            <ul class="recommendations-list">
+                                <li>No specific recommendations for low UV levels.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-placeholder text-center my-4">
+                    <i class="fas fa-sun fa-3x text-muted mb-3"></i>
+                    <p>Search for a city to see UV index and sun safety information</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cold & Flu Card -->
+        <div class="col-lg-6 mb-4">
+            <div class="dashboard-card h-100">
+                <div class="d-flex justify-content-between">
+                    <h3><i class="fas fa-virus me-2 text-danger"></i>Cold & Flu Risk</h3>
+                    <div class="cold-flu-badge" id="cold-flu-badge">
+                        <span class="badge bg-info">Risk: --</span>
+                    </div>
+                </div>
+                <div class="card-loading text-center my-4 d-none">
+                    <div class="spinner-border text-danger" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div class="card-content d-none">
+                    <div class="mt-3">
+                        <div class="cold-flu-category mb-2">
+                            <span id="cold-flu-category-text">Low</span> <span id="cold-flu-description" class="text-muted">Low risk of cold and flu in your area.</span>
+                        </div>
+                        <div class="progress mb-3" style="height: 10px;">
+                            <div class="progress-bar bg-success" id="cold-flu-progress" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        
+                        <div class="cold-flu-symptoms mt-3 mb-3">
+                            <h5><i class="fas fa-head-side-cough me-2"></i>Watch for Symptoms</h5>
+                            <ul class="symptoms-list" id="cold-flu-symptoms">
+                                <li>No specific symptoms to watch for at low risk levels.</li>
+                            </ul>
+                        </div>
+                        
+                        <div id="cold-flu-recommendations" class="mt-3">
+                            <h5><i class="fas fa-clipboard-list me-2"></i>Recommendations</h5>
+                            <ul class="recommendations-list">
+                                <li>No specific recommendations for low cold & flu risk.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-placeholder text-center my-4">
+                    <i class="fas fa-virus fa-3x text-muted mb-3"></i>
+                    <p>Search for a city to see cold & flu risk assessment</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Forecast & Trends Section -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="dashboard-card">
+                <h3><i class="fas fa-chart-line me-2"></i>Health Trends & Forecast</h3>
+                <div id="forecast-loading" class="text-center my-4 d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading forecast data...</p>
+                </div>
+                <div id="forecast-content" class="mt-3 d-none">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h5 class="mb-3">AQI & Pollen Forecast</h5>
+                            <canvas id="aqi-pollen-chart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="col-lg-6">
+                            <h5 class="mb-3">UV Index & Cold/Flu Risk Forecast</h5>
+                            <canvas id="uv-cold-flu-chart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div id="forecast-placeholder" class="text-center my-4">
+                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <p>Search for a city to see health trend forecasts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Combined Health Recommendations -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="dashboard-card">
+                <h3><i class="fas fa-hand-holding-medical me-2 text-primary"></i>Your Personalized Health Action Plan</h3>
+                <div id="recommendations-loading" class="text-center my-4 d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Generating your personalized recommendations...</p>
+                </div>
+                <div id="recommendations-content" class="mt-3 d-none">
+                    <div class="alert alert-primary">
+                        <p class="mb-0">Based on <strong id="city-name-recommendations">your location</strong>'s current environmental conditions and your health profile, here are your personalized recommendations:</p>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <div class="card mb-3 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush" id="combined-recommendations">
+                                        <li class="list-group-item">Search for a city to get personalized health recommendations.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="recommendations-placeholder" class="text-center my-4">
+                    <i class="fas fa-hand-holding-medical fa-3x text-muted mb-3"></i>
+                    <p>Search for a city to get your personalized health action plan</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-header {
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    border-left: 5px solid #007bff;
+}
+
+.alert-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+}
+
+.recommendations-list, .symptoms-list {
+    padding-left: 1.5rem;
+}
+
+.recommendations-list li, .symptoms-list li {
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.progress {
+    border-radius: 10px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.temperature-display {
+    display: flex;
+    align-items: center;
+}
+
+.pollen-types .badge {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.6rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Chart.js if available
+    let aqiPollenChart = null;
+    let uvColdFluChart = null;
+    
+    // DOM Elements
+    const citySearch = document.getElementById('city-search');
+    const searchBtn = document.getElementById('search-btn');
+    const locateMe = document.getElementById('locate-me');
+    const healthConcerns = document.querySelectorAll('.health-concern');
+    const activityLevel = document.getElementById('activity-level');
+    const ageGroup = document.getElementById('age-group');
+    
+    // Search for a city
+    searchBtn.addEventListener('click', function() {
+        const city = citySearch.value.trim();
+        if (city) {
+            loadHealthAlerts(city);
+        }
+    });
+    
+    // Search on Enter key
+    citySearch.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const city = citySearch.value.trim();
+            if (city) {
+                loadHealthAlerts(city);
+            }
+        }
+    });
+    
+    // Use my location
+    locateMe.addEventListener('click', function() {
+        if (navigator.geolocation) {
+            showLoading();
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    // In a real implementation, we would send the coordinates to the server
+                    // For demo, just use a popular nearby city
+                    // This would be replaced with a call to a reverse geocoding API
+                    const cities = ['New Delhi', 'Mumbai', 'London', 'New York', 'Tokyo'];
+                    const randomCity = cities[Math.floor(Math.random() * cities.length)];
+                    citySearch.value = randomCity;
+                    loadHealthAlerts(randomCity);
+                },
+                function(error) {
+                    hideLoading();
+                    alert('Unable to retrieve your location. Please enter a city manually.');
+                }
+            );
+        } else {
+            alert('Geolocation is not supported by your browser. Please enter a city manually.');
+        }
+    });
+    
+    // When health profile changes, update recommendations if a city is already selected
+    function updateOnProfileChange() {
+        const city = citySearch.value.trim();
+        if (city) {
+            loadHealthAlerts(city);
+        }
+    }
+    
+    healthConcerns.forEach(concern => {
+        concern.addEventListener('change', updateOnProfileChange);
+    });
+    
+    activityLevel.addEventListener('change', updateOnProfileChange);
+    ageGroup.addEventListener('change', updateOnProfileChange);
+    
+    // Load health alerts data for a city
+    function loadHealthAlerts(city) {
+        showLoading();
+        
+        // Get health profile
+        const healthConcernsArray = [];
+        healthConcerns.forEach(concern => {
+            if (concern.checked) {
+                healthConcernsArray.push(concern.value);
+            }
+        });
+        
+        const profile = {
+            health_concerns: healthConcernsArray,
+            activity_level: activityLevel.value,
+            age_group: ageGroup.value
+        };
+        
+        // Load current weather
+        loadWeather(city);
+        
+        // Load comprehensive health alerts
+        loadComprehensiveHealthAlerts(city, profile);
+    }
+    
+    // Load weather data
+    function loadWeather(city) {
+        document.getElementById('weather-placeholder').classList.add('d-none');
+        document.getElementById('weather-loading').classList.remove('d-none');
+        document.getElementById('weather-content').classList.add('d-none');
+        
+        fetch(`/api/weather/${encodeURIComponent(city)}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('city-name').textContent = city;
+                
+                if (data.main) {
+                    const temperature = Math.round(data.main.temp);
+                    document.getElementById('temperature').textContent = `${temperature}°C`;
+                    document.getElementById('humidity').textContent = `${data.main.humidity}%`;
+                    document.getElementById('pressure').textContent = `${data.main.pressure} hPa`;
+                    document.getElementById('wind-speed').textContent = `${data.wind.speed} km/h`;
+                    
+                    // Weather description
+                    const weather = data.weather[0];
+                    document.getElementById('weather-description').textContent = weather.description;
+                    
+                    // Weather icon
+                    const iconCode = weather.icon;
+                    document.getElementById('weather-icon').src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+                    
+                    document.getElementById('weather-content').classList.remove('d-none');
+                }
+                
+                document.getElementById('weather-loading').classList.add('d-none');
+            })
+            .catch(error => {
+                console.error('Error fetching weather data:', error);
+                document.getElementById('weather-loading').classList.add('d-none');
+                document.getElementById('weather-placeholder').classList.remove('d-none');
+            });
+    }
+    
+    // Load comprehensive health alerts
+    function loadComprehensiveHealthAlerts(city, profile) {
+        // Construct the query parameters
+        const healthConcerns = profile.health_concerns.join(',');
+        const queryParams = `?health_concerns=${healthConcerns}&activity_level=${profile.activity_level}&age_group=${profile.age_group}`;
+        
+        fetch(`/api/health-alerts/comprehensive/${encodeURIComponent(city)}${queryParams}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    updatePrimaryAlert(data.data.primary_alert);
+                    updateAirQualityCard(data.data.air_quality);
+                    updatePollenCard(data.data.pollen);
+                    updateUVCard(data.data.uv_index);
+                    updateColdFluCard(data.data.cold_flu);
+                    updateCombinedRecommendations(data.data, city);
+                    updateForecastCharts(data.data);
+                } else {
+                    throw new Error(data.message || 'Failed to load health alerts');
+                }
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Error fetching health alerts:', error);
+                hideLoading();
+                alert('Error loading health alerts data. Please try again later.');
+            });
+    }
+    
+    // Update primary alert
+    function updatePrimaryAlert(alert) {
+        const primaryAlert = document.getElementById('primary-alert');
+        const alertHeading = document.getElementById('alert-heading');
+        const alertMessage = document.getElementById('alert-message');
+        
+        if (alert) {
+            primaryAlert.classList.remove('d-none');
+            primaryAlert.querySelector('.alert').className = `alert alert-${alert.alert_type}`;
+            
+            let iconClass = 'fa-info-circle';
+            if (alert.alert_type === 'danger') {
+                iconClass = 'fa-exclamation-triangle';
+            } else if (alert.alert_type === 'warning') {
+                iconClass = 'fa-exclamation-circle';
+            } else if (alert.alert_type === 'success') {
+                iconClass = 'fa-check-circle';
+            }
+            
+            primaryAlert.querySelector('.alert-icon i').className = `fas ${iconClass} fa-2x`;
+            
+            // Set alert heading based on type
+            let heading = 'Health Alert';
+            if (alert.type === 'air_quality') {
+                heading = 'Air Quality Alert';
+            } else if (alert.type === 'pollen') {
+                heading = 'Pollen Alert';
+            } else if (alert.type === 'uv') {
+                heading = 'UV Alert';
+            } else if (alert.type === 'cold_flu') {
+                heading = 'Cold & Flu Alert';
+            }
+            
+            alertHeading.textContent = heading;
+            alertMessage.textContent = alert.message;
+        } else {
+            primaryAlert.classList.add('d-none');
+        }
+    }
+    
+    // Update Air Quality Card
+    function updateAirQualityCard(data) {
+        const card = document.querySelector('.col-lg-6:nth-child(1) .dashboard-card');
+        
+        card.querySelector('.card-placeholder').classList.add('d-none');
+        card.querySelector('.card-loading').classList.add('d-none');
+        
+        if (data) {
+            const aqiBadge = document.getElementById('aqi-badge');
+            const aqiCategoryText = document.getElementById('aqi-category-text');
+            const aqiProgress = document.getElementById('aqi-progress');
+            const aqiAlert = document.getElementById('aqi-alert');
+            const aqiAdvice = document.getElementById('aqi-advice');
+            const aqiRecommendations = document.getElementById('aqi-recommendations');
+            
+            // Update badge
+            aqiBadge.innerHTML = `<span class="badge bg-${data.alert_type}">AQI: ${data.aqi}</span>`;
+            
+            // Update category
+            aqiCategoryText.textContent = data.aqi_category;
+            
+            // Update progress bar
+            let progressPercentage = 0;
+            let progressColor = 'bg-success';
+            
+            if (data.aqi_category === 'Good') {
+                progressPercentage = 20;
+                progressColor = 'bg-success';
+            } else if (data.aqi_category === 'Moderate') {
+                progressPercentage = 40;
+                progressColor = 'bg-info';
+            } else if (data.aqi_category === 'Unhealthy for Sensitive Groups') {
+                progressPercentage = 60;
+                progressColor = 'bg-warning';
+            } else if (data.aqi_category === 'Unhealthy') {
+                progressPercentage = 80;
+                progressColor = 'bg-danger';
+            } else {
+                progressPercentage = 100;
+                progressColor = 'bg-dark';
+            }
+            
+            aqiProgress.style.width = `${progressPercentage}%`;
+            aqiProgress.className = `progress-bar ${progressColor}`;
+            
+            // Update alert
+            aqiAlert.className = `alert alert-${data.alert_type}`;
+            aqiAdvice.textContent = data.recommendations[0] || 'No specific advice available.';
+            
+            // Update recommendations
+            let recommendationsHTML = '<h5><i class="fas fa-clipboard-list me-2"></i>Recommendations</h5><ul class="recommendations-list">';
+            if (data.recommendations.length > 1) {
+                data.recommendations.slice(1).forEach(rec => {
+                    recommendationsHTML += `<li>${rec}</li>`;
+                });
+            } else {
+                recommendationsHTML += '<li>No specific recommendations available.</li>';
+            }
+            recommendationsHTML += '</ul>';
+            aqiRecommendations.innerHTML = recommendationsHTML;
+            
+            card.querySelector('.card-content').classList.remove('d-none');
+        } else {
+            card.querySelector('.card-placeholder').classList.remove('d-none');
+        }
+    }
+    
+    // Update Pollen Card
+    function updatePollenCard(data) {
+        const card = document.querySelector('.col-lg-6:nth-child(2) .dashboard-card');
+        
+        card.querySelector('.card-placeholder').classList.add('d-none');
+        card.querySelector('.card-loading').classList.add('d-none');
+        
+        if (data) {
+            const pollenBadge = document.getElementById('pollen-badge');
+            const pollenCategoryText = document.getElementById('pollen-category-text');
+            const pollenDescription = document.getElementById('pollen-description');
+            const pollenProgress = document.getElementById('pollen-progress');
+            const pollenTypes = document.getElementById('pollen-types');
+            const pollenRecommendations = document.getElementById('pollen-recommendations');
+            
+            // Update badge
+            let badgeColor = 'bg-success';
+            if (data.level_category === 'Moderate') {
+                badgeColor = 'bg-info';
+            } else if (data.level_category === 'High') {
+                badgeColor = 'bg-warning';
+            } else if (data.level_category === 'Very High') {
+                badgeColor = 'bg-danger';
+            }
+            
+            pollenBadge.innerHTML = `<span class="badge ${badgeColor}">Level: ${data.overall_level}/10</span>`;
+            
+            // Update category
+            pollenCategoryText.textContent = data.level_category;
+            pollenDescription.textContent = data.level_description;
+            
+            // Update progress bar
+            let progressPercentage = (data.overall_level / 10) * 100;
+            let progressColor = 'bg-success';
+            
+            if (data.level_category === 'Low') {
+                progressColor = 'bg-success';
+            } else if (data.level_category === 'Moderate') {
+                progressColor = 'bg-info';
+            } else if (data.level_category === 'High') {
+                progressColor = 'bg-warning';
+            } else {
+                progressColor = 'bg-danger';
+            }
+            
+            pollenProgress.style.width = `${progressPercentage}%`;
+            pollenProgress.className = `progress-bar ${progressColor}`;
+            
+            // Update pollen types
+            let pollenTypesHTML = '';
+            if (data.active_pollen_types && data.active_pollen_types.length > 0) {
+                data.active_pollen_types.forEach(type => {
+                    const level = data.pollen_levels[type] || 0;
+                    let badgeClass = 'bg-light text-dark';
+                    
+                    if (level > 7) {
+                        badgeClass = 'bg-danger';
+                    } else if (level > 4) {
+                        badgeClass = 'bg-warning text-dark';
+                    } else if (level > 2) {
+                        badgeClass = 'bg-info';
+                    }
+                    
+                    pollenTypesHTML += `<span class="badge ${badgeClass}">${type.charAt(0).toUpperCase() + type.slice(1)} (${level}/10)</span>`;
+                });
+            } else {
+                pollenTypesHTML = '<span class="badge bg-light text-dark">No data available</span>';
+            }
+            pollenTypes.innerHTML = pollenTypesHTML;
+            
+            // Update recommendations
+            let recommendationsHTML = '<h5><i class="fas fa-clipboard-list me-2"></i>Recommendations</h5><ul class="recommendations-list">';
+            if (data.recommendations && data.recommendations.length > 0) {
+                data.recommendations.forEach(rec => {
+                    recommendationsHTML += `<li>${rec}</li>`;
+                });
+            } else {
+                recommendationsHTML += '<li>No specific recommendations available.</li>';
+            }
+            recommendationsHTML += '</ul>';
+            pollenRecommendations.innerHTML = recommendationsHTML;
+            
+            card.querySelector('.card-content').classList.remove('d-none');
+        } else {
+            card.querySelector('.card-placeholder').classList.remove('d-none');
+        }
+    }
+    
+    // Update UV Card
+    function updateUVCard(data) {
+        const card = document.querySelector('.col-lg-6:nth-child(3) .dashboard-card');
+        
+        card.querySelector('.card-placeholder').classList.add('d-none');
+        card.querySelector('.card-loading').classList.add('d-none');
+        
+        if (data) {
+            const uvBadge = document.getElementById('uv-badge');
+            const uvCategoryText = document.getElementById('uv-category-text');
+            const uvDescription = document.getElementById('uv-description');
+            const uvProgress = document.getElementById('uv-progress');
+            const uvAlert = document.getElementById('uv-alert');
+            const uvProtection = document.getElementById('uv-protection');
+            const uvRecommendations = document.getElementById('uv-recommendations');
+            
+            // Update badge
+            uvBadge.innerHTML = `<span class="badge" style="background-color: ${data.color}">UV: ${data.uv_index}</span>`;
+            
+            // Update category
+            uvCategoryText.textContent = data.category;
+            uvDescription.textContent = data.description;
+            
+            // Update progress bar
+            let progressPercentage = (data.uv_index / 11) * 100;
+            
+            uvProgress.style.width = `${progressPercentage}%`;
+            uvProgress.style.backgroundColor = data.color;
+            
+            // Update alert
+            let alertClass = 'alert-success';
+            if (data.category === 'Moderate') {
+                alertClass = 'alert-info';
+            } else if (data.category === 'High') {
+                alertClass = 'alert-warning';
+            } else if (data.category === 'Very High' || data.category === 'Extreme') {
+                alertClass = 'alert-danger';
+            }
+            
+            uvAlert.className = `alert ${alertClass}`;
+            uvProtection.textContent = data.protection_needed;
+            
+            // Update recommendations
+            let recommendationsHTML = '<h5><i class="fas fa-clipboard-list me-2"></i>Recommendations</h5><ul class="recommendations-list">';
+            if (data.recommendations && data.recommendations.length > 0) {
+                data.recommendations.forEach(rec => {
+                    recommendationsHTML += `<li>${rec}</li>`;
+                });
+            } else {
+                recommendationsHTML += '<li>No specific recommendations available.</li>';
+            }
+            recommendationsHTML += '</ul>';
+            uvRecommendations.innerHTML = recommendationsHTML;
+            
+            card.querySelector('.card-content').classList.remove('d-none');
+        } else {
+            card.querySelector('.card-placeholder').classList.remove('d-none');
+        }
+    }
+    
+    // Update Cold & Flu Card
+    function updateColdFluCard(data) {
+        const card = document.querySelector('.col-lg-6:nth-child(4) .dashboard-card');
+        
+        card.querySelector('.card-placeholder').classList.add('d-none');
+        card.querySelector('.card-loading').classList.add('d-none');
+        
+        if (data) {
+            const coldFluBadge = document.getElementById('cold-flu-badge');
+            const coldFluCategoryText = document.getElementById('cold-flu-category-text');
+            const coldFluDescription = document.getElementById('cold-flu-description');
+            const coldFluProgress = document.getElementById('cold-flu-progress');
+            const coldFluSymptoms = document.getElementById('cold-flu-symptoms');
+            const coldFluRecommendations = document.getElementById('cold-flu-recommendations');
+            
+            // Update badge
+            let badgeColor = 'bg-success';
+            if (data.risk_category === 'Moderate') {
+                badgeColor = 'bg-info';
+            } else if (data.risk_category === 'High') {
+                badgeColor = 'bg-warning';
+            } else if (data.risk_category === 'Very High') {
+                badgeColor = 'bg-danger';
+            }
+            
+            coldFluBadge.innerHTML = `<span class="badge ${badgeColor}">Risk: ${data.risk_value}/10</span>`;
+            
+            // Update category
+            coldFluCategoryText.textContent = data.risk_category;
+            coldFluDescription.textContent = data.risk_description;
+            
+            // Update progress bar
+            let progressPercentage = (data.risk_value / 10) * 100;
+            let progressColor = 'bg-success';
+            
+            if (data.risk_category === 'Low') {
+                progressColor = 'bg-success';
+            } else if (data.risk_category === 'Moderate') {
+                progressColor = 'bg-info';
+            } else if (data.risk_category === 'High') {
+                progressColor = 'bg-warning';
+            } else {
+                progressColor = 'bg-danger';
+            }
+            
+            coldFluProgress.style.width = `${progressPercentage}%`;
+            coldFluProgress.className = `progress-bar ${progressColor}`;
+            
+            // Update symptoms
+            let symptomsHTML = '';
+            if (data.symptoms && data.symptoms.length > 0) {
+                data.symptoms.forEach(symptom => {
+                    symptomsHTML += `<li>${symptom}</li>`;
+                });
+            } else {
+                symptomsHTML = '<li>No specific symptoms to watch for.</li>';
+            }
+            coldFluSymptoms.innerHTML = symptomsHTML;
+            
+            // Update recommendations
+            let recommendationsHTML = '<h5><i class="fas fa-clipboard-list me-2"></i>Recommendations</h5><ul class="recommendations-list">';
+            if (data.recommendations && data.recommendations.length > 0) {
+                data.recommendations.forEach(rec => {
+                    recommendationsHTML += `<li>${rec}</li>`;
+                });
+            } else {
+                recommendationsHTML += '<li>No specific recommendations available.</li>';
+            }
+            recommendationsHTML += '</ul>';
+            coldFluRecommendations.innerHTML = recommendationsHTML;
+            
+            card.querySelector('.card-content').classList.remove('d-none');
+        } else {
+            card.querySelector('.card-placeholder').classList.remove('d-none');
+        }
+    }
+    
+    // Update Combined Recommendations
+    function updateCombinedRecommendations(data, city) {
+        const recommendationsPlaceholder = document.getElementById('recommendations-placeholder');
+        const recommendationsLoading = document.getElementById('recommendations-loading');
+        const recommendationsContent = document.getElementById('recommendations-content');
+        const combinedRecommendations = document.getElementById('combined-recommendations');
+        const cityNameRecommendations = document.getElementById('city-name-recommendations');
+        
+        recommendationsPlaceholder.classList.add('d-none');
+        recommendationsLoading.classList.add('d-none');
+        
+        if (data && data.recommendations) {
+            cityNameRecommendations.textContent = city;
+            
+            let recommendationsHTML = '';
+            if (data.recommendations.length > 0) {
+                data.recommendations.forEach(rec => {
+                    recommendationsHTML += `<li class="list-group-item"><i class="fas fa-check text-success me-2"></i>${rec}</li>`;
+                });
+            } else {
+                recommendationsHTML = '<li class="list-group-item">No specific recommendations available.</li>';
+            }
+            
+            combinedRecommendations.innerHTML = recommendationsHTML;
+            recommendationsContent.classList.remove('d-none');
+        } else {
+            recommendationsPlaceholder.classList.remove('d-none');
+        }
+    }
+    
+    // Update Forecast Charts
+    function updateForecastCharts(data) {
+        const forecastPlaceholder = document.getElementById('forecast-placeholder');
+        const forecastLoading = document.getElementById('forecast-loading');
+        const forecastContent = document.getElementById('forecast-content');
+        
+        forecastPlaceholder.classList.add('d-none');
+        forecastLoading.classList.add('d-none');
+        
+        if (data && data.pollen && data.uv_index && data.air_quality && data.cold_flu) {
+            // Create forecast data arrays
+            const dates = [];
+            const aqiValues = [];
+            const pollenValues = [];
+            const uvValues = [];
+            const coldFluValues = [];
+            const colors = [];
+            
+            // Add current day data
+            const today = new Date().toISOString().split('T')[0];
+            dates.push('Today');
+            aqiValues.push(data.air_quality.aqi);
+            pollenValues.push(data.pollen.overall_level);
+            uvValues.push(data.uv_index.uv_index);
+            coldFluValues.push(data.cold_flu.risk_value);
+            
+            // Add forecast data
+            if (data.pollen.forecast && data.pollen.forecast.length > 0) {
+                data.pollen.forecast.forEach((forecast, index) => {
+                    const date = new Date(forecast.date);
+                    const formattedDate = date.toLocaleDateString('en-US', { weekday: 'short' });
+                    
+                    if (!dates.includes(formattedDate)) {
+                        dates.push(formattedDate);
+                        
+                        // Add AQI forecast (simulate based on current value)
+                        const forecastAQI = data.air_quality.aqi * (1 + (Math.random() * 0.3 - 0.15));
+                        aqiValues.push(Math.round(forecastAQI));
+                        
+                        // Add pollen forecast
+                        pollenValues.push(forecast.level);
+                        
+                        // Add UV forecast (from UV data if available)
+                        const uvForecast = data.uv_index.forecast && data.uv_index.forecast[index] ? 
+                            data.uv_index.forecast[index].uv_index : Math.round(data.uv_index.uv_index * (1 + (Math.random() * 0.3 - 0.15)));
+                        uvValues.push(uvForecast);
+                        
+                        // Add cold/flu forecast (from cold/flu data if available)
+                        const coldFluForecast = data.cold_flu.forecast && data.cold_flu.forecast[index] ? 
+                            data.cold_flu.forecast[index].risk : Math.round(data.cold_flu.risk_value * (1 + (Math.random() * 0.2 - 0.1)));
+                        coldFluValues.push(coldFluForecast);
+                    }
+                });
+            }
+            
+            // Create AQI & Pollen Chart
+            const aqiPollenCtx = document.getElementById('aqi-pollen-chart').getContext('2d');
+            if (aqiPollenChart) {
+                aqiPollenChart.destroy();
+            }
+            
+            aqiPollenChart = new Chart(aqiPollenCtx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Air Quality Index',
+                            data: aqiValues,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Pollen Level',
+                            data: pollenValues,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+            
+            // Create UV & Cold/Flu Chart
+            const uvColdFluCtx = document.getElementById('uv-cold-flu-chart').getContext('2d');
+            if (uvColdFluChart) {
+                uvColdFluChart.destroy();
+            }
+            
+            uvColdFluChart = new Chart(uvColdFluCtx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'UV Index',
+                            data: uvValues,
+                            backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                            borderColor: 'rgba(255, 206, 86, 1)',
+                            borderWidth: 2,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Cold & Flu Risk',
+                            data: coldFluValues,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+            
+            forecastContent.classList.remove('d-none');
+        } else {
+            forecastPlaceholder.classList.remove('d-none');
+        }
+    }
+    
+    // Helper functions for loading states
+    function showLoading() {
+        // Show loading indicators
+        document.getElementById('weather-loading').classList.remove('d-none');
+        document.getElementById('weather-placeholder').classList.add('d-none');
+        document.getElementById('weather-content').classList.add('d-none');
+        
+        document.querySelectorAll('.card-loading').forEach(el => {
+            el.classList.remove('d-none');
+        });
+        
+        document.querySelectorAll('.card-placeholder').forEach(el => {
+            el.classList.add('d-none');
+        });
+        
+        document.querySelectorAll('.card-content').forEach(el => {
+            el.classList.add('d-none');
+        });
+        
+        document.getElementById('forecast-loading').classList.remove('d-none');
+        document.getElementById('forecast-placeholder').classList.add('d-none');
+        document.getElementById('forecast-content').classList.add('d-none');
+        
+        document.getElementById('recommendations-loading').classList.remove('d-none');
+        document.getElementById('recommendations-placeholder').classList.add('d-none');
+        document.getElementById('recommendations-content').classList.add('d-none');
+        
+        document.getElementById('primary-alert').classList.add('d-none');
+    }
+    
+    function hideLoading() {
+        // Hide loading indicators
+        document.getElementById('weather-loading').classList.add('d-none');
+        document.querySelectorAll('.card-loading').forEach(el => {
+            el.classList.add('d-none');
+        });
+        document.getElementById('forecast-loading').classList.add('d-none');
+        document.getElementById('recommendations-loading').classList.add('d-none');
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,42 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Raindrop Pattern -->
+    <pattern id="rainPattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M10,0 Q15,10 10,20 Q5,10 10,0 Z" fill="rgba(255,255,255,0.15)" transform="translate(0,0)"/>
+      <path d="M10,0 Q15,10 10,20 Q5,10 10,0 Z" fill="rgba(255,255,255,0.12)" transform="translate(30,15)"/>
+      <path d="M10,0 Q15,10 10,20 Q5,10 10,0 Z" fill="rgba(255,255,255,0.1)" transform="translate(15,30)"/>
+      <path d="M10,0 Q15,10 10,20 Q5,10 10,0 Z" fill="rgba(255,255,255,0.08)" transform="translate(45,45)"/>
+    </pattern>
+    
+    <!-- Cloud Pattern -->
+    <pattern id="cloudPattern" x="0" y="0" width="120" height="60" patternUnits="userSpaceOnUse">
+      <path d="M40,20 Q50,10 60,20 Q70,10 80,20 Q90,30 80,40 Q70,50 60,40 Q50,50 40,40 Q30,30 40,20 Z" fill="rgba(255,255,255,0.1)"/>
+      <path d="M40,20 Q50,10 60,20 Q70,10 80,20 Q90,30 80,40 Q70,50 60,40 Q50,50 40,40 Q30,30 40,20 Z" fill="rgba(255,255,255,0.08)" transform="translate(60,30)"/>
+    </pattern>
+    
+    <!-- Sun Pattern -->
+    <pattern id="sunPattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+      <circle cx="50" cy="50" r="30" fill="rgba(255,255,255,0.1)"/>
+      <circle cx="50" cy="50" r="20" fill="rgba(255,255,255,0.05)"/>
+      <path d="M50,10 L50,0 M50,100 L50,90 M10,50 L0,50 M100,50 L90,50 M22,22 L15,15 M85,85 L78,78 M22,78 L15,85 M78,22 L85,15" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+    </pattern>
+    
+    <!-- Lightning Pattern -->
+    <pattern id="lightningPattern" x="0" y="0" width="60" height="100" patternUnits="userSpaceOnUse">
+      <path d="M30,0 L20,40 L35,45 L15,100 L25,55 L10,50 L30,0 Z" fill="rgba(255,255,255,0.12)"/>
+      <path d="M30,0 L20,40 L35,45 L15,100 L25,55 L10,50 L30,0 Z" fill="rgba(255,255,255,0.08)" transform="translate(30,25) scale(0.7)"/>
+    </pattern>
+    
+    <!-- Snowflake Pattern -->
+    <pattern id="snowPattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M30,0 L30,60 M0,30 L60,30 M10,10 L50,50 M10,50 L50,10" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+      <path d="M30,0 L30,60 M0,30 L60,30 M10,10 L50,50 M10,50 L50,10" stroke="rgba(255,255,255,0.05)" stroke-width="1" transform="translate(30,30) rotate(22.5) translate(-30,-30)"/>
+    </pattern>
+  </defs>
+  
+  <rect width="100%" height="100%" fill="url(#rainPattern)"/>
+  <rect width="100%" height="100%" fill="url(#cloudPattern)"/>
+  <rect width="100%" height="100%" fill="url(#sunPattern)"/>
+  <rect width="100%" height="100%" fill="url(#lightningPattern)"/>
+  <rect width="100%" height="100%" fill="url(#snowPattern)"/>
+</svg>

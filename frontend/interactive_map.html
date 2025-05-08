@@ -1,0 +1,662 @@
+{% extends 'layout.html' %}
+
+{% block title %}Interactive Air Quality Map | Global Air Quality Monitoring{% endblock %}
+
+{% block head_extra %}
+<style>
+    .map-container {
+        height: 80vh;
+        position: relative;
+    }
+    
+    #interactive-map {
+        height: 100%;
+        width: 100%;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .map-controls {
+        background-color: white;
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+    
+    .filter-section {
+        margin-bottom: 15px;
+    }
+    
+    .filter-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    
+    .map-legend {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        max-width: 250px;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin: 5px 0;
+    }
+    
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    
+    .legend-label {
+        font-size: 12px;
+    }
+    
+    .loading-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        display: none;
+    }
+    
+    .marker-popup {
+        padding: 5px;
+        min-width: 200px;
+    }
+    
+    .marker-popup h5 {
+        margin-top: 0;
+        margin-bottom: 5px;
+        font-size: 16px;
+    }
+    
+    .aqi-display {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
+        border-radius: 8px;
+        margin: 10px 0;
+        color: white;
+    }
+    
+    .aqi-good {
+        background-color: #009966;
+    }
+    
+    .aqi-moderate {
+        background-color: #ffde33;
+        color: #333;
+    }
+    
+    .aqi-unhealthy-for-sensitive-groups {
+        background-color: #ff9933;
+    }
+    
+    .aqi-unhealthy {
+        background-color: #cc0033;
+    }
+    
+    .aqi-very-unhealthy {
+        background-color: #660099;
+    }
+    
+    .aqi-hazardous {
+        background-color: #7e0023;
+    }
+    
+    .aqi-value {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1;
+    }
+    
+    .aqi-label {
+        font-size: 12px;
+        font-weight: 600;
+        opacity: 0.8;
+    }
+    
+    .aqi-category {
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 5px;
+    }
+    
+    .pollutants-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+        margin: 10px 0;
+    }
+    
+    .pollutant {
+        background-color: #f8f9fa;
+        padding: 5px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    
+    .pollutant-name {
+        font-size: 12px;
+        font-weight: 600;
+        color: #666;
+    }
+    
+    .pollutant-value {
+        font-size: 14px;
+        font-weight: 700;
+        color: #333;
+    }
+    
+    .weather {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+        font-size: 14px;
+    }
+    
+    .weather p {
+        margin: 0;
+    }
+    
+    .updated-time {
+        text-align: right;
+        font-size: 11px;
+        color: #777;
+    }
+    
+    .stats-card {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        padding: 15px;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stats-title {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 5px;
+    }
+    
+    .stats-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+    }
+    
+    .stats-icon {
+        float: right;
+        width: 40px;
+        height: 40px;
+        background-color: #f8f9fa;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: -30px;
+    }
+    
+    .stats-footer {
+        font-size: 12px;
+        color: #777;
+        margin-top: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="display-4 mb-4" data-aos="fade-up">
+                <i class="fas fa-globe-americas me-3 text-primary"></i>Interactive Air Quality Map
+            </h1>
+            <p class="lead mb-5" data-aos="fade-up" data-aos-delay="100">
+                Explore real-time air quality data from over 16,000 locations worldwide. Use the filters to customize your view and click on markers for detailed information.
+            </p>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-3 mb-4" data-aos="fade-up">
+            <div class="map-controls">
+                <h5 class="mb-3">Map Controls</h5>
+                
+                <div class="filter-section">
+                    <div class="filter-title">Search Location</div>
+                    <div class="input-group">
+                        <input type="text" id="search-input" class="form-control" placeholder="City or country...">
+                        <button class="btn btn-primary" id="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="filter-title">Filter by Continent</div>
+                    <select id="continent-filter" class="form-select">
+                        <option value="all">All Continents</option>
+                        <option value="Africa">Africa</option>
+                        <option value="Asia" selected>Asia</option>
+                        <option value="Europe">Europe</option>
+                        <option value="North America">North America</option>
+                        <option value="South America">South America</option>
+                        <option value="Oceania">Oceania</option>
+                    </select>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="filter-title">Filter by AQI Range</div>
+                    <div class="row">
+                        <div class="col-6">
+                            <input type="number" id="aqi-min" class="form-control" placeholder="Min" min="0" max="500">
+                        </div>
+                        <div class="col-6">
+                            <input type="number" id="aqi-max" class="form-control" placeholder="Max" min="0" max="500">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="filter-title">Filter by Main Pollutant</div>
+                    <select id="pollutant-filter" class="form-select">
+                        <option value="">All Pollutants</option>
+                        <option value="pm25">PM2.5</option>
+                        <option value="o3">Ozone (O3)</option>
+                        <option value="no2">Nitrogen Dioxide (NO2)</option>
+                    </select>
+                </div>
+                
+                <div class="d-grid gap-2 mt-4">
+                    <button id="apply-filters" class="btn btn-primary">
+                        <i class="fas fa-filter me-2"></i> Apply Filters
+                    </button>
+                    <button id="reset-filters" class="btn btn-outline-secondary">
+                        <i class="fas fa-undo me-2"></i> Reset Filters
+                    </button>
+                </div>
+            </div>
+            
+            <div class="stats-card mt-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="stats-icon">
+                    <i class="fas fa-map-marker-alt text-primary"></i>
+                </div>
+                <div class="stats-title">Total Locations</div>
+                <div class="stats-value" id="total-locations">16,698</div>
+                <div class="stats-footer">Monitoring stations worldwide</div>
+            </div>
+            
+            <div class="stats-card mt-4" data-aos="fade-up" data-aos-delay="150">
+                <div class="stats-icon">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                </div>
+                <div class="stats-title">Unhealthy Locations</div>
+                <div class="stats-value" id="unhealthy-locations">Loading...</div>
+                <div class="stats-footer">AQI > 100 (Unhealthy)</div>
+            </div>
+            
+            <div class="stats-card mt-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="stats-icon">
+                    <i class="fas fa-wind text-success"></i>
+                </div>
+                <div class="stats-title">Clean Air Locations</div>
+                <div class="stats-value" id="clean-locations">Loading...</div>
+                <div class="stats-footer">AQI < 50 (Good)</div>
+            </div>
+        </div>
+        
+        <div class="col-md-9" data-aos="fade-up" data-aos-delay="200">
+            <div class="map-container">
+                <div id="interactive-map"></div>
+                
+                <div class="map-legend">
+                    <div class="legend-title mb-2"><strong>AQI Legend</strong></div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #009966;"></div>
+                        <div class="legend-label">Good (0-50)</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #ffde33;"></div>
+                        <div class="legend-label">Moderate (51-100)</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #ff9933;"></div>
+                        <div class="legend-label">Unhealthy for Sensitive Groups (101-150)</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #cc0033;"></div>
+                        <div class="legend-label">Unhealthy (151-200)</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #660099;"></div>
+                        <div class="legend-label">Very Unhealthy (201-300)</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #7e0023;"></div>
+                        <div class="legend-label">Hazardous (301+)</div>
+                    </div>
+                </div>
+                
+                <div class="loading-spinner" id="map-loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="ms-2">Loading map data...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5 mb-5">
+        <div class="col-md-12">
+            <div class="card" data-aos="fade-up">
+                <div class="card-body">
+                    <h4 class="mb-4">Understanding Air Quality Index (AQI)</h4>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div style="width: 30px; height: 30px; background-color: #009966; border-radius: 50%;" class="me-3"></div>
+                                <div>
+                                    <h5 class="mb-1">Good (0-50)</h5>
+                                    <p class="mb-0">Air quality is considered satisfactory, and air pollution poses little or no risk.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div style="width: 30px; height: 30px; background-color: #ffde33; border-radius: 50%;" class="me-3"></div>
+                                <div>
+                                    <h5 class="mb-1">Moderate (51-100)</h5>
+                                    <p class="mb-0">Air quality is acceptable; however, some pollutants may be a concern for a small number of sensitive individuals.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div style="width: 30px; height: 30px; background-color: #ff9933; border-radius: 50%;" class="me-3"></div>
+                                <div>
+                                    <h5 class="mb-1">Unhealthy for Sensitive Groups (101-150)</h5>
+                                    <p class="mb-0">Members of sensitive groups may experience health effects, but the general public is less likely to be affected.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div style="width: 30px; height: 30px; background-color: #cc0033; border-radius: 50%;" class="me-3"></div>
+                                <div>
+                                    <h5 class="mb-1">Unhealthy (151-200)</h5>
+                                    <p class="mb-0">Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div style="width: 30px; height: 30px; background-color: #660099; border-radius: 50%;" class="me-3"></div>
+                                <div>
+                                    <h5 class="mb-1">Very Unhealthy (201-300)</h5>
+                                    <p class="mb-0">Health alert: everyone may experience more serious health effects.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div style="width: 30px; height: 30px; background-color: #7e0023; border-radius: 50%;" class="me-3"></div>
+                                <div>
+                                    <h5 class="mb-1">Hazardous (301+)</h5>
+                                    <p class="mb-0">Health warnings of emergency conditions; the entire population is more likely to be affected.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Include the fallback map script -->
+<script src="{{ url_for('static', filename='js/map-fallback.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Initializing interactive map...');
+        // Initialize the map centered on the world
+        const map = L.map('interactive-map').setView([20, 0], 2);
+        
+        // Add a basemap
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+        
+        // Create a marker cluster group for better performance
+        const markerClusterGroup = L.markerClusterGroup({
+            disableClusteringAtZoom: 7,
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: true,
+            maxClusterRadius: 50
+        });
+        
+        // Add the marker cluster group to the map
+        map.addLayer(markerClusterGroup);
+        
+        // Function to get marker color based on AQI category
+        function getMarkerColor(aqiCategory) {
+            if (!aqiCategory) return '#999999';
+            
+            const category = String(aqiCategory).toLowerCase();
+            
+            if (category.includes('good')) return '#009966';
+            if (category.includes('moderate')) return '#ffde33';
+            if (category.includes('sensitive') || category.includes('unhealthy for sensitive')) return '#ff9933';
+            if (category.includes('unhealthy') && !category.includes('very')) return '#cc0033';
+            if (category.includes('very unhealthy')) return '#660099';
+            if (category.includes('hazardous')) return '#7e0023';
+            
+            // Based on AQI value ranges
+            const aqiValue = parseInt(aqiCategory);
+            if (!isNaN(aqiValue)) {
+                if (aqiValue <= 50) return '#009966';            // Good
+                if (aqiValue <= 100) return '#ffde33';           // Moderate
+                if (aqiValue <= 150) return '#ff9933';           // Unhealthy for Sensitive Groups
+                if (aqiValue <= 200) return '#cc0033';           // Unhealthy
+                if (aqiValue <= 300) return '#660099';           // Very Unhealthy
+                if (aqiValue > 300) return '#7e0023';            // Hazardous
+            }
+            
+            return '#999999'; // Default gray for unknown
+        }
+        
+        // Function to load markers
+        function loadMarkers(filters = {}) {
+            // Show loading spinner
+            document.getElementById('map-loading').style.display = 'block';
+            
+            // Clear existing markers
+            markerClusterGroup.clearLayers();
+            
+            // Build query parameters
+            const params = new URLSearchParams();
+            if (filters.continent && filters.continent !== 'all') {
+                params.append('continent', filters.continent);
+            }
+            if (filters.aqi_min) {
+                params.append('aqi_min', filters.aqi_min);
+            }
+            if (filters.aqi_max) {
+                params.append('aqi_max', filters.aqi_max);
+            }
+            if (filters.pollutant) {
+                params.append('pollutant', filters.pollutant);
+            }
+            if (filters.search) {
+                params.append('search', filters.search);
+            }
+            
+            console.log('Fetching API data with params:', params.toString());
+            
+            // Fetch the data from our API
+            fetch(`/api/interactive-map-data?${params.toString()}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Check if data is an array (expected) or has a different structure
+                    if (!Array.isArray(data)) {
+                        console.error("API returned unexpected data format:", data);
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        if (data.markers && Array.isArray(data.markers)) {
+                            // Extract markers array if it exists
+                            data = data.markers;
+                        } else {
+                            throw new Error("Invalid data format received from API");
+                        }
+                    }
+
+                    // Update statistics
+                    document.getElementById('total-locations').textContent = data.length.toLocaleString();
+                    
+                    const unhealthyLocations = data.filter(m => parseFloat(m.AQI) > 100).length;
+                    document.getElementById('unhealthy-locations').textContent = unhealthyLocations.toLocaleString();
+                    
+                    const cleanLocations = data.filter(m => parseFloat(m.AQI) < 50).length;
+                    document.getElementById('clean-locations').textContent = cleanLocations.toLocaleString();
+                    
+                    // Clear existing markers
+                    markerClusterGroup.clearLayers();
+
+                    // Add markers to the map
+                    data.forEach(marker => {
+                        const lat = parseFloat(marker.Latitude);
+                        const lng = parseFloat(marker.Longitude);
+                        
+                        if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+                            const color = marker.color || getMarkerColor(marker.AQI_Category);
+                            
+                            // Create circle marker
+                            const circleMarker = L.circleMarker([lat, lng], {
+                                radius: 6,
+                                fillColor: color,
+                                color: color,
+                                weight: 3,
+                                opacity: 1,
+                                fillOpacity: 0.8
+                            });
+                            
+                            // Add popup with the formatted content
+                            if (marker.popup_content) {
+                                circleMarker.bindPopup(marker.popup_content);
+                            } else {
+                                // Create popup content if not provided
+                                const popupContent = `
+                                    <div class="marker-popup">
+                                        <h5>${marker.City}, ${marker.Country}</h5>
+                                        <div class="aqi-badge" style="background-color: ${color}">
+                                            AQI: ${Math.round(marker.AQI)}
+                                        </div>
+                                        <p>Category: ${marker.AQI_Category}</p>
+                                    </div>
+                                `;
+                                circleMarker.bindPopup(popupContent);
+                            }
+                            
+                            // Add to the marker cluster group
+                            markerClusterGroup.addLayer(circleMarker);
+                        }
+                    });
+                    
+                    // Log the number of markers added
+                    console.log(`Added ${data.length} markers to the map`);
+                    
+                    // Hide loading spinner
+                    document.getElementById('map-loading').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error loading markers:', error);
+                    document.getElementById('map-loading').style.display = 'none';
+                    
+                    // Instead of an alert, use our fallback map with decorative markers
+                    console.log('Initializing fallback map display...');
+                    handleMapError();
+                });
+        }
+        
+        // Event listeners for filter buttons
+        document.getElementById('apply-filters').addEventListener('click', function() {
+            const filters = {
+                continent: document.getElementById('continent-filter').value,
+                aqi_min: document.getElementById('aqi-min').value,
+                aqi_max: document.getElementById('aqi-max').value,
+                pollutant: document.getElementById('pollutant-filter').value,
+                search: document.getElementById('search-input').value
+            };
+            
+            loadMarkers(filters);
+        });
+        
+        document.getElementById('reset-filters').addEventListener('click', function() {
+            document.getElementById('continent-filter').value = 'all';
+            document.getElementById('aqi-min').value = '';
+            document.getElementById('aqi-max').value = '';
+            document.getElementById('pollutant-filter').value = '';
+            document.getElementById('search-input').value = '';
+            
+            loadMarkers();
+        });
+        
+        document.getElementById('search-btn').addEventListener('click', function() {
+            const searchTerm = document.getElementById('search-input').value;
+            if (searchTerm) {
+                loadMarkers({ search: searchTerm });
+            }
+        });
+        
+        // Add enter key functionality to search input
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const searchTerm = this.value;
+                if (searchTerm) {
+                    loadMarkers({ search: searchTerm });
+                }
+            }
+        });
+        
+        // Load markers when the page loads
+        loadMarkers();
+    });
+</script>
+{% endblock %}

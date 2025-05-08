@@ -1,0 +1,1021 @@
+/* Global Air Quality Monitoring Dashboard Styles */
+
+/* Base styles */
+:root {
+  /* AQI specific colors */
+  --good-color: #009966;
+  --moderate-color: #ffde33;
+  --sensitive-color: #ff9933;
+  --unhealthy-color: #cc0033;
+  --very-unhealthy-color: #660099;
+  --hazardous-color: #7e0023;
+  
+  /* Theme colors */
+  --primary-color: #3a7bd5;
+  --secondary-color: #00d2ff;
+  --accent-color: #FF5D9E;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  
+  /* UI colors */
+  --background-color: #f8f9fa;
+  --text-color: #212529;
+  --border-color: #e9ecef;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --card-bg: white;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: var(--primary-color);
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: var(--secondary-color);
+}
+
+/* Gradient backgrounds */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+}
+
+.bg-gradient-accent {
+  background: linear-gradient(135deg, var(--accent-color), #FF9E7D);
+  color: white;
+}
+
+/* Badges with glow effect */
+.badge-glow {
+  box-shadow: 0 0 10px 2px rgba(0, 210, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+.badge-glow:hover {
+  box-shadow: 0 0 15px 5px rgba(0, 210, 255, 0.7);
+  transform: translateY(-2px);
+}
+
+/* Animated Cards */
+.animated-card {
+  border-radius: 15px;
+  background: white;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+  position: relative;
+}
+
+.animated-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15), 0 0 20px 5px rgba(0, 255, 255, 0.2);
+}
+
+.animated-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, rgba(58, 123, 213, 0.1), rgba(0, 210, 255, 0.1));
+  border-radius: 0 0 0 100%;
+  z-index: 1;
+}
+
+/* Colorful Headers */
+.colorful-header {
+  color: var(--primary-color);
+  font-weight: 700;
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+/* Hero Section */
+.hero {
+  background-size: cover;
+  background-position: center;
+  color: white;
+  text-align: center;
+  padding: 100px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(58, 123, 213, 0.8), rgba(0, 210, 255, 0.8));
+  z-index: 1;
+}
+
+.hero .container {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-header {
+  width: 100%;
+  padding: 0 15px;
+  display: flex;
+  justify-content: center;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  max-width: 800px;
+  margin: 0 auto;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+  background-color: white;
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, rgba(58, 123, 213, 0.05), rgba(0, 210, 255, 0.05));
+  border-radius: 0 0 0 100%;
+  z-index: 1;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 0 20px 5px rgba(0, 255, 255, 0.2);
+}
+
+.dashboard-card h2, .dashboard-card h3 {
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.dashboard-card h2 i, .dashboard-card h3 i {
+  margin-right: 10px;
+  color: var(--secondary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Animated Tables */
+.animated-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+.animated-table thead {
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  color: white;
+}
+
+.animated-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.animated-table th:first-child {
+  border-radius: 10px 0 0 10px;
+}
+
+.animated-table th:last-child {
+  border-radius: 0 10px 10px 0;
+}
+
+.animated-table td {
+  padding: 15px;
+  font-size: 14px;
+  vertical-align: middle;
+  background-color: white;
+  border: none;
+  position: relative;
+}
+
+.animated-table tr td:first-child {
+  border-radius: 10px 0 0 10px;
+}
+
+.animated-table tr td:last-child {
+  border-radius: 0 10px 10px 0;
+}
+
+.animated-table tbody tr {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.animated-table tbody tr:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1), 0 0 20px 5px rgba(0, 255, 255, 0.5);
+  z-index: 1;
+  position: relative;
+}
+
+.table-row-animated {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* AQI Value Styling */
+.aqi-value {
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  font-size: 0.9rem;
+}
+
+.aqi-good-bg {
+  background-color: rgba(0, 153, 102, 0.2);
+  color: #009966;
+}
+
+.aqi-moderate-bg {
+  background-color: rgba(255, 222, 51, 0.2);
+  color: #9d9400;
+}
+
+.aqi-sensitive-bg {
+  background-color: rgba(255, 153, 51, 0.2);
+  color: #ff9933;
+}
+
+.aqi-unhealthy-bg {
+  background-color: rgba(204, 0, 51, 0.2);
+  color: #cc0033;
+}
+
+.aqi-very-unhealthy-bg {
+  background-color: rgba(102, 0, 153, 0.2);
+  color: #660099;
+}
+
+.aqi-hazardous-bg {
+  background-color: rgba(126, 0, 35, 0.2);
+  color: #7e0023;
+}
+
+/* Map Container */
+#map-container {
+  height: 600px;
+  width: 100%;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.fullscreen #map-container {
+  height: 100vh;
+  border-radius: 0;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  padding: 5px;
+}
+
+.leaflet-popup-content {
+  margin: 10px;
+  min-width: 200px;
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.map-popup-content h4 {
+  margin-top: 0;
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: #999;
+  top: 5px;
+  right: 5px;
+  transition: all 0.2s ease;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: var(--primary-color);
+  transform: scale(1.2);
+}
+
+.leaflet-bar a {
+  background: white;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+.leaflet-bar a:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* Info Cards */
+.info-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 0 20px 5px rgba(0, 255, 255, 0.2);
+}
+
+.info-card-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  color: white;
+}
+
+.info-card-icon {
+  width: 50px;
+  height: 50px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 15px;
+  font-size: 20px;
+}
+
+.info-card-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.info-card-body {
+  padding: 20px;
+  flex-grow: 1;
+}
+
+.info-card-value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: baseline;
+}
+
+.info-card-value span {
+  font-size: 1rem;
+  opacity: 0.7;
+  margin-left: 5px;
+}
+
+.info-card-footer {
+  background-color: #f8f9fa;
+  padding: 15px 20px;
+  font-size: 0.9rem;
+  border-top: 1px solid #eee;
+}
+
+/* Buttons */
+.btn-colorful {
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  border: none;
+  color: white;
+  font-weight: 500;
+  padding: 10px 25px;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-colorful:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  color: white;
+}
+
+.btn-colorful-outline {
+  background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  font-weight: 500;
+  padding: 10px 25px;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+
+.btn-colorful-outline:hover {
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Animated AQI Display */
+.aqi-display-container {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.aqi-display-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15), 0 0 20px 5px rgba(0, 255, 255, 0.2);
+}
+
+.aqi-display-container.aqi-good {
+  background: linear-gradient(135deg, #66bb6a, #43a047);
+  color: white;
+}
+
+.aqi-display-container.aqi-moderate {
+  background: linear-gradient(135deg, #ffee58, #fbc02d);
+  color: #333;
+}
+
+.aqi-display-container.aqi-unhealthy-for-sensitive-groups {
+  background: linear-gradient(135deg, #ffa726, #fb8c00);
+  color: white;
+}
+
+.aqi-display-container.aqi-unhealthy {
+  background: linear-gradient(135deg, #ef5350, #e53935);
+  color: white;
+}
+
+.aqi-display-container.aqi-very-unhealthy {
+  background: linear-gradient(135deg, #ab47bc, #8e24aa);
+  color: white;
+}
+
+.aqi-display-container.aqi-hazardous {
+  background: linear-gradient(135deg, #b71c1c, #7f0000);
+  color: white;
+}
+
+.aqi-main-value {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1;
+  margin: 15px 0;
+}
+
+.aqi-category {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.aqi-details {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 25px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.aqi-detail-item {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px;
+  text-align: center;
+}
+
+.aqi-detail-item small {
+  display: block;
+  opacity: 0.9;
+  margin-bottom: 5px;
+}
+
+.aqi-detail-item h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* AQI Legend */
+.aqi-legend {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 20px 0;
+  gap: 10px;
+}
+
+.aqi-legend-item {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.aqi-legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.aqi-legend-label {
+  font-size: 14px;
+}
+
+/* Feature Cards */
+.feature-card {
+  background-color: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 0 20px 5px rgba(0, 255, 255, 0.2);
+}
+
+.feature-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, rgba(58, 123, 213, 0.1), rgba(0, 210, 255, 0.1));
+  border-radius: 100% 0 0 0;
+  z-index: 1;
+}
+
+.feature-icon {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 28px;
+  color: white;
+  box-shadow: 0 8px 25px rgba(58, 123, 213, 0.4);
+}
+
+.feature-card h4 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: var(--primary-color);
+}
+
+.feature-card p {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+/* CTA Card */
+.cta-card {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 60px 30px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(58, 123, 213, 0.3);
+}
+
+.cta-card h2 {
+  font-weight: 700;
+}
+
+.cta-bg-circle {
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.cta-bg-circle-2 {
+  left: -10%;
+  top: 60%;
+  width: 200px;
+  height: 200px;
+}
+
+/* Section Headers */
+.section-header h2 {
+  position: relative;
+  display: inline-block;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section-header h2::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  border-radius: 3px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .hero {
+    padding: 70px 0;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+  }
+
+  .dashboard-card {
+    padding: 20px;
+  }
+
+  #map-container {
+    height: 400px;
+  }
+
+  .info-card-value {
+    font-size: 1.5rem;
+  }
+
+  .feature-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero {
+    padding: 50px 0;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .info-card-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .info-card-icon {
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+
+  .animated-table th, .animated-table td {
+    padding: 10px;
+  }
+}
+
+/* Custom animations */
+.slide-in-right {
+  animation: slideInRight 0.5s both;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s both;
+}
+
+/* Page transition effect */
+.page-transition {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  z-index: 9999;
+  transform: translateY(100%);
+  transition: transform 0.5s ease-in-out;
+}
+
+/* Loaders and spinners */
+.spinner-border.text-gradient {
+  border-image: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) 30;
+}
+
+/* AQI Marker on maps */
+.custom-marker {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid white;
+}
+
+.marker-good { background-color: var(--good-color); }
+.marker-moderate { background-color: var(--moderate-color); color: black; }
+.marker-sensitive { background-color: var(--sensitive-color); }
+.marker-unhealthy { background-color: var(--unhealthy-color); }
+.marker-very-unhealthy { background-color: var(--very-unhealthy-color); }
+.marker-hazardous { background-color: var(--hazardous-color); }
+
+/* Stats Cards */
+.stats-card {
+  text-align: center;
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* City Info Cards for Comparison */
+.city-info-card {
+    border: 2px solid;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.city-info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.city-info-header {
+    padding: 15px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.city-info-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.aqi-badge {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    height: 45px;
+    width: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.city-info-body {
+    padding: 15px;
+    background-color: white;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #555;
+}
+
+.info-value {
+    font-weight: 500;
+}
+
+.seasonal-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.season-stat {
+    width: 48%;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    padding: 8px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.season-name {
+    display: block;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.season-value {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+/* Air Quality Info List */
+.air-quality-info-list {
+    padding-left: 20px;
+}
+
+.air-quality-info-list li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+/* Seasonal Comparison Section */
+#seasonal-comparison-section {
+    transition: all 0.5s ease;
+}
+
+#seasonal-comparison-section .info-card {
+    background-color: #fff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#seasonal-comparison-section .info-card-header {
+    background-color: #4f7cac;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+}
+
+#seasonal-comparison-section .info-card-icon {
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+#seasonal-comparison-section .info-card-title {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+#seasonal-comparison-section .info-card-body {
+    padding: 20px;
+}
+
+.stats-card {
+  border-radius: 15px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  transition: all 0.3s ease-in-out;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 0 20px 5px rgba(0, 255, 255, 0.2);
+}
+
+.stats-card i {
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.stats-card .number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 15px 0 10px;
+}
+
+.stats-card .label {
+  font-size: 1rem;
+  color: #666;
+}
+
+/* Chart formatting */
+.chart-container {
+  position: relative;
+  margin: auto;
+  height: 400px;
+  width: 100%;
+}

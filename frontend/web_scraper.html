@@ -1,0 +1,324 @@
+{% extends "layout.html" %}
+
+{% block title %}Web Scraper - Air Quality Information{% endblock %}
+
+{% block styles %}
+<style>
+    #content-viewer {
+        max-height: 500px;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: 'Roboto Mono', monospace;
+        white-space: pre-wrap;
+        margin-top: 20px;
+    }
+    
+    .result-box {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .result-header {
+        padding: 15px;
+        background-color: #f5f5f5;
+        border-bottom: 1px solid #ddd;
+        border-radius: 5px 5px 0 0;
+    }
+    
+    .result-body {
+        padding: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .source-item {
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .source-item:last-child {
+        border-bottom: none;
+    }
+    
+    .spinner-border {
+        width: 1.5rem;
+        height: 1.5rem;
+        margin-right: 10px;
+    }
+    
+    .btn-submit {
+        min-width: 120px;
+    }
+    
+    .nav-tabs .nav-link {
+        font-size: 1rem;
+    }
+    
+    .nav-tabs .nav-link.active {
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0"><i class="fas fa-spider me-3 text-primary"></i>Web Scraper</h1>
+                <div>
+                    <a href="/" class="btn btn-outline-primary">
+                        <i class="fas fa-home me-2"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <p class="lead">Extract clean, readable text content from websites to analyze air quality information.</p>
+                    
+                    <ul class="nav nav-tabs" id="scraperTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="url-tab" data-bs-toggle="tab" data-bs-target="#url-content" type="button" role="tab" aria-controls="url-content" aria-selected="true">
+                                <i class="fas fa-link me-2"></i>Extract from URL
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="predefined-tab" data-bs-toggle="tab" data-bs-target="#predefined-content" type="button" role="tab" aria-controls="predefined-content" aria-selected="false">
+                                <i class="fas fa-list-ul me-2"></i>Air Quality Updates
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content pt-4" id="scraperTabsContent">
+                        <!-- URL Tab -->
+                        <div class="tab-pane fade show active" id="url-content" role="tabpanel" aria-labelledby="url-tab">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="url-input" placeholder="Enter website URL" value="https://www.who.int/news-room/fact-sheets/detail/ambient-(outdoor)-air-quality-and-health">
+                                        <label for="url-input">Website URL</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button id="scrape-btn" class="btn btn-primary btn-submit h-100">
+                                        <i class="fas fa-search me-2"></i> Extract Content
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <p class="text-muted small">
+                                <i class="fas fa-info-circle me-1"></i> Enter a URL of a website containing air quality information to extract its main content.
+                            </p>
+                            
+                            <div id="url-result" style="display: none;" class="result-box mt-4">
+                                <div class="result-header">
+                                    <h5 class="mb-0">Extraction Results</h5>
+                                </div>
+                                <div class="result-body">
+                                    <div class="mb-3">
+                                        <strong>Source URL:</strong> <span id="result-url" class="text-primary"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Content Length:</strong> <span id="content-length"></span> characters
+                                    </div>
+                                    <div>
+                                        <strong>Extracted Content:</strong>
+                                        <div id="content-viewer" class="mt-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="url-loading" style="display: none;" class="text-center my-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <span>Extracting content, please wait...</span>
+                            </div>
+                            
+                            <div id="url-error" class="alert alert-danger mt-4" style="display: none;">
+                                <i class="fas fa-exclamation-triangle me-2"></i> <span id="error-message"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Predefined Sources Tab -->
+                        <div class="tab-pane fade" id="predefined-content" role="tabpanel" aria-labelledby="predefined-tab">
+                            <p>Get the latest air quality information from trusted sources.</p>
+                            
+                            <button id="get-updates-btn" class="btn btn-primary mb-4">
+                                <i class="fas fa-sync-alt me-2"></i> Fetch Latest Updates
+                            </button>
+                            
+                            <div id="sources-result" style="display: none;" class="result-box">
+                                <div class="result-header">
+                                    <h5 class="mb-0">Latest Air Quality Information</h5>
+                                </div>
+                                <div class="result-body" id="sources-content">
+                                    <!-- Sources will be inserted here -->
+                                </div>
+                            </div>
+                            
+                            <div id="sources-loading" style="display: none;" class="text-center my-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <span>Fetching updates from multiple sources, please wait...</span>
+                            </div>
+                            
+                            <div id="sources-error" class="alert alert-danger mt-4" style="display: none;">
+                                <i class="fas fa-exclamation-triangle me-2"></i> <span id="sources-error-message"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">About the Web Scraper</h5>
+                </div>
+                <div class="card-body">
+                    <p>This tool uses the <strong>Trafilatura</strong> library to extract main content from web pages, removing navigation, ads, and other noise. It's useful for:</p>
+                    
+                    <ul>
+                        <li>Extracting air quality information from news articles</li>
+                        <li>Gathering pollution data from environmental websites</li>
+                        <li>Reading air quality guidelines and reports</li>
+                        <li>Collecting information about environmental policies</li>
+                    </ul>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> The extracted content is plain text without formatting or images, making it easier to read and analyze.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // URL tab functionality
+    const urlInput = document.getElementById('url-input');
+    const scrapeBtn = document.getElementById('scrape-btn');
+    const urlResult = document.getElementById('url-result');
+    const urlLoading = document.getElementById('url-loading');
+    const urlError = document.getElementById('url-error');
+    const errorMessage = document.getElementById('error-message');
+    const resultUrl = document.getElementById('result-url');
+    const contentLength = document.getElementById('content-length');
+    const contentViewer = document.getElementById('content-viewer');
+    
+    scrapeBtn.addEventListener('click', async function() {
+        const url = urlInput.value.trim();
+        
+        if (!url) {
+            urlError.style.display = 'block';
+            errorMessage.textContent = 'Please enter a valid URL';
+            return;
+        }
+        
+        // Show loading, hide results and errors
+        urlLoading.style.display = 'block';
+        urlResult.style.display = 'none';
+        urlError.style.display = 'none';
+        
+        try {
+            const response = await fetch(`/api/scrape-content?url=${encodeURIComponent(url)}`);
+            const data = await response.json();
+            
+            urlLoading.style.display = 'none';
+            
+            if (data.status === 'error') {
+                urlError.style.display = 'block';
+                errorMessage.textContent = data.message;
+                return;
+            }
+            
+            // Display results
+            urlResult.style.display = 'block';
+            resultUrl.textContent = data.url;
+            contentLength.textContent = data.content_length;
+            contentViewer.textContent = data.content;
+            
+        } catch (error) {
+            urlLoading.style.display = 'none';
+            urlError.style.display = 'block';
+            errorMessage.textContent = `Error: ${error.message}`;
+        }
+    });
+    
+    // Predefined sources tab functionality
+    const getUpdatesBtn = document.getElementById('get-updates-btn');
+    const sourcesResult = document.getElementById('sources-result');
+    const sourcesLoading = document.getElementById('sources-loading');
+    const sourcesError = document.getElementById('sources-error');
+    const sourcesErrorMessage = document.getElementById('sources-error-message');
+    const sourcesContent = document.getElementById('sources-content');
+    
+    getUpdatesBtn.addEventListener('click', async function() {
+        // Show loading, hide results and errors
+        sourcesLoading.style.display = 'block';
+        sourcesResult.style.display = 'none';
+        sourcesError.style.display = 'none';
+        
+        try {
+            const response = await fetch('/api/air-quality-updates');
+            const data = await response.json();
+            
+            sourcesLoading.style.display = 'none';
+            
+            if (data.status === 'error') {
+                sourcesError.style.display = 'block';
+                sourcesErrorMessage.textContent = data.message;
+                return;
+            }
+            
+            // Display results
+            sourcesResult.style.display = 'block';
+            
+            // Clear previous content
+            sourcesContent.innerHTML = '';
+            
+            // Add each source
+            data.sources.forEach(source => {
+                const sourceItem = document.createElement('div');
+                sourceItem.className = 'source-item';
+                
+                let statusBadge = '';
+                if (source.status === 'success') {
+                    statusBadge = '<span class="badge bg-success ms-2">Success</span>';
+                } else {
+                    statusBadge = '<span class="badge bg-danger ms-2">Error</span>';
+                }
+                
+                sourceItem.innerHTML = `
+                    <h5>${source.source} ${statusBadge}</h5>
+                    ${source.status === 'success' 
+                        ? `<p class="mb-1"><strong>Content Length:</strong> ${source.content_length} characters</p>
+                           <div class="small bg-light p-3 mt-2 rounded">
+                                ${source.content_sample}
+                           </div>`
+                        : `<p class="text-danger">${source.message}</p>`
+                    }
+                `;
+                
+                sourcesContent.appendChild(sourceItem);
+            });
+            
+        } catch (error) {
+            sourcesLoading.style.display = 'none';
+            sourcesError.style.display = 'block';
+            sourcesErrorMessage.textContent = `Error: ${error.message}`;
+        }
+    });
+});
+</script>
+{% endblock %}

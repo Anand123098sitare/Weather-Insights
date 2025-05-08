@@ -1,0 +1,769 @@
+{% extends 'layout.html' %}
+
+{% block title %}Air Quality Forecasting{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forecasting.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center" data-aos="fade-down">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-chart-line text-primary me-3"></i>Air Quality Forecasting
+            </h1>
+            <p class="lead">Explore predictive air quality trends, weather impact analysis, and seasonal forecasts</p>
+            <div class="page-divider my-4 mx-auto"></div>
+        </div>
+    </div>
+
+    <!-- City Selection and 7-Day Forecast -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto" data-aos="fade-up">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4">
+                    <h2 class="fw-bold mb-4"><i class="fas fa-calendar-alt me-2 text-primary"></i>7-Day AQI Forecast</h2>
+                    <p class="mb-4">
+                        Select a city to view a 7-day air quality forecast based on statistical models, weather patterns, and historical data.
+                    </p>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="city-search" list="city-list" placeholder="Enter city name">
+                                <label for="city-search">Enter City Name</label>
+                                <datalist id="city-list">
+                                    {% for city in cities %}
+                                    <option value="{{ city.city }}, {{ city.state }}">
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary btn-lg w-100 h-100" id="forecast-btn">
+                                <i class="fas fa-search me-2"></i> Get Forecast
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Weather option -->
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" value="" id="include-weather">
+                        <label class="form-check-label" for="include-weather">
+                            Include weather information in forecast
+                        </label>
+                    </div>
+                    
+                    <!-- Loading indicator -->
+                    <div id="forecast-loading" class="text-center my-5 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Generating forecast data...</p>
+                    </div>
+                    
+                    <!-- Forecast results -->
+                    <div id="forecast-results" class="d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 class="mb-0" id="forecast-city">Delhi, India</h3>
+                            <span class="badge rounded-pill" id="current-aqi-badge">Current AQI: 156</span>
+                        </div>
+                        
+                        <div class="row" id="forecast-cards-container">
+                            <!-- Forecast cards will be inserted here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Initial placeholder -->
+                    <div id="forecast-placeholder" class="text-center my-5">
+                        <img src="{{ url_for('static', filename='img/forecast.svg') }}" alt="Forecast" class="img-fluid mb-4" style="max-width: 200px;">
+                        <h4>Select a city to view air quality forecast</h4>
+                        <p class="text-muted">Forecasts include AQI predictions based on weather patterns and historical trends</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Parameter Correlation -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4" data-aos="fade-up">
+            <h2 class="fw-bold">Weather Impact on Air Quality</h2>
+            <p class="text-muted">How various weather parameters affect different pollutants</p>
+        </div>
+        
+        <div class="col-lg-6 mb-4" data-aos="fade-right">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-4">Weather Parameter Correlation</h3>
+                    <p class="card-text mb-4">Correlation between weather parameters and air pollutant concentrations</p>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="correlationChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 p-4">
+                    <div id="explanation-text" class="small">
+                        <!-- Weather parameter explanation will be shown here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4" data-aos="fade-left">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-4">Seasonal Pollution Patterns</h3>
+                    <p class="card-text mb-4">How different pollutants vary by season</p>
+                    
+                    <ul class="nav nav-tabs seasons-tabs mb-3" id="seasonsTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="winter-tab" data-bs-toggle="tab" data-bs-target="#winter" type="button" role="tab" aria-controls="winter" aria-selected="true">Winter</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="spring-tab" data-bs-toggle="tab" data-bs-target="#spring" type="button" role="tab" aria-controls="spring" aria-selected="false">Spring</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="summer-tab" data-bs-toggle="tab" data-bs-target="#summer" type="button" role="tab" aria-controls="summer" aria-selected="false">Summer</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="fall-tab" data-bs-toggle="tab" data-bs-target="#fall" type="button" role="tab" aria-controls="fall" aria-selected="false">Fall</button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="seasonsTabsContent">
+                        <div class="tab-pane fade show active" id="winter" role="tabpanel" aria-labelledby="winter-tab">
+                            <div class="season-description p-3">
+                                <!-- Season description will be inserted here -->
+                            </div>
+                            <div class="pollutant-trends">
+                                <!-- Pollutant trends will be inserted here -->
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="spring" role="tabpanel" aria-labelledby="spring-tab">
+                            <div class="season-description p-3">
+                                <!-- Season description will be inserted here -->
+                            </div>
+                            <div class="pollutant-trends">
+                                <!-- Pollutant trends will be inserted here -->
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="summer" role="tabpanel" aria-labelledby="summer-tab">
+                            <div class="season-description p-3">
+                                <!-- Season description will be inserted here -->
+                            </div>
+                            <div class="pollutant-trends">
+                                <!-- Pollutant trends will be inserted here -->
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="fall" role="tabpanel" aria-labelledby="fall-tab">
+                            <div class="season-description p-3">
+                                <!-- Season description will be inserted here -->
+                            </div>
+                            <div class="pollutant-trends">
+                                <!-- Pollutant trends will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Long-term Seasonal Forecast -->
+    <div class="row mb-5">
+        <div class="col-12" data-aos="fade-up">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4">
+                    <h2 class="fw-bold mb-4"><i class="fas fa-chart-area me-2 text-primary"></i>Seasonal AQI Forecast</h2>
+                    <p class="mb-4">
+                        Expected air quality trends by location type for upcoming seasons. Forecasts are based on historical seasonal patterns, climate models, and urban vs. rural differences.
+                    </p>
+                    
+                    <!-- Loading indicator -->
+                    <div id="seasonal-loading" class="text-center my-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading seasonal forecast data...</p>
+                    </div>
+                    
+                    <!-- Seasonal forecast results -->
+                    <div id="seasonal-results" class="d-none">
+                        <div class="row mb-4">
+                            <div class="col-md-3 mb-3 mb-md-0">
+                                <div class="nav flex-column nav-pills" id="seasons-tab" role="tablist" aria-orientation="vertical">
+                                    <!-- Season tabs will be inserted here -->
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="tab-content" id="seasons-content">
+                                    <!-- Season content will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Methodology Section -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto" data-aos="fade-up">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-5">
+                    <h3 class="fw-bold mb-4 text-center"><i class="fas fa-info-circle me-2 text-primary"></i>Forecast Methodology</h3>
+                    
+                    <div class="accordion" id="methodologyAccordion">
+                        <div class="accordion-item border-0 mb-3 shadow-sm rounded">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    <i class="fas fa-calendar-day me-2"></i> 7-Day Forecast Models
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#methodologyAccordion">
+                                <div class="accordion-body">
+                                    <p>Our 7-day air quality forecasts are built using a combination of:</p>
+                                    <ul>
+                                        <li><strong>Statistical modeling</strong> of historical air quality patterns</li>
+                                        <li><strong>Weather parameter correlations</strong> including temperature, humidity, wind speed, precipitation, and pressure systems</li>
+                                        <li><strong>Seasonal variations</strong> that affect pollutant formation and dispersion</li>
+                                        <li><strong>Day-of-week patterns</strong> reflecting changes in traffic and industrial activities</li>
+                                    </ul>
+                                    <p>The forecast adjusts dynamically based on current air quality conditions and predicted weather changes. In urban environments, forecasts also account for traffic patterns and morning/evening rush hour periods.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border-0 mb-3 shadow-sm rounded">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    <i class="fas fa-cloud-sun-rain me-2"></i> Weather Parameter Analysis
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#methodologyAccordion">
+                                <div class="accordion-body">
+                                    <p>Our weather impact analysis examines the correlations between meteorological conditions and air quality parameters:</p>
+                                    <ul>
+                                        <li><strong>Temperature:</strong> Higher temperatures accelerate photochemical reactions, increasing ozone formation.</li>
+                                        <li><strong>Humidity:</strong> High humidity can trap particulate matter and affect secondary particle formation.</li>
+                                        <li><strong>Wind speed:</strong> Stronger winds disperse pollutants, while calm conditions allow them to accumulate.</li>
+                                        <li><strong>Precipitation:</strong> Rain washes out particulate matter in a process called wet deposition.</li>
+                                        <li><strong>Atmospheric pressure:</strong> High pressure systems can trap pollutants near the ground through temperature inversions.</li>
+                                    </ul>
+                                    <p>The correlation values are derived from research studies and historical data analysis across multiple urban and rural environments.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border-0 shadow-sm rounded">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    <i class="fas fa-seedling me-2"></i> Seasonal Forecast Approach
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#methodologyAccordion">
+                                <div class="accordion-body">
+                                    <p>Our seasonal forecasts project air quality trends across different location types (urban, suburban, rural) for upcoming seasons based on:</p>
+                                    <ul>
+                                        <li><strong>Seasonal weather patterns</strong> and how they affect pollutant formation and dispersion</li>
+                                        <li><strong>Historical seasonal averages</strong> from monitoring stations</li>
+                                        <li><strong>Urban-rural gradients</strong> in pollution concentration</li>
+                                        <li><strong>Seasonal human activities</strong> like heating in winter or increased travel in summer</li>
+                                    </ul>
+                                    <p>The forecasts provide expected trends for major pollutants (PM<sub>2.5</sub>, O<sub>3</sub>, NO<sub>2</sub>, SO<sub>2</sub>, CO) and identify the likely predominant pollutant for each location type and season.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ===== 7-Day Forecast Functionality =====
+        const citySearch = document.getElementById('city-search');
+        const forecastBtn = document.getElementById('forecast-btn');
+        const includeWeather = document.getElementById('include-weather');
+        const forecastLoading = document.getElementById('forecast-loading');
+        const forecastResults = document.getElementById('forecast-results');
+        const forecastPlaceholder = document.getElementById('forecast-placeholder');
+        const forecastCity = document.getElementById('forecast-city');
+        const currentAqiBadge = document.getElementById('current-aqi-badge');
+        const forecastCardsContainer = document.getElementById('forecast-cards-container');
+        
+        // Function to get AQI color based on value - matching reference image
+        function getAQIColor(aqi) {
+            if (aqi <= 50) return '#009966'; // Good - green
+            if (aqi <= 100) return '#ffff00'; // Moderate - yellow
+            if (aqi <= 150) return '#ff9933'; // Unhealthy for Sensitive Groups - orange
+            if (aqi <= 200) return '#cc0033'; // Unhealthy - red
+            if (aqi <= 300) return '#660099'; // Very Unhealthy - purple
+            return '#7e0023'; // Hazardous - dark red
+        }
+        
+        // Function to get text color based on background
+        function getTextColor(bgColor) {
+            // Yellow and green get dark text, all others get white text
+            return (bgColor === '#ffff00' || bgColor === '#009966') ? '#333333' : '#ffffff';
+        }
+        
+        // Function to get weather icon
+        function getWeatherIcon(conditions) {
+            switch(conditions.toLowerCase()) {
+                case 'sunny': return 'fa-sun';
+                case 'partly cloudy': return 'fa-cloud-sun';
+                case 'cloudy': return 'fa-cloud';
+                case 'rain': return 'fa-cloud-rain';
+                case 'thunderstorm': return 'fa-bolt';
+                case 'snow': return 'fa-snowflake';
+                case 'fog': return 'fa-smog';
+                default: return 'fa-cloud';
+            }
+        }
+        
+        // Function to create a forecast card, exactly matching reference image
+        function createForecastCard(dayData, includeWeather) {
+            const card = document.createElement('div');
+            card.className = 'col-md-4 col-lg-3 col-sm-6 mb-4';
+            
+            const cardColor = dayData.color;
+            const textColor = getTextColor(cardColor);
+            
+            let weatherHtml = '';
+            if (includeWeather && dayData.weather) {
+                const weatherIcon = getWeatherIcon(dayData.weather.conditions);
+                weatherHtml = `
+                    <div class="weather-info my-2">
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <i class="fas ${weatherIcon} me-2"></i>
+                            <span>${dayData.weather.conditions}</span>
+                        </div>
+                        <div class="d-flex justify-content-around small">
+                            <span><i class="fas fa-temperature-high"></i> ${dayData.weather.temp}°C</span>
+                            <span><i class="fas fa-tint"></i> ${dayData.weather.humidity}%</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Format the date for display - matching YYYY-MM-DD format
+            const dateParts = dayData.date.split('-');
+            const formattedDate = `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`;
+            
+            card.innerHTML = `
+                <div class="card h-100 border-0 shadow-sm forecast-card" style="background-color: ${cardColor}; color: ${textColor};">
+                    <div class="card-body">
+                        <h5 class="forecast-day text-center">${dayData.day_name}</h5>
+                        <div class="forecast-date text-center">${formattedDate}</div>
+                        
+                        <div class="aqi-display mt-4">
+                            <div class="aqi-value">${dayData.aqi}</div>
+                            <div class="aqi-category">${dayData.category}</div>
+                        </div>
+                        ${weatherHtml}
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Function to fetch and display forecast
+        function fetchForecast() {
+            const city = citySearch.value.split(',')[0].trim();
+            
+            if (!city) {
+                alert('Please enter a city name');
+                return;
+            }
+            
+            // Show loading, hide results and placeholder
+            forecastLoading.classList.remove('d-none');
+            forecastResults.classList.add('d-none');
+            forecastPlaceholder.classList.add('d-none');
+            
+            // Fetch forecast from API
+            const includeWeatherParam = includeWeather.checked;
+            fetch(`/api/forecast?city=${encodeURIComponent(city)}&include_weather=${includeWeatherParam}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hide loading, show results
+                    forecastLoading.classList.add('d-none');
+                    forecastResults.classList.remove('d-none');
+                    
+                    // Update city name and current AQI
+                    forecastCity.textContent = data.city;
+                    currentAqiBadge.textContent = `Current AQI: ${data.current_aqi}`;
+                    
+                    // Set badge color based on current AQI
+                    const aqiColor = getAQIColor(data.current_aqi);
+                    const textColor = getTextColor(aqiColor);
+                    currentAqiBadge.style.backgroundColor = aqiColor;
+                    currentAqiBadge.style.color = textColor;
+                    
+                    // Clear previous forecast cards
+                    forecastCardsContainer.innerHTML = '';
+                    
+                    // Add forecast cards
+                    data.forecast.forEach(day => {
+                        const card = createForecastCard(day, includeWeatherParam);
+                        forecastCardsContainer.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching forecast:', error);
+                    forecastLoading.classList.add('d-none');
+                    forecastPlaceholder.classList.remove('d-none');
+                    alert('Could not fetch forecast data. Please try again.');
+                });
+        }
+        
+        // Event listeners
+        forecastBtn.addEventListener('click', fetchForecast);
+        citySearch.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                fetchForecast();
+            }
+        });
+        
+        // ===== Weather Correlation Chart =====
+        let correlationChart;
+        
+        // Function to create correlation chart
+        function createCorrelationChart(data) {
+            const ctx = document.getElementById('correlationChart').getContext('2d');
+            
+            if (correlationChart) {
+                correlationChart.destroy();
+            }
+            
+            correlationChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.parameters,
+                    datasets: [
+                        {
+                            label: 'PM2.5',
+                            data: data.pm25_correlation,
+                            backgroundColor: 'rgba(192, 75, 75, 0.7)',
+                            borderColor: 'rgba(192, 75, 75, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'O3',
+                            data: data.o3_correlation,
+                            backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'NO2',
+                            data: data.no2_correlation,
+                            backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'SO2',
+                            data: data.so2_correlation,
+                            backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'CO',
+                            data: data.co_correlation,
+                            backgroundColor: 'rgba(75, 75, 192, 0.7)',
+                            borderColor: 'rgba(75, 75, 192, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: -1,
+                            max: 1,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1);
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Correlation Coefficient',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Weather Parameter',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.raw.toFixed(2);
+                                    const correlation = value > 0 ? 'Positive' : value < 0 ? 'Negative' : 'No';
+                                    const strength = Math.abs(value) > 0.7 ? 'Strong' : Math.abs(value) > 0.3 ? 'Moderate' : 'Weak';
+                                    return `${label}: ${value} (${strength} ${correlation} Correlation)`;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    onClick: function(e, elements) {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const parameter = data.parameters[index];
+                            const explanation = data.explanations[index];
+                            
+                            document.getElementById('explanation-text').innerHTML = `
+                                <h5 class="mb-2">${parameter} Impact:</h5>
+                                <p>${explanation}</p>
+                            `;
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Function to populate seasonal patterns
+        function populateSeasonalPatterns(data) {
+            // For each season tab
+            Object.keys(data).forEach(season => {
+                // Get the season's tab content
+                const seasonTab = document.getElementById(season);
+                const seasonDescription = seasonTab.querySelector('.season-description');
+                const pollutantTrends = seasonTab.querySelector('.pollutant-trends');
+                
+                // Add description
+                seasonDescription.innerHTML = `<p>${data[season].description}</p>`;
+                
+                // Add pollutant trends
+                pollutantTrends.innerHTML = '';
+                Object.entries(data[season].pollutants).forEach(([pollutant, description]) => {
+                    const pollutantCard = document.createElement('div');
+                    pollutantCard.className = 'pollutant-card mb-2 p-2 rounded';
+                    
+                    let pollutantName;
+                    let pollutantIcon;
+                    
+                    switch(pollutant) {
+                        case 'pm25':
+                            pollutantName = 'PM2.5';
+                            pollutantIcon = 'fa-dust';
+                            break;
+                        case 'o3':
+                            pollutantName = 'Ozone (O3)';
+                            pollutantIcon = 'fa-sun';
+                            break;
+                        case 'no2':
+                            pollutantName = 'Nitrogen Dioxide (NO2)';
+                            pollutantIcon = 'fa-industry';
+                            break;
+                        case 'so2':
+                            pollutantName = 'Sulfur Dioxide (SO2)';
+                            pollutantIcon = 'fa-smog';
+                            break;
+                        case 'co':
+                            pollutantName = 'Carbon Monoxide (CO)';
+                            pollutantIcon = 'fa-car';
+                            break;
+                        default:
+                            pollutantName = pollutant.toUpperCase();
+                            pollutantIcon = 'fa-atom';
+                    }
+                    
+                    pollutantCard.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <div class="pollutant-icon me-2">
+                                <i class="fas ${pollutantIcon}"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">${pollutantName}</div>
+                                <div class="small">${description}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    pollutantTrends.appendChild(pollutantCard);
+                });
+            });
+        }
+        
+        // Function to load and create seasonal forecast tabs and content
+        function loadSeasonalForecast() {
+            const seasonalLoading = document.getElementById('seasonal-loading');
+            const seasonalResults = document.getElementById('seasonal-results');
+            const seasonsTab = document.getElementById('seasons-tab');
+            const seasonsContent = document.getElementById('seasons-content');
+            
+            // Show loading, hide results
+            seasonalLoading.classList.remove('d-none');
+            seasonalResults.classList.add('d-none');
+            
+            // Fetch seasonal forecast data
+            fetch('/api/seasonal-forecast')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hide loading, show results
+                    seasonalLoading.classList.add('d-none');
+                    seasonalResults.classList.remove('d-none');
+                    
+                    // Clear previous content
+                    seasonsTab.innerHTML = '';
+                    seasonsContent.innerHTML = '';
+                    
+                    // Add tabs and content for each season
+                    data.forecasts.forEach((season, index) => {
+                        const isActive = index === 0;
+                        const seasonName = season.season.charAt(0).toUpperCase() + season.season.slice(1);
+                        
+                        // Create tab
+                        const tab = document.createElement('button');
+                        tab.className = `nav-link ${isActive ? 'active' : ''}`;
+                        tab.id = `tab-${season.season}`;
+                        tab.setAttribute('data-bs-toggle', 'pill');
+                        tab.setAttribute('data-bs-target', `#content-${season.season}`);
+                        tab.setAttribute('type', 'button');
+                        tab.setAttribute('role', 'tab');
+                        tab.setAttribute('aria-controls', `content-${season.season}`);
+                        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                        tab.innerHTML = `
+                            <i class="fas ${getSeasonIcon(season.season)} me-2"></i> ${seasonName}
+                        `;
+                        seasonsTab.appendChild(tab);
+                        
+                        // Create content
+                        const content = document.createElement('div');
+                        content.className = `tab-pane fade ${isActive ? 'show active' : ''}`;
+                        content.id = `content-${season.season}`;
+                        content.setAttribute('role', 'tabpanel');
+                        content.setAttribute('aria-labelledby', `tab-${season.season}`);
+                        
+                        // Create location type cards
+                        const locationCards = document.createElement('div');
+                        locationCards.className = 'row';
+                        
+                        Object.entries(season.locations).forEach(([locationType, locationData]) => {
+                            const card = document.createElement('div');
+                            card.className = 'col-md-4 mb-4';
+                            
+                            const bgColor = locationData.color;
+                            const textColor = getTextColor(bgColor);
+                            
+                            card.innerHTML = `
+                                <div class="card h-100 border-0 shadow rounded-4" style="background-color: ${bgColor}; color: ${textColor};">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-3">${capitalizeWords(locationType)} Areas</h5>
+                                        <div class="aqi-display mb-3">
+                                            <div class="aqi-value display-5 fw-bold mb-2">${locationData.aqi}</div>
+                                            <div class="aqi-category mb-2">${locationData.category}</div>
+                                            <div class="small">Predominant: ${getPollutantName(locationData.predominant_pollutant)}</div>
+                                        </div>
+                                        <h6 class="mt-3 mb-2">Pollutant Levels:</h6>
+                                        <div class="d-flex justify-content-between small">
+                                            <span>PM2.5: ${locationData.pollutant_levels.pm25} µg/m³</span>
+                                            <span>O3: ${locationData.pollutant_levels.o3} ppb</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between small">
+                                            <span>NO2: ${locationData.pollutant_levels.no2} ppb</span>
+                                            <span>SO2: ${locationData.pollutant_levels.so2} ppb</span>
+                                        </div>
+                                        <div class="small mt-1">
+                                            <span>CO: ${locationData.pollutant_levels.co} ppm</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            locationCards.appendChild(card);
+                        });
+                        
+                        content.appendChild(locationCards);
+                        seasonsContent.appendChild(content);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching seasonal forecast:', error);
+                    seasonalLoading.classList.add('d-none');
+                    alert('Could not fetch seasonal forecast data. Please try again.');
+                });
+        }
+        
+        // Helper functions
+        function getSeasonIcon(season) {
+            switch(season) {
+                case 'winter': return 'fa-snowflake';
+                case 'spring': return 'fa-seedling';
+                case 'summer': return 'fa-sun';
+                case 'fall': return 'fa-leaf';
+                default: return 'fa-calendar';
+            }
+        }
+        
+        function capitalizeWords(str) {
+            return str.replace(/\b\w/g, l => l.toUpperCase());
+        }
+        
+        function getPollutantName(pollutant) {
+            switch(pollutant) {
+                case 'pm25': return 'PM2.5';
+                case 'o3': return 'Ozone';
+                case 'no2': return 'NO2';
+                case 'so2': return 'SO2';
+                case 'co': return 'CO';
+                default: return pollutant.toUpperCase();
+            }
+        }
+        
+        // Load weather correlation data
+        fetch('/api/weather-correlation')
+            .then(response => response.json())
+            .then(data => {
+                createCorrelationChart(data.correlations);
+                populateSeasonalPatterns(data.seasonal_patterns);
+            })
+            .catch(error => {
+                console.error('Error fetching weather correlation data:', error);
+            });
+            
+        // Load seasonal forecast data
+        loadSeasonalForecast();
+    });
+</script>
+{% endblock %}

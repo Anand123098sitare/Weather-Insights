@@ -1,0 +1,70 @@
+
+{% extends "layout.html" %}
+
+{% block title %}India AQI Heatmap{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>India Air Quality Index Heatmap</h2>
+    <div class="card">
+        <div class="card-body">
+            <div id="india-heatmap" style="height: 800px;"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize map centered on India
+    const map = L.map('india-heatmap').setView([20.5937, 78.9629], 5);
+    
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Fetch heatmap data
+    fetch('/api/heatmap-data')
+        .then(response => response.json())
+        .then(data => {
+            // Geocode cities and create heatmap
+            const geocoder = new google.maps.Geocoder();
+            const heatmapData = [];
+            
+            // Process each city
+            let processed = 0;
+            data.forEach(item => {
+                const address = `${item.city}, ${item.state}, India`;
+                geocoder.geocode({ address: address }, (results, status) => {
+                    if (status === 'OK' && results[0]) {
+                        const lat = results[0].geometry.location.lat();
+                        const lng = results[0].geometry.location.lng();
+                        heatmapData.push([lat, lng, item.value]);
+                    }
+                    processed++;
+                    
+                    // When all cities are processed, create heatmap
+                    if (processed === data.length) {
+                        L.heatLayer(heatmapData, {
+                            radius: 25,
+                            blur: 15,
+                            maxZoom: 10,
+                            gradient: {
+                                0.4: 'blue',
+                                0.6: 'lime',
+                                0.7: 'yellow',
+                                0.8: 'orange',
+                                0.9: 'red'
+                            }
+                        }).addTo(map);
+                    }
+                });
+            });
+        });
+});
+</script>
+{% endblock %}

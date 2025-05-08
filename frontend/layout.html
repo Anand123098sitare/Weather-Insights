@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Weather Insights{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('serve_frontend', path='static/css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('serve_frontend', path='static/css/colorful-mode.css') }}">
+    <link rel="stylesheet" href="{{ url_for('serve_frontend', path='static/css/real-time-enhanced.css') }}">
+    <link rel="stylesheet" href="{{ url_for('serve_frontend', path='static/css/travel_forecast.css') }}">
+    
+    {% block head_extra %}{% endblock %}
+    
+    <!-- Google Analytics tracking -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Configure your Google Analytics property
+        gtag('config', 'G-MEASUREMENT_ID', {
+            'custom_map': {
+                'dimension1': 'device_type'
+            }
+        });
+        
+        // Detect if user is on mobile or desktop
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        gtag('event', 'device_view', {
+            'device_type': isMobile ? 'mobile' : 'desktop'
+        });
+        
+        // Track analytics data
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create analytics display element for the homepage
+            const displayAnalytics = function() {
+                if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                    const analyticsContainer = document.createElement('div');
+                    analyticsContainer.className = 'analytics-display';
+                    analyticsContainer.innerHTML = `
+                        <h3><i class="fas fa-chart-line"></i> Visitor Analytics</h3>
+                        
+                        <div class="analytics-tabs">
+                            <button class="tab-btn active" data-tab="device">Device Type</button>
+                            <button class="tab-btn" data-tab="daily">Daily Visitors</button>
+                            <button class="tab-btn" data-tab="monthly">Monthly Trends</button>
+                        </div>
+                        
+                        <div class="analytics-content">
+                            <div class="tab-content active" id="device-tab">
+                                <div class="device-stats">
+                                    <div class="device-stat desktop">
+                                        <i class="fas fa-desktop"></i>
+                                        <span class="stat-label">Desktop</span>
+                                        <div class="stat-bar">
+                                            <div class="stat-value" style="width: 75%">75%</div>
+                                        </div>
+                                    </div>
+                                    <div class="device-stat mobile">
+                                        <i class="fas fa-mobile-alt"></i>
+                                        <span class="stat-label">Mobile</span>
+                                        <div class="stat-bar">
+                                            <div class="stat-value" style="width: 25%">25%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-content" id="daily-tab">
+                                <div class="daily-chart-container">
+                                    <canvas id="daily-visitors-chart"></canvas>
+                                </div>
+                                <div class="analytics-highlights">
+                                    <div class="highlight-item">
+                                        <span class="highlight-value">12</span>
+                                        <span class="highlight-label">Today's Visitors</span>
+                                    </div>
+                                    <div class="highlight-item">
+                                        <span class="highlight-value">+33%</span>
+                                        <span class="highlight-label">vs. Yesterday</span>
+                                    </div>
+                                    <div class="highlight-item">
+                                        <span class="highlight-value">7</span>
+                                        <span class="highlight-label">Average/Day</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-content" id="monthly-tab">
+                                <div class="monthly-chart-container">
+                                    <canvas id="monthly-visitors-chart"></canvas>
+                                </div>
+                                <div class="analytics-highlights">
+                                    <div class="highlight-item">
+                                        <span class="highlight-value">46</span>
+                                        <span class="highlight-label">This Month</span>
+                                    </div>
+                                    <div class="highlight-item">
+                                        <span class="highlight-value">+119%</span>
+                                        <span class="highlight-label">vs. Last Month</span>
+                                    </div>
+                                    <div class="highlight-item">
+                                        <span class="highlight-value">11</span>
+                                        <span class="highlight-label">Monthly Average</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p class="analytics-note">Initial visitor statistics for your new application</p>
+                    `;
+                    
+                    // Find the right place to insert analytics
+                    const mainContent = document.querySelector('.container .row');
+                    if (mainContent) {
+                        mainContent.prepend(analyticsContainer);
+                    }
+                }
+            };
+            
+            // Add a small delay to ensure the DOM is fully loaded
+            setTimeout(displayAnalytics, 500);
+            
+            // Initialize tab functionality after analytics are displayed
+            setTimeout(function() {
+                const tabBtns = document.querySelectorAll('.tab-btn');
+                if (tabBtns.length > 0) {
+                    tabBtns.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            // Remove active class from all buttons and contents
+                            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                            
+                            // Add active class to clicked button
+                            this.classList.add('active');
+                            
+                            // Show corresponding content
+                            const tabName = this.getAttribute('data-tab');
+                            document.getElementById(tabName + '-tab').classList.add('active');
+                            
+                            // Initialize charts if tab is chart-related
+                            if (tabName === 'daily') {
+                                initDailyChart();
+                            } else if (tabName === 'monthly') {
+                                initMonthlyChart();
+                            }
+                        });
+                    });
+                    
+                    // Initialize the charts for the first time
+                    initCharts();
+                }
+            }, 1000);
+            
+            // Initialize both charts
+            function initCharts() {
+                initDailyChart();
+                initMonthlyChart();
+            }
+            
+            // Initialize daily visitors chart
+            function initDailyChart() {
+                const canvas = document.getElementById('daily-visitors-chart');
+                if (!canvas) return;
+                
+                // If chart already exists, destroy it before re-creating
+                if (canvas.chart) {
+                    canvas.chart.destroy();
+                }
+                
+                // Generate the last 7 days labels
+                const labels = [];
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+                }
+                
+                // Generate realistic data for a new application
+                const data = [3, 5, 6, 4, 7, 9, 12];
+                
+                // Create chart
+                canvas.chart = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Daily Visitors',
+                            data: data,
+                            fill: {
+                                target: 'origin',
+                                above: 'rgba(52, 152, 219, 0.1)'
+                            },
+                            borderColor: '#3498db',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#2980b9',
+                            pointBorderColor: '#fff',
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: '#2c3e50',
+                                titleColor: '#ecf0f1',
+                                bodyColor: '#ecf0f1',
+                                displayColors: false,
+                                caretSize: 8,
+                                cornerRadius: 8
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Initialize monthly visitors chart
+            function initMonthlyChart() {
+                const canvas = document.getElementById('monthly-visitors-chart');
+                if (!canvas) return;
+                
+                // If chart already exists, destroy it before re-creating
+                if (canvas.chart) {
+                    canvas.chart.destroy();
+                }
+                
+                // Generate the last 6 months labels
+                const labels = [];
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const currentMonth = new Date().getMonth();
+                
+                for (let i = 5; i >= 0; i--) {
+                    let monthIndex = currentMonth - i;
+                    if (monthIndex < 0) monthIndex += 12;
+                    labels.push(monthNames[monthIndex]);
+                }
+                
+                // Generate realistic data for a new application
+                const data = [0, 0, 0, 0, 21, 46];
+                
+                // Create chart
+                canvas.chart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Monthly Visitors',
+                            data: data,
+                            backgroundColor: function(context) {
+                                const chart = context.chart;
+                                const {ctx, chartArea} = chart;
+                                if (!chartArea) {
+                                    return 'rgba(52, 152, 219, 0.7)';
+                                }
+                                const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                                gradient.addColorStop(0, 'rgba(52, 152, 219, 0.7)');
+                                gradient.addColorStop(1, 'rgba(41, 128, 185, 0.9)');
+                                return gradient;
+                            },
+                            borderRadius: 5,
+                            borderColor: 'rgba(52, 152, 219, 0)',
+                            borderWidth: 1,
+                            hoverBackgroundColor: function(context) {
+                                const chart = context.chart;
+                                const {ctx, chartArea} = chart;
+                                if (!chartArea) {
+                                    return 'rgba(41, 128, 185, 0.9)';
+                                }
+                                const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                                gradient.addColorStop(0, 'rgba(41, 128, 185, 0.9)');
+                                gradient.addColorStop(1, 'rgba(31, 97, 141, 1)');
+                                return gradient;
+                            }
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: '#2c3e50',
+                                titleColor: '#ecf0f1',
+                                bodyColor: '#ecf0f1',
+                                displayColors: false,
+                                caretSize: 8,
+                                cornerRadius: 8
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+    
+    <style>
+        /* Analytics display styles */
+        .analytics-display {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.15));
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .analytics-display h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .analytics-display h3 i {
+            color: #3498db;
+        }
+        
+        .device-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .device-stat {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .device-stat i {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            color: #7f8c8d;
+            width: 25px;
+            text-align: center;
+        }
+        
+        .desktop i {
+            color: #3498db;
+        }
+        
+        .mobile i {
+            color: #e74c3c;
+        }
+        
+        .stat-label {
+            width: 80px;
+            font-weight: 500;
+            color: #34495e;
+        }
+        
+        .stat-bar {
+            flex: 1;
+            height: 12px;
+            background-color: rgba(236, 240, 241, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-left: 10px;
+        }
+        
+        .stat-value {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+            color: white;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .mobile .stat-value {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+        }
+        
+        .analytics-note {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        /* Analytics tabs */
+        .analytics-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(52, 152, 219, 0.2);
+            padding-bottom: 10px;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 8px 15px;
+            margin-right: 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .tab-btn:hover {
+            color: #3498db;
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        /* Tab content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Chart containers */
+        .daily-chart-container,
+        .monthly-chart-container {
+            height: 200px;
+            margin-bottom: 15px;
+        }
+        
+        /* Analytics highlights */
+        .analytics-highlights {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .highlight-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .highlight-value {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .highlight-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    
+        :root {
+            --primary-color: #3a7bd5;
+            --secondary-color: #00d2ff;
+            --accent-color: #FF5D9E;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            overflow-x: hidden;
+        }
+        
+        /* Colorful Navbar */
+        .navbar-colorful {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            padding: 15px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-colorful .navbar-brand {
+            font-weight: 700;
+            color: white;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-colorful .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            margin: 0 5px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-colorful .nav-link:hover, 
+        .navbar-colorful .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Animated Brand Logo */
+        .navbar-brand i {
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Hero Section */
+        .hero {
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(58, 123, 213, 0.8), rgba(0, 210, 255, 0.8));
+            z-index: 1;
+        }
+        
+        .hero .container {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Dashboard Cards */
+        .dashboard-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dashboard-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(58, 123, 213, 0.05), rgba(0, 210, 255, 0.05));
+            border-radius: 0 0 0 100%;
+            z-index: 1;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 0 20px 5px rgba(0, 255, 255, 0.1);
+        }
+        
+        .dashboard-card h2, .dashboard-card h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .dashboard-card h2 i, .dashboard-card h3 i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Animated Tables */
+        .animated-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+        
+        .animated-table thead {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .animated-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .animated-table th:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .animated-table th:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .animated-table td {
+            padding: 15px;
+            font-size: 14px;
+            vertical-align: middle;
+            background-color: white;
+            border: none;
+            position: relative;
+        }
+        
+        .animated-table tr td:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .animated-table tr td:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .animated-table tbody tr {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+        
+        .animated-table tbody tr:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1), 0 0 20px 5px rgba(0, 255, 255, 0.5);
+            z-index: 1;
+            position: relative;
+        }
+        
+        .table-row-animated {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Colorful Footer */
+        .footer-colorful {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer-colorful::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.05)"/></svg>');
+            background-size: 100% 100%;
+        }
+        
+        .footer-colorful h5 {
+            font-weight: 600;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .footer-colorful h5::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .footer-colorful ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-colorful a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .footer-colorful a:hover {
+            color: white;
+            text-decoration: none;
+            transform: translateX(5px);
+        }
+        
+        .footer-colorful input.form-control {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            border-radius: 5px 0 0 5px;
+        }
+        
+        .footer-colorful input.form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .footer-colorful .btn-subscribe {
+            background-color: white;
+            color: var(--primary-color);
+            font-weight: 600;
+            border-radius: 0 5px 5px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-colorful .btn-subscribe:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            margin-top: 30px;
+        }
+        
+        /* Social Icons */
+        .social-icons a {
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icons a:hover {
+            transform: translateY(-3px);
+            background-color: white;
+            color: var(--primary-color);
+        }
+        
+        /* AQI Value Styling */
+        .aqi-value {
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+        
+        .aqi-good-bg {
+            background-color: rgba(0, 153, 102, 0.2);
+            color: #009966;
+        }
+        
+        .aqi-moderate-bg {
+            background-color: rgba(255, 222, 51, 0.2);
+            color: #9d9400;
+        }
+        
+        .aqi-sensitive-bg {
+            background-color: rgba(255, 153, 51, 0.2);
+            color: #ff9933;
+        }
+        
+        .aqi-unhealthy-bg {
+            background-color: rgba(204, 0, 51, 0.2);
+            color: #cc0033;
+        }
+        
+        .aqi-very-unhealthy-bg {
+            background-color: rgba(102, 0, 153, 0.2);
+            color: #660099;
+        }
+        
+        .aqi-hazardous-bg {
+            background-color: rgba(126, 0, 35, 0.2);
+            color: #7e0023;
+        }
+        
+        /* Animated Info Cards */
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 0 20px 5px rgba(0, 255, 255, 0.2);
+        }
+        
+        .info-card-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .info-card-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+        
+        .info-card-title {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .info-card-body {
+            padding: 20px;
+            flex-grow: 1;
+        }
+        
+        .info-card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: baseline;
+        }
+        
+        .info-card-value span {
+            font-size: 1rem;
+            opacity: 0.7;
+            margin-left: 5px;
+        }
+        
+        .info-card-footer {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        /* Animated AQI Display */
+        .aqi-display-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .aqi-display-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15), 0 0 20px 5px rgba(0, 255, 255, 0.2);
+        }
+        
+        .aqi-display-container.aqi-good {
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+            color: white;
+        }
+        
+        .aqi-display-container.aqi-moderate {
+            background: linear-gradient(135deg, #ffee58, #fbc02d);
+            color: #333;
+        }
+        
+        .aqi-display-container.aqi-unhealthy-for-sensitive-groups {
+            background: linear-gradient(135deg, #ffa726, #fb8c00);
+            color: white;
+        }
+        
+        .aqi-display-container.aqi-unhealthy {
+            background: linear-gradient(135deg, #ef5350, #e53935);
+            color: white;
+        }
+        
+        .aqi-display-container.aqi-very-unhealthy {
+            background: linear-gradient(135deg, #ab47bc, #8e24aa);
+            color: white;
+        }
+        
+        .aqi-display-container.aqi-hazardous {
+            background: linear-gradient(135deg, #b71c1c, #7f0000);
+            color: white;
+        }
+        
+        .aqi-main-value {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+            margin: 15px 0;
+        }
+        
+        .aqi-category {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .aqi-details {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 25px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .aqi-detail-item {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .aqi-detail-item small {
+            display: block;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .aqi-detail-item h4 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .weather-info {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-colorful {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 10px 25px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-colorful:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            color: white;
+        }
+        
+        .btn-colorful-outline {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 500;
+            padding: 10px 25px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-colorful-outline:hover {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Custom animations */
+        .slide-in-right {
+            animation: slideInRight 0.5s both;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.5s both;
+        }
+        
+        /* Page transition effect */
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            z-index: 9999;
+            transform: translateY(100%);
+            transition: transform 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body data-page="{% block page_id %}{% endblock %}">
+    <!-- Header styled like IQAir -->
+    <header class="header">
+        <!-- Top navigation bar with logo and main menu -->
+        <nav class="navbar navbar-expand-lg iqair-navbar">
+            <div class="container">
+                <!-- Logo -->
+                <a class="navbar-brand" href="{{ url_for('index') }}">
+                    <i class="fas fa-cloud-sun"></i> Weather Insights
+                </a>
+                
+                <!-- Mobile toggle -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <!-- Main navigation menu -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {% if request.path == url_for('interactive_map_page') or request.path == url_for('most_polluted_page') or request.path == url_for('web_scraper_page') %}active{% endif %}" href="#" id="airQualityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Air Quality
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="airQualityDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('interactive_map_page') }}">Air Quality Map</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('most_polluted_page') }}">Major Cities Ranking</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('web_scraper_page') }}"><i class="fas fa-spider me-2"></i>Web Scraper</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {% if request.path == url_for('impact_analysis_page') or request.path == url_for('health_alerts_page') %}active{% endif %}" href="#" id="healthDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Health
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="healthDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('impact_analysis_page') }}">Health Impact</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('health_alerts_page') }}">
+                                    <i class="fas fa-heartbeat text-danger me-2"></i> Health Alerts
+                                    <span class="badge bg-danger ms-1" style="font-size: 0.65rem;">New!</span>
+                                </a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_for('weather_analysis_page') %}active{% endif %}" href="{{ url_for('weather_analysis_page') }}">
+                                <i class="fas fa-cloud-sun me-1"></i> Weather Analysis
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_for('forecasting_page') %}active{% endif %}" href="{{ url_for('forecasting_page') }}">
+                                Forecasting
+                            </a>
+                        </li>
+                        
+                        <!-- Travel forecast removed as requested -->
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_for('smart_notifications_page') %}active{% endif %}" href="{{ url_for('smart_notifications_page') }}">
+                                <i class="fas fa-bell me-1"></i> Smart Notifications
+                                <span class="badge bg-danger ms-1" style="font-size: 0.65rem;">New!</span>
+                            </a>
+                        </li>
+                        
+                        <!-- Agriculture page removed as requested -->
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_for('cities_comparison_page') %}active{% endif %}" href="{{ url_for('cities_comparison_page') }}">
+                                City Comparison
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <!-- Right side of navbar -->
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link btn-search" href="#" id="searchButton">
+                                <i class="fas fa-search"></i>
+                            </a>
+                        </li>
+                        {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle"></i> {{ current_user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link btn-outline-primary nav-btn me-2" href="{{ url_for('login') }}">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn-primary nav-btn" href="{{ url_for('register') }}">
+                                <i class="fas fa-user-plus"></i> Sign Up
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Search overlay -->
+        <div id="searchOverlay" class="search-overlay">
+            <div class="search-container">
+                <form action="{{ url_for('cities_comparison_page') }}" method="get">
+                    <div class="search-input-group">
+                        <input type="text" name="city" placeholder="Search for a city..." class="search-input">
+                        <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                </form>
+                <button class="close-search"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-colorful">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4" data-aos="fade-right">
+                    <h5><i class="fas fa-cloud-sun me-2"></i> Weather Insights</h5>
+                    <p>Providing personalized weather insights to help you make better daily decisions. Stay informed about the weather that impacts your life.</p>
+                    <div class="social-icons mt-4">
+                        <a href="#" class="me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2" data-aos="fade-up" data-aos-delay="100">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('index') }}"><i class="fas fa-chevron-right me-1"></i> Home</a></li>
+                        <li><a href="{{ url_for('interactive_map_page') }}"><i class="fas fa-chevron-right me-1"></i> Interactive Map</a></li>
+                        <!-- Historical page removed as requested -->
+                        <li><a href="{{ url_for('impact_analysis_page') }}"><i class="fas fa-chevron-right me-1"></i> Health Impact</a></li>
+                        <li><a href="{{ url_for('health_alerts_page') }}"><i class="fas fa-chevron-right me-1"></i> Health Alerts</a></li>
+                        <li><a href="{{ url_for('smart_notifications_page') }}"><i class="fas fa-chevron-right me-1"></i> Smart Notifications</a></li>
+                        <li><a href="{{ url_for('most_polluted_page') }}"><i class="fas fa-chevron-right me-1"></i> Major Cities</a></li>
+                        <li><a href="{{ url_for('weather_analysis_page') }}"><i class="fas fa-chevron-right me-1"></i> Weather Analysis</a></li>
+
+                        <li><a href="{{ url_for('web_scraper_page') }}"><i class="fas fa-chevron-right me-1"></i> Web Scraper</a></li>
+                        <li><a href="{{ url_for('about_page') }}"><i class="fas fa-chevron-right me-1"></i> About</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2" data-aos="fade-up" data-aos-delay="200">
+                    <h5>Resources</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#"><i class="fas fa-chevron-right me-1"></i> AQI Basics</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right me-1"></i> Health Effects</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right me-1"></i> Air Pollution</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right me-1"></i> Data Sources</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right me-1"></i> FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4" data-aos="fade-left" data-aos-delay="300">
+                    <h5>Stay Updated</h5>
+                    <p>Get the latest weather insights and alerts for your area delivered directly to your inbox.</p>
+                    <form class="mt-3">
+                        <div class="input-group mb-3">
+                            <input type="email" class="form-control" placeholder="Your email">
+                            <button class="btn btn-subscribe" type="button">Subscribe</button>
+                        </div>
+                    </form>
+                    <p class="mt-3">
+                        <small>Last Updated: <span id="last-updated">May 3, 2025</span></small>
+                    </p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>&copy; 2025 Weather Insights. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="https://www.iqair.com" target="_blank" class="me-3">IQAir</a>
+                        <a href="https://www.aqi.in" target="_blank">AQI.in</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+    <!-- AOS library for animations -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('serve_frontend', path='static/js/charts.js') }}"></script>
+    <script src="{{ url_for('serve_frontend', path='static/js/map.js') }}"></script>
+    <script src="{{ url_for('serve_frontend', path='static/js/colorful-theme.js') }}"></script>
+    <script src="{{ url_for('serve_frontend', path='static/js/main.js') }}"></script>
+
+    <script>
+        // Initialize AOS animations
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true,
+                mirror: false
+            });
+            
+            // Add active class to current nav item
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Page transition effect for internal links
+            const links = document.querySelectorAll('a:not([target="_blank"]):not([href^="#"]):not([href^="javascript"])');
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (this.hostname === window.location.hostname) {
+                        e.preventDefault();
+                        const href = this.getAttribute('href');
+                        
+                        // Create transition overlay
+                        const overlay = document.createElement('div');
+                        overlay.className = 'page-transition';
+                        document.body.appendChild(overlay);
+                        
+                        // Trigger transition
+                        setTimeout(() => {
+                            overlay.style.transform = 'translateY(0)';
+                        }, 10);
+                        
+                        // Navigate after transition
+                        setTimeout(() => {
+                            window.location.href = href;
+                        }, 500);
+                    }
+                });
+            });
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+    
+    <!-- Colorful Theme Toggle Button -->
+    <button id="colorful-theme-toggle" class="theme-toggle-button" title="Toggle Colorful Mode">
+        <i class="fas fa-palette"></i>
+    </button>
+    
+    <!-- Search overlay control script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchButton = document.getElementById('searchButton');
+            const searchOverlay = document.getElementById('searchOverlay');
+            const closeSearchButton = document.querySelector('.close-search');
+            
+            if (searchButton && searchOverlay) {
+                // Open search overlay
+                searchButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    searchOverlay.classList.add('active');
+                    setTimeout(() => {
+                        document.querySelector('.search-input').focus();
+                    }, 100);
+                });
+                
+                // Close search overlay
+                closeSearchButton.addEventListener('click', function() {
+                    searchOverlay.classList.remove('active');
+                });
+                
+                // Close on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && searchOverlay.classList.contains('active')) {
+                        searchOverlay.classList.remove('active');
+                    }
+                });
+                
+                // Close if clicked outside search container
+                searchOverlay.addEventListener('click', function(e) {
+                    if (e.target === searchOverlay) {
+                        searchOverlay.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Colorful Mode Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const colorfulToggle = document.getElementById('colorful-theme-toggle');
+            const body = document.body;
+            
+            // Check if user has previously set a preference
+            const colorfulMode = localStorage.getItem('colorful-mode') === 'true';
+            
+            // Apply saved preference
+            if (colorfulMode) {
+                body.classList.add('colorful-mode');
+                colorfulToggle.querySelector('i').classList.remove('fa-palette');
+                colorfulToggle.querySelector('i').classList.add('fa-sun');
+                
+                // Add data-text attribute to headings for colorful mode effects
+                document.querySelectorAll('h1, h2, h3').forEach(heading => {
+                    if (!heading.hasAttribute('data-text')) {
+                        heading.setAttribute('data-text', heading.textContent);
+                    }
+                });
+            }
+            
+            // Toggle colorful mode
+            colorfulToggle.addEventListener('click', function() {
+                body.classList.toggle('colorful-mode');
+                const isColorful = body.classList.contains('colorful-mode');
+                
+                // Save preference
+                localStorage.setItem('colorful-mode', isColorful);
+                
+                // Change icon
+                if (isColorful) {
+                    colorfulToggle.querySelector('i').classList.remove('fa-palette');
+                    colorfulToggle.querySelector('i').classList.add('fa-sun');
+                    
+                    // Add data-text attribute to headings for colorful mode effects
+                    document.querySelectorAll('h1, h2, h3').forEach(heading => {
+                        if (!heading.hasAttribute('data-text')) {
+                            heading.setAttribute('data-text', heading.textContent);
+                        }
+                    });
+                } else {
+                    colorfulToggle.querySelector('i').classList.remove('fa-sun');
+                    colorfulToggle.querySelector('i').classList.add('fa-palette');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
